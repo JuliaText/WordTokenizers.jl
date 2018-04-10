@@ -1,5 +1,9 @@
-using WordTokenisers
+using WordTokenizers
 using Base.Test
 
 # write your own tests here
-@test 1 == 2
+files = ["simple"]
+
+@testset "$file" for file in files
+    include(file * ".jl")
+end
