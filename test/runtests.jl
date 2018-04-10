@@ -2,7 +2,9 @@ using WordTokenizers
 using Base.Test
 
 # write your own tests here
-files = ["simple"]
+files = ["simple",
+         "penn"
+        ]
 
 @testset "$file" for file in files
     include(file * ".jl")
