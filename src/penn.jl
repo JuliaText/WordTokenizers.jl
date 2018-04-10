@@ -57,10 +57,28 @@ You can generate a new tokenizer using:
     generate_tokenizer_from_sed(joinpath(@__DIR__, "custom.sed"))
 end
 ```
-
-
-# expected input: 1 sentence, raw text
 """
 @generated function penn_tokenize(input::AbstractString)
     generate_tokenizer_from_sed(joinpath(@__DIR__, "penn.sed"))
+end
+
+
+
+"""
+    improved_penn_tokenize(input::AbstractString)
+
+This is a port of NLTK's modified Penn Tokeniser.
+The only difference to the original is how it handles punctuation.
+Punctuation is preserved as its own token.
+This includes periods which will be stripped from words.
+
+The tokeniser still seperates out contractions:
+"shouldn't" becomes ["should", "n't"]
+
+The input should be a single sentence;
+but again it will likely be relatively fine if it isn't.
+Depends exactly what you want it for.
+"""
+@generated function improved_penn_tokenize(input::AbstractString)
+    generate_tokenizer_from_sed(joinpath(@__DIR__, "improved_penn.sed"))
 end
