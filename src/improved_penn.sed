@@ -1,6 +1,6 @@
 #!/bin/sed -f
 # This is the penn.sed incorperating NTLK's modifications
-# from https://github.com/oxinabox/nltk/blob/6d6b2794dfc660877996c6837a0dc5c5a7ef97ef/nltk/tokenize/treebank.py
+# from https://github.com/nltk/nltk/blob/326f3ceb38eb103bec8158cbdc18d931a548f0ad/nltk/tokenize/treebank.py
 # Basically it does not destroy punctuation
 
 
@@ -15,11 +15,12 @@
 # no warrantee, free use, etc. from the GNU General Public License.  If you
 # want to be picky, assume that all of its terms apply.  Okay?
 
+# Openning quotes
 # attempt to get correct directional quotes
 # NLTK changes here
 s=^"=``=g
-s=(``)= \1=g
-s=\([ ([{<]\)"=\1 `` =g
+s=(``)= \1 =g
+# TODO follow up https://github.com/nltk/nltk/pull/2002
 s=([ (\[{<])(\"|\'{2})=\1 `` =g
 # close quotes handled at end
 
@@ -57,18 +58,31 @@ s=([^' ])('[sS]|'[mM]|'[dD]|') =\1 \2 =g
 s=([^' ])('ll|'LL|'re|'RE|'ve|'VE|n't|N'T) =\1 \2 =g
 
 
-s= \([Cc]\)annot = \1an not =g
-s= \([Dd]\)'ye = \1' ye =g
-s= \([Gg]\)imme = \1im me =g
-s= \([Gg]\)onna = \1on na =g
-s= \([Gg]\)otta = \1ot ta =g
-s= \([Ll]\)emme = \1em me =g
-s= \([Mm]\)ore'n = \1ore 'n =g
-s= '\([Tt]\)is = '\1 is =g
-s= '\([Tt]\)was = '\1 was =g
-s= \([Ww]\)anna = \1an na =g
-# s= \([Ww]\)haddya = \1ha dd ya =g
-# s= \([Ww]\)hatcha = \1ha t cha =g
+# NLTK Contractions
+s=(?i)\b(can)(?#X)(not)\b= \1 \2 =g
+s=(?i)\b(d)(?#X)('ye)\b= \1 \2 =g
+s=(?i)\b(gim)(?#X)(me)\b= \1 \2 =g
+s=(?i)\b(gon)(?#X)(na)\b= \1 \2 =g
+s=(?i)\b(got)(?#X)(ta)\b= \1 \2 =g
+s=(?i)\b(lem)(?#X)(me)\b= \1 \2 =g
+s=(?i)\b(mor)(?#X)('n)\b= \1 \2 =g
+s=(?i)\b(wan)(?#X)(na)\s= \1 \2 =g
+s=(?i) ('t)(?#X)(is)\b= \1 \2 =g
+s=(?i) ('t)(?#X)(was)\b= \1 \2 =g
+
+
+s= ([Cc])annot = \1an not =g
+s= ([Dd])'ye = \1' ye =g
+s= ([Gg])imme = \1im me =g
+s= ([Gg])onna = \1on na =g
+s= ([Gg])otta = \1ot ta =g
+s= ([Ll])emme = \1em me =g
+s= ([Mm])ore'n = \1ore 'n =g
+s= '([Tt])is = '\1 is =g
+s= '([Tt])was = '\1 was =g
+s= ([Ww])anna = \1an na =g
+# s= ([Ww])haddya = \1ha dd ya =g
+# s= ([Ww])hatcha = \1ha t cha =g
 
 # clean out extra spaces
 s=  *= =g

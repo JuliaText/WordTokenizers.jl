@@ -3,7 +3,7 @@ using Base.Test
 
 # write your own tests here
 files = ["simple",
-         "penn"
+         "sedbased"
         ]
 
 @testset "$file" for file in files
