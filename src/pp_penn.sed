@@ -1,7 +1,8 @@
 #!/bin/sed -f
 # This is the penn.sed incorperating NTLK's modifications
-# Which is to say not destroying punctuation
-# NLTK source is at https://github.com/oxinabox/nltk/blob/6d6b2794dfc660877996c6837a0dc5c5a7ef97ef/nltk/tokenize/treebank.py
+# from https://github.com/oxinabox/nltk/blob/6d6b2794dfc660877996c6837a0dc5c5a7ef97ef/nltk/tokenize/treebank.py
+# Basically it does not destroy punctuation
+
 
 # Sed script to produce Penn Treebank tokenization on arbitrary raw text.
 # Yeah, sure.
