@@ -2,6 +2,19 @@ using Base.Test
 using WordTokenizers
 using TestSetExtensions
 
+@testset "Targetted" begin
+    @testset "Initials" begin
+        @test length(split_sentences("It is by A. Adamson, the famous author.")) == 1
+        @test length(split_sentences("It is by Z. Zeckerson, the famous author.")) == 1
+        @test length(split_sentences("It is by Bill R. Emerson, the famous author.")) == 1
+
+        @test_broken (split_sentences("It is by Ian I. Irving, the famous author.")) == 1
+
+        @test length(split_sentences("He doesn't and nor will I. It is best this way.")) == 2
+    end
+end
+
+
 @testset "Simple" begin
     split_sentences("Never going to give you up. Never going to let you down.") ==
         ["Never going to give you up.", "Never going to let you down."]

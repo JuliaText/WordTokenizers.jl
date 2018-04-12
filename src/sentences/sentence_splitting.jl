@@ -26,7 +26,7 @@ full-text documents.
 `sentences` should be a string, with line breaks on sentence boundries.
 Returns a similar string, but more correct.
 
-Ported from
+Based on
 https://github.com/ninjin/geniass/blob/master/geniass-postproc.pl
 Which is
 (c) 2010 Sampo Pyysalo. No rights reserved, i.e. do whatever you like with this.
@@ -69,6 +69,8 @@ function postproc_splits(sentences::AbstractString)
     sentences = replace(sentences, r"\.\n([a-z]{3}[a-z-]{0,}[ \.\:\,])", s". \1")
 
 
+    # No break after an single letter other than I, which could be an initial in a name
+    sentences = replace(sentences, r"([A-HJ-Z]\.)\n", s"\1 ")
 
     # no break before CC ...
     sentences = replace(sentences, r"\n(and )", s" \1")
@@ -116,6 +118,8 @@ function postproc_splits(sentences::AbstractString)
     sentences = replace(sentences, r"(\bMr\.)\n", s"\1 ")
     sentences = replace(sentences, r"(\bMs\.)\n", s"\1 ")
     sentences = replace(sentences, r"(\bMrs\.)\n", s"\1 ")
+
+
 
 
     # possible TODO: filter excessively long / short sentences
