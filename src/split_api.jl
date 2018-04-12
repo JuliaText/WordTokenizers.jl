@@ -3,9 +3,8 @@
 export Words, Sentences
 
 const tokenizers = [poormans_tokenize, punctuation_space_tokenize,
-       penn_tokenize, improved_penn_tokenize, nltk_word_tokenize,
-       tokenize]
-const sentence_splitters = [rulebased_split_sentences, split_sentences]
+       penn_tokenize, improved_penn_tokenize, nltk_word_tokenize]
+const sentence_splitters = [rulebased_split_sentences]
 
 const Words = tokenize
 const Sentences = split_sentences
