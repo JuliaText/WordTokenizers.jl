@@ -1,5 +1,5 @@
 function rulebased_split_sentences(sentences)
-    sentences = replace(sentences, r"([?!.])\s", Base.SubstitutionString("\\0\n"))
+    sentences = replace(sentences, r"([?!.])\s", Base.SubstitutionString("\\1\n"))
 
     sentences = postproc_splits(sentences)
     split(sentences, "\n")

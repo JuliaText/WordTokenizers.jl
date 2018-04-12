@@ -2,6 +2,12 @@ using Base.Test
 using WordTokenizers
 using TestSetExtensions
 
+@testset "Simple" begin
+    split_sentences("Never going to give you up. Never going to let you down.") ==
+        ["Never going to give you up.", "Never going to let you down."]
+end
+
+
 function test_sentence_splitting(split_sentences, raw)
     sents = split(raw, "\n") # Originally 1 sentence per line
     task = join(sents, " ") # Now all one lines

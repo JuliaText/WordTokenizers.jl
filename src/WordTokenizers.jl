@@ -13,4 +13,7 @@ include("sentences/sentence_splitting.jl")
 const tokenize = nltk_word_tokenize
 const split_sentences = rulebased_split_sentences
 
+include("split_api.jl")
+
+
 end # module
