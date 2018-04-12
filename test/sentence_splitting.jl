@@ -12,6 +12,10 @@ using TestSetExtensions
 
         @test 2 == length(rulebased_split_sentences("He doesn't and nor will I. It is best this way."))
     end
+
+    @testset "period only" begin
+        @test length(rulebased_split_sentences("a good day . . Yes"))==2
+    end
 end
 
 

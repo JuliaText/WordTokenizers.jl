@@ -38,13 +38,14 @@ function postproc_splits(sentences::AbstractString)
     # Before we do anything remove windows line-ends
     sentences = replace(sentences, "\r", "")
 
+
     # breaks sometimes missing after "?", "safe" cases
-    sentences = replace(sentences, r"\b([a-z]+\?) ([A-Z][a-z]+)\b", s"\1\n\2")
+    sentences = replace(sentences, r"\b([a-z]+\?) ([A-Z][a-z]+)\b", Base.SubstitutionString("\\1\n\\2"))
     # breaks sometimes missing after "." separated with extra space, "safe" cases
-    sentences = replace(sentences, r"\b([a-z]+ \.) ([A-Z][a-z]+)\b", s"\1\n\2")
+    sentences = replace(sentences, r"\b([a-z]+ \.) ([A-Z][a-z]+)\b", Base.SubstitutionString("\\1\n\\2"))
 
     # no breaks producing lines only containing sentence-ending punctuation
-    sentences = replace(sentences, r"\n([.!?]+)\n", s" \1\n")
+    sentences = replace(sentences, r"\n([.!?]+)\n", Base.SubstitutionString("\\1\n"))
 
     # no breaks inside parens/brackets. (To protect against cases where a
     # pair of locally mismatched parentheses in different parts of a large
