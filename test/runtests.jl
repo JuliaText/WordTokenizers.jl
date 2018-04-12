@@ -3,7 +3,8 @@ using Base.Test
 
 # write your own tests here
 files = ["simple",
-         "sedbased"
+         "sedbased",
+         "sentence_splitting"
         ]
 
 @testset "$file" for file in files
