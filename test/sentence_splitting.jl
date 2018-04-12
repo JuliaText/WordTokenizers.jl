@@ -4,13 +4,13 @@ using TestSetExtensions
 
 @testset "Targetted" begin
     @testset "Initials" begin
-        @test length(split_sentences("It is by A. Adamson, the famous author.")) == 1
-        @test length(split_sentences("It is by Z. Zeckerson, the famous author.")) == 1
-        @test length(split_sentences("It is by Bill R. Emerson, the famous author.")) == 1
+        @test 1 == length(rulebased_split_sentences("It is by A. Adamson, the famous author."))
+        @test 1 == length(rulebased_split_sentences("It is by Z. Zeckerson, the famous author."))
+        @test 1 == length(rulebased_split_sentences("It is by Bill R. Emerson, the famous author."))
 
-        @test_broken (split_sentences("It is by Ian I. Irving, the famous author.")) == 1
+        @test_broken 1 == (rulebased_split_sentences("It is by Ian I. Irving, the famous author."))
 
-        @test length(split_sentences("He doesn't and nor will I. It is best this way.")) == 2
+        @test 2 == length(rulebased_split_sentences("He doesn't and nor will I. It is best this way."))
     end
 end
 
