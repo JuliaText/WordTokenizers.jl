@@ -67,3 +67,13 @@ julia> tokenize.(split_sentences(text))
  SubString{String}["Most", "other", "species", "are", "smaller", ",", "being", "two", "to", "four"  …  "0.5", "to", "1", "m", ")", "and", "proportionally", "less", "wide", "."]
  SubString{String}["The", "Flatback", "turtle", "is", "found", "solely", "on", "the", "northern", "coast", "of", "Australia", "."]
 ```
+
+
+## Experimental API
+I am trying out an experimental API
+where these are added as dispatches to Base.split.
+
+So   
+`split(foo, Words` is the same as `tokenize(foo)`,  
+and  
+`split(foo, Sentences)` is the same as `split_sentences(foo)`.
