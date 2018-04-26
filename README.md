@@ -1,12 +1,19 @@
 # WordTokenisers
 Some basic tokenizers for Natural Language Processing:
 
-# Sentence Splitters
-We currently only have one sentence splitter.
- - **Rule Based Sentence Spitter:** (`rulebased_split_sentences`), uses a rule that periods, question marks, and exclamation marks, followed by white-space end sentences. With a large list of exceptions.
+The normal way to used this package is to call
+`tokenize(str)` to split up a string into words;
+or `split_sentences(str)` to split up a string into sentences.
+Maybe even `tokenize.(split_sentences(str))` to do both.
 
-`split_sentences` is exported as an alias for the most useful sentence splitter currently implemented.
- (Which ATM is the only sentence splitter: `rulebased_split_sentences`)
+`tokenize` and `split_sentences`, are configurable functions
+that call one of the tokenizers or sentence splitters defined below.
+They have sensible defaults set,
+but you can override the method used by calling
+`set_tokenizer(func)` or `set_sentence_splitter(func)` passing in your preferred
+function `func` from the list below (or from else where)
+Configuring them this way will throw up a method overwritten warning, and trigger recompilation of any methods that use them.
+
 
 
 # (Word) Tokenizers
@@ -17,39 +24,25 @@ The word tokenizers basically assume sentence splitting has already been done.
 
  - **Penn Tokeniser:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokeniser used for the Penn Treebank. Splits contractions.
  - **Improved Penn Tokeniser:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
- - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
+ - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step. **(default tokenizer)**
 
   (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both)
 
 
-Also exported is `tokenize` which is an alias for the most useful tokeniser currently implemented.
-(Which ATM is `nltk_word_tokenize`)
+
+# Sentence Splitters
+We currently only have one sentence splitter.
+ - **Rule Based Sentence Spitter:** (`rulebased_split_sentences`), uses a rule that periods, question marks, and exclamation marks, followed by white-space end sentences. With a large list of exceptions.
+
+`split_sentences` is exported as an alias for the most useful sentence splitter currently implemented.
+ (Which ATM is the only sentence splitter: `rulebased_split_sentences`) **(default sentence_splitter)**
+
 
 # Example
 
-```
-julia> tokenize("The package's tokenisers range from simple (e.g. poorman's), to complex (e.g. Penn).") |> repr|>print
-20-element Array{SubString{String},1}:
- "The"
- "package"
- "'s"
- "tokenisers"
- "range"
- "from"
- "simple"
- "("
- "e.g."
- "poorman"
- "'s"
- ")"
- ","
- "to"
- "complex"
- "("
- "e.g."
- "Penn"
- ")"
- "."
+```julia
+julia> tokenize("The package's tokenisers range from simple (e.g. poorman's), to complex (e.g. Penn).") |> print
+SubString{String}["The", "package", "'s", "tokenisers", "range", "from", "simple", "(", "e.g.", "poorman", "'s", ")",",", "to", "complex", "(", "e.g.", "Penn", ")", "."]
 ```
 
 ```julia
@@ -71,7 +64,7 @@ julia> tokenize.(split_sentences(text))
 
 ## Experimental API
 I am trying out an experimental API
-where these are added as dispatches to Base.split.
+where these are added as dispatches to `Base.split`
 
 So   
 `split(foo, Words` is the same as `tokenize(foo)`,  
