@@ -14,6 +14,41 @@ but you can override the method used by calling
 function `func` from the list below (or from else where)
 Configuring them this way will throw up a method overwritten warning, and trigger recompilation of any methods that use them.
 
+This means if you are using a package that uses WordTokenizers.jl to do tokenization/sentence splitting via the default methods;
+changing the tokenizer/splitter will change the behavior of that package.
+This is a feature of [CorpusLoaders.jl](https://github.com/JuliaText/CorpusLoaders.jl).
+If as a package author you don't want to allow the user to change the tokenizer in this way, you should use the tokenizer you want explicitly, rather than using the  `tokenize` method.
+
+
+
+
+### Example Setting Tokenizer  (Revtok.jl)
+You might like to, for example use [Revtok.jl's tokenizer](https://github.com/jekbradbury/Revtok.jl).
+We do not include Revtok in this package, because making use of it with-in WordTokenizers.jl is trival.
+Just `import Revtok; set_tokenizer(Revtok.tokenize)`.
+
+
+Full example:
+
+```
+julia> using WordTokenizers
+
+julia> text = "I cannot stand when they say \"Enough is enough.\"";
+
+julia> tokenize(text) |> print # Default tokenizer
+SubString{String}["I", "can", "not", "stand", "when", "they", "say", "``", "Enough", "is", "enough", ".", "''"]
+
+julia> import Revtok
+
+julia> set_tokenizer(Revtok.tokenize)
+WARNING: Method definition tokenize(AbstractString) in module WordTokenizers overwritten
+tokenize (generic function with 1 method)
+
+
+julia> tokenize(text) |> print # Revtok's tokenizer
+String[" I ", " cannot ", " stand ", " when ", " they ", " say ", " \"", " Enough ", " is ", " enough ", ".\" "]
+```
+
 
 
 # (Word) Tokenizers
@@ -25,6 +60,7 @@ The word tokenizers basically assume sentence splitting has already been done.
  - **Penn Tokeniser:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokeniser used for the Penn Treebank. Splits contractions.
  - **Improved Penn Tokeniser:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
  - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step. **(default tokenizer)**
+
 
   (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both)
 
