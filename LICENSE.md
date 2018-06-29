@@ -1,6 +1,6 @@
-Copyright (C) 2001-2017 Lyndon White aka @oxinabox (Everything else, , Apache 2)
-Copyright (C) 2001-2017 NLTK Project (ImprovedPennTokeniser, Apache 2)
-Copyright (C) 1995 Robert MacIntyre (PennTokeniser, Unknown License)
+Copyright (C) 2001-2017 Lyndon White aka @oxinabox (Everything else, Apache 2)  
+Copyright (C) 2001-2017 NLTK Project (ImprovedPennTokeniser, Apache 2)   
+Copyright (C) 1995 Robert MacIntyre (PennTokeniser, Unknown License)  
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
