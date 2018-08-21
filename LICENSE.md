@@ -1,6 +1,6 @@
 Copyright (C) 2001-2017 Lyndon White aka @oxinabox (Everything else, Apache 2)  
-Copyright (C) 2001-2017 NLTK Project (ImprovedPennTokeniser, Apache 2)   
-Copyright (C) 1995 Robert MacIntyre (PennTokeniser, Unknown License)  
+Copyright (C) 2001-2017 NLTK Project (ImprovedPennTokenizer, Apache 2)   
+Copyright (C) 1995 Robert MacIntyre (PennTokenizer, Unknown License)  
 
 Licensed under the Apache License, Version 2.0 (the 'License');
 you may not use this file except in compliance with the License.
@@ -16,10 +16,10 @@ limitations under the License.
 
 --------------------------
 
-The licensing situation re: the PennTokeniser is currently unclear.
+The licensing situation re: the PennTokenizer is currently unclear.
 See https://github.com/nltk/nltk/issues/1756
-This disclarity propergates to the ImprovedPennTokeniser, which we take from NLTK,
-which was originally based on the Penn Tokeniser.
+This disclarity propergates to the ImprovedPennTokenizer, which we take from NLTK,
+which was originally based on the PennTokenizer.
 
 > by Robert MacIntyre, University of Pennsylvania, late 1995.
 > If this wasn't such a trivial program, I'd include all that stuff about
