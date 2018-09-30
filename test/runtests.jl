@@ -1,5 +1,5 @@
 using WordTokenizers
-using Base.Test
+using Test
 
 files = ["simple",
          "sedbased",

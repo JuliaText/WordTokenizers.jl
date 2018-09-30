@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using WordTokenizers
 
 set_tokenizer(nltk_word_tokenize)

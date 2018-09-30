@@ -1,4 +1,4 @@
-using Base.Test
+using Test
 using WordTokenizers
 
 @testset "Words" begin

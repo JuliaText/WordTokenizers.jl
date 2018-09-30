@@ -15,7 +15,7 @@ Tokenizes by removing punctuation, unless it occurs inside of a word.
 """
 function punctuation_space_tokenize(source::AbstractString)
     preprocced = source
-    pass1=replace(preprocced,r"[[:punct:]]*[[:space:]][[:punct:]]*"," ")
-    pass2=replace(pass1,r"[[:punct:]]*$|^[[:punct:]]*","")
+    pass1=replace(preprocced,r"[[:punct:]]*[[:space:]][[:punct:]]*" => " ")
+    pass2=replace(pass1,r"[[:punct:]]*$|^[[:punct:]]*" => "")
     split(pass2)
 end
