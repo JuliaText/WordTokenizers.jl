@@ -1,6 +1,5 @@
 using Test
 using WordTokenizers
-using TestSetExtensions
 
 @testset "Targetted" begin
     @testset "Initials" begin
@@ -34,7 +33,7 @@ function test_sentence_splitting(split_sentences, raw)
 end
 
 
-@testset ExtendedTestSet "turtles" begin
+@testset "turtles" begin
     #  https://simple.wikipedia.org/wiki/Turtle ,
     doc1 = """Turtles are the reptile order Testudines.
     They have a special bony or cartilaginous shell developed from their ribs that acts as a shield.
