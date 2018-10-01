@@ -24,17 +24,17 @@ function generate_tokenizer_from_sed(sed_script, extended=false)::Expr
         if extended
         else
             # Normal sed uses `\(` instead of `(` for grouping
-            pattern=replace(pattern, raw"\(", "(")
-            pattern=replace(pattern, raw"\)", ")")
+            pattern=replace(pattern, raw"\(" => "(")
+            pattern=replace(pattern, raw"\)" => ")")
 
             #sed accepts `&` as whole match
-            replacement=replace(replacement, "&", raw"\0")
+            replacement=replace(replacement, "&" => raw"\0")
         end
 
 
         push!(code.args, :(
             ss=replace(ss,
-                       Regex($pattern),
+                       Regex($pattern) =>
                        Base.SubstitutionString($replacement))
         ))
     end
@@ -50,7 +50,7 @@ end
 Yeah, sure" quote Robert MacIntyre
 
 
-Tokenisation does a number of things like seperate out contractions:
+Tokenization does a number of things like seperate out contractions:
 "shouldn't" becomes ["should", "n't"]
 Most other punctuation becomes &'s.
 Exception is periods which are not touched.
@@ -88,7 +88,7 @@ that I don't think are actually documented anywhere.
 But things like `cannot cannot` become `can not can not`
 where as the original would produce `can not cannot`.
 
-The tokeniser still seperates out contractions:
+The tokenizer still seperates out contractions:
 "shouldn't" becomes ["should", "n't"]
 
 The input should be a single sentence;
@@ -107,7 +107,7 @@ end
 """
     nltk_word_tokenize(input::AbstractString)
 
-NLTK's word tokeniser.
+NLTK's word tokenizer.
 It is an extention on the Punctuation Preserving Penn Treebank tokenizer,
 mostly to better handle unicode.
 
@@ -115,7 +115,7 @@ mostly to better handle unicode.
 Punctuation is still preserved as its own token.
 This includes periods which will be stripped from words.
 
-The tokeniser still seperates out contractions:
+The tokenizer still seperates out contractions:
 "shouldn't" becomes ["should", "n't"]
 
 The input should be a single sentence;
