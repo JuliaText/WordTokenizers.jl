@@ -101,6 +101,6 @@ I am trying out an experimental API
 where these are added as dispatches to `Base.split`
 
 So   
-`split(foo, Words` is the same as `tokenize(foo)`,  
+`split(foo, Words)` is the same as `tokenize(foo)`,  
 and  
 `split(foo, Sentences)` is the same as `split_sentences(foo)`.
