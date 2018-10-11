@@ -34,8 +34,8 @@ function generate_tokenizer_from_sed(sed_script, extended=false)::Expr
 
         push!(code.args, :(
             ss=replace(ss,
-                       Regex($pattern) =>
-                       Base.SubstitutionString($replacement))
+                       $(Regex(pattern)) =>
+                       $(Base.SubstitutionString(replacement)))
         ))
     end
     push!(code.args, :(split(ss)))
