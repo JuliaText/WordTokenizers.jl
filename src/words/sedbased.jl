@@ -124,7 +124,7 @@ Depends exactly what you want it for.
 
 This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
 """
-@generated function nltk_word_tokenize(input::AbstractString)
-    script = joinpath(@__DIR__, "nltk_word.sed")
-    generate_tokenizer_from_sed(script, true)
-end
+# @generated function nltk_word_tokenize(input::AbstractString)
+#     script = joinpath(@__DIR__, "nltk_word.sed")
+#     generate_tokenizer_from_sed(script, true)
+# end
