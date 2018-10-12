@@ -43,6 +43,12 @@ function generate_tokenizer_from_sed(sed_script, extended=false)::Expr
 end
 
 
+let script = joinpath(@__DIR__, "penn.sed")
+    @eval function penn_tokenize(input::AbstractString)
+        $(generate_tokenizer_from_sed(script, false))
+    end
+end
+
 """
     penn_tokenize(input::AbstractString)
 
@@ -71,13 +77,13 @@ You can generate a new tokenizer using:
 end
 ```
 """
-let script = joinpath(@__DIR__, "penn.sed")
-    @eval function penn_tokenize(input::AbstractString)
-        $(generate_tokenizer_from_sed(script, false))
+penn_tokenize
+
+let script = joinpath(@__DIR__, "improved_penn.sed")
+    @eval function improved_penn_tokenize(input::AbstractString)
+        $(generate_tokenizer_from_sed(script, true))
     end
 end
-
-
 
 """
     improved_penn_tokenize(input::AbstractString)
@@ -98,11 +104,7 @@ Depends exactly what you want it for.
 
 This matches NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
 """
-let script = joinpath(@__DIR__, "improved_penn.sed")
-    @eval function improved_penn_tokenize(input::AbstractString)
-        $(generate_tokenizer_from_sed(script, true))
-    end
-end
+improved_penn_tokenize
 
 const nltk_atoms = collect.(["--", "...", "``", "\$"])
 const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
