@@ -71,9 +71,10 @@ You can generate a new tokenizer using:
 end
 ```
 """
-@generated function penn_tokenize(input::AbstractString)
-    script = joinpath(@__DIR__, "penn.sed")
-    generate_tokenizer_from_sed(script, false)
+let script = joinpath(@__DIR__, "penn.sed")
+    @eval function penn_tokenize(input::AbstractString)
+        $(generate_tokenizer_from_sed(script, false))
+    end
 end
 
 
@@ -97,9 +98,10 @@ Depends exactly what you want it for.
 
 This matches NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
 """
-@generated function improved_penn_tokenize(input::AbstractString)
-    script = joinpath(@__DIR__, "improved_penn.sed")
-    generate_tokenizer_from_sed(script, true)
+let script = joinpath(@__DIR__, "improved_penn.sed")
+    @eval function improved_penn_tokenize(input::AbstractString)
+        $(generate_tokenizer_from_sed(script, true))
+    end
 end
 
 const nltk_atoms = collect.(["--", "...", "``", "\$"])
