@@ -106,6 +106,8 @@ const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
 
 function nltk_word_tokenize(input)
   ts = TokenBuffer(input)
+  stop = ts.input[end] == '.'
+  stop && pop!(ts.input)
   while !isdone(ts)
     spaces(ts) && continue
     openquote(ts) ||
@@ -116,7 +118,6 @@ function nltk_word_tokenize(input)
     !isdone(ts) && closingquote(ts)
   end
   flush!(ts)
+  stop && push!(ts.tokens, ".")
   return ts.tokens
 end
-
-# nltk_word_tokenize("\$50,000 dollars")
