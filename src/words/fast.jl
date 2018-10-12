@@ -58,7 +58,7 @@ function atoms(ts, as)
     ts.idx += length(a)
     return true
   end
-  (ispunct(ts[]) && ts[] != '.') || return false
+  (ispunct(ts[]) && ts[] != '.' && ts[] != '-') || return false
   flush!(ts, string(ts[]))
   ts.idx += 1
   return true
