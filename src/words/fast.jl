@@ -1,9 +1,3 @@
-# TODO:
-# preserve : , ' in digits
-# split: can-not, gim-me, lem-me, mor'n, d'ye, gon-na, got-ta, wan-na, 't-is, 't-was,
-#   'll, 're, 've, n't, 's, 'm, 'd
-# Split off last `.`
-
 # TODO: the input + idx combination should probably be replaced by a stream
 
 mutable struct TokenBuffer
@@ -29,11 +23,15 @@ function flush!(ts::TokenBuffer, s...)
   return
 end
 
-# TODO check for a word boundary
-function lookahead(ts::TokenBuffer, s)
+function lookahead(ts::TokenBuffer, s; boundary = false)
   ts.idx + length(s) - 1 > length(ts.input) && return false
   for j = 1:length(s)
     ts.input[ts.idx-1+j] == s[j] || return false
+  end
+  if boundary
+    next = ts.idx + length(s)
+    next > length(ts.input) && return true
+    (isletter(ts[next]) || ts[next] == '-') && return false
   end
   return true
 end
@@ -64,11 +62,21 @@ function atoms(ts, as)
   return true
 end
 
-function suffixes(ts, ss) # TODO word boundary
+function suffixes(ts, ss)
   isempty(ts.buffer) && return false
   for s in ss
-    lookahead(ts, s) || continue
+    lookahead(ts, s, boundary=true) || continue
     flush!(ts, String(s))
+    ts.idx += length(s)
+    return true
+  end
+  return false
+end
+
+function splits(ts, ss)
+  for (s, l) in ss
+    lookahead(ts, s, boundary=true) || continue
+    flush!(ts, s[1:l], s[l+1:end])
     ts.idx += length(s)
     return true
   end
@@ -103,6 +111,9 @@ end
 
 const nltk_atoms = collect.(["--", "...", "``", "\$"])
 const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
+const nltk_splits = [("cannot", 3), ("gimme", 3), ("lemme", 3), ("mor'n", 3),
+                     ("d'ye", 3), ("gonna", 3), ("gotta", 3), ("wanna", 3),
+                     ("'tis", 2), ("'twas", 2)]
 
 function nltk_word_tokenize(input)
   ts = TokenBuffer(input)
@@ -113,6 +124,7 @@ function nltk_word_tokenize(input)
     openquote(ts) ||
     suffixes(ts, nltk_suffixes) ||
     atoms(ts, nltk_atoms) ||
+    splits(ts, nltk_splits) ||
     number(ts) ||
     character(ts)
     !isdone(ts) && closingquote(ts)
