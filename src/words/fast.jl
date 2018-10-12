@@ -1,71 +1,107 @@
-# opening quote => ``
-# closing quote => ''
-# alone: -- ... `` ' : ; @#$%&?[](){}<>
+# TODO:
 # preserve : , ' in digits
 # split: can-not, gim-me, lem-me, mor'n, d'ye, gon-na, got-ta, wan-na, 't-is, 't-was,
 #   'll, 're, 've, n't, 's, 'm, 'd
+# Split off last `.`
 
-struct TokenBuffer
-  tokens::Vector{String}
+# TODO: the input + idx combination should probably be replaced by a stream
+
+mutable struct TokenBuffer
+  input::Vector{Char}
   buffer::Vector{Char}
+  tokens::Vector{String}
+  idx::Int
 end
 
-TokenBuffer() = TokenBuffer([], [])
+TokenBuffer(input) = TokenBuffer(input, [], [], 1)
 
-function shift!(ts::TokenBuffer)
-  isempty(ts.buffer) && return
-  push!(ts.tokens, String(ts.buffer))
-  empty!(ts.buffer)
+TokenBuffer(input::String) = TokenBuffer(collect(input))
+
+Base.getindex(ts::TokenBuffer, i = ts.idx) = ts.input[i]
+isdone(ts::TokenBuffer) = ts.idx > length(ts.input)
+
+function flush!(ts::TokenBuffer, s...)
+  if !isempty(ts.buffer)
+    push!(ts.tokens, String(ts.buffer))
+    empty!(ts.buffer)
+  end
+  push!(ts.tokens, s...)
   return
 end
 
 # TODO check for a word boundary
-function matches(input::AbstractVector, s::String, i::Integer)
+function lookahead(ts::TokenBuffer, s)
+  ts.idx + length(s) - 1 > length(ts.input) && return false
   for j = 1:length(s)
-    input[i+j-1] == s[j] || return false
+    ts.input[ts.idx-1+j] == s[j] || return false
   end
   return true
 end
 
-const tokens = ["--", "...", "``"]
-const suffixes = ["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"]
-
-function nltk_word_tokenize(input::AbstractVector)
-  ts = TokenBuffer()
-  i = 1
-  while i <= length(input)
-    if !isempty(ts.buffer)
-      for suf in suffixes
-        matches(input, suf, i) || continue
-        shift!(ts)
-        push!(ts.tokens, suf)
-        i += length(suf)
-      end
-    end
-    c = input[i]
-    if c == '"'
-      shift!(ts)
-      push!(ts.tokens, "``")
-    elseif ispunct(c)
-      shift!(ts)
-      push!(ts.tokens, string(c))
-    elseif isspace(c)
-      shift!(ts)
-    else
-      push!(ts.buffer, c)
-    end
-    # Closing quotes
-    if !isspace(c) && i < length(input) && input[i+1] == '"'
-      shift!(ts)
-      push!(ts.tokens, "''")
-      i += 1
-    end
-    i += 1
-  end
-  shift!(ts)
-  return ts.tokens
+function character(ts)
+  push!(ts.buffer, ts[])
+  ts.idx += 1
+  return true
 end
 
-# @btime nltk_word_tokenize("I don't know Dr. Who.")
+function spaces(ts::TokenBuffer)
+  isspace(ts[]) || return false
+  flush!(ts)
+  ts.idx += 1
+  return true
+end
 
-nltk_word_tokenize(input::AbstractString) = nltk_word_tokenize(collect(input))
+function atoms(ts, as)
+  for a in as
+    lookahead(ts, a) || continue
+    flush!(ts, String(a))
+    ts.idx += length(a)
+    return true
+  end
+  (ispunct(ts[]) && ts[] != '.') || return false
+  flush!(ts, string(ts[]))
+  ts.idx += 1
+  return true
+end
+
+function suffixes(ts, ss) # TODO word boundary
+  isempty(ts.buffer) && return false
+  for s in ss
+    lookahead(ts, s) || continue
+    flush!(ts, String(s))
+    ts.idx += length(s)
+    return true
+  end
+  return false
+end
+
+function openquote(ts)
+  ts[] == '"' || return false
+  flush!(ts, "``")
+  ts.idx += 1
+  return true
+end
+
+function closingquote(ts)
+  ts[] == '"' || return false
+  flush!(ts, "''")
+  ts.idx += 1
+  return true
+end
+
+const nltk_atoms = collect.(["--", "...", "``"])
+const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
+
+function nltk_word_tokenize(input)
+  ts = TokenBuffer(input)
+  while !isdone(ts)
+    spaces(ts) && continue
+    openquote(ts) ||
+    suffixes(ts, nltk_suffixes) ||
+    atoms(ts, nltk_atoms) ||
+    character(ts)
+    !isdone(ts) && closingquote(ts)
+  end
+  flush!(ts)
+  return ts.tokens
+end
