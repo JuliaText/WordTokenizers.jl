@@ -133,6 +133,7 @@ This matches to the most commonly used `nltk.word_tokenize`, minus the sentence 
 """
 function nltk_word_tokenize(input)
   ts = TokenBuffer(input)
+  isempty(input) && return ts.tokens
   stop = ts.input[end] == '.'
   stop && pop!(ts.input)
   while !isdone(ts)

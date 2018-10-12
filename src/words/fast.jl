@@ -9,7 +9,7 @@ end
 
 TokenBuffer(input) = TokenBuffer(input, [], [], 1)
 
-TokenBuffer(input::String) = TokenBuffer(collect(input))
+TokenBuffer(input::AbstractString) = TokenBuffer(collect(input))
 
 Base.getindex(ts::TokenBuffer, i = ts.idx) = ts.input[i]
 isdone(ts::TokenBuffer) = ts.idx > length(ts.input)
