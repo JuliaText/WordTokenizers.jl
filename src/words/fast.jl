@@ -89,6 +89,18 @@ function closingquote(ts)
   return true
 end
 
+function number(ts, sep = (':', ',', '\'', '.'))
+  isdigit(ts[]) || return false
+  i = ts.idx
+  while i <= length(ts.input) && (isdigit(ts[i]) ||
+        (ts[i] in sep && i < length(ts.input) && isdigit(ts[i+1])))
+    i += 1
+  end
+  flush!(ts, String(ts[ts.idx:i-1]))
+  ts.idx = i
+  return true
+end
+
 const nltk_atoms = collect.(["--", "...", "``"])
 const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
 
@@ -99,9 +111,12 @@ function nltk_word_tokenize(input)
     openquote(ts) ||
     suffixes(ts, nltk_suffixes) ||
     atoms(ts, nltk_atoms) ||
+    number(ts) ||
     character(ts)
     !isdone(ts) && closingquote(ts)
   end
   flush!(ts)
   return ts.tokens
 end
+
+# nltk_word_tokenize("\$50,000 dollars")
