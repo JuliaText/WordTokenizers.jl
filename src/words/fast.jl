@@ -101,7 +101,7 @@ function number(ts, sep = (':', ',', '\'', '.'))
   return true
 end
 
-const nltk_atoms = collect.(["--", "...", "``"])
+const nltk_atoms = collect.(["--", "...", "``", "\$"])
 const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
 
 function nltk_word_tokenize(input)
