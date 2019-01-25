@@ -1,5 +1,19 @@
 # TODO: the input + idx combination should probably be replaced by a stream
 
+"""
+    TokenBuffer("foo bar")
+
+Turns a string into a readable stream, used for building tokenisers. Utility
+parser such as `spaces` and `number` read characters from the stream and
+into an array of tokens.
+
+Parsers return `true` or `false` to indicate whether they matched anything
+in the input stream. They can therefore be combined easily, e.g.
+
+    spaces(ts) || number(ts)
+
+either skips whitespace or parses a number token, if possible.
+"""
 mutable struct TokenBuffer
   input::Vector{Char}
   buffer::Vector{Char}
@@ -14,6 +28,14 @@ TokenBuffer(input::AbstractString) = TokenBuffer(collect(input))
 Base.getindex(ts::TokenBuffer, i = ts.idx) = ts.input[i]
 isdone(ts::TokenBuffer) = ts.idx > length(ts.input)
 
+"""
+    flush!(::TokenBuffer, tokens...)
+
+TokenBuffer builds the current token as characters are read from the input. When
+the end of the current token is detected, call `flush!` to finish it and append
+it to the token stream. Optionally, give additional tokens to be added to the
+stream after the current one.
+"""
 function flush!(ts::TokenBuffer, s...)
   if !isempty(ts.buffer)
     push!(ts.tokens, String(ts.buffer))
@@ -23,6 +45,24 @@ function flush!(ts::TokenBuffer, s...)
   return
 end
 
+"""
+    lookahead(::TokenBuffer, s; boundary = false)
+
+Peek at the input to see if `s` is coming up next. `boundary` specifies whether
+a word boundary should follow `s`.
+
+    julia> lookahead(TokenBuffer("foo bar"), "foo")
+    true
+
+    julia> lookahead(TokenBuffer("foo bar"), "bar")
+    false
+
+    julia> lookahead(TokenBuffer("foo bar"), "foo", boundary = true)
+    true
+
+    julia> lookahead(TokenBuffer("foobar"), "foo", boundary = true)
+    false
+"""
 function lookahead(ts::TokenBuffer, s; boundary = false)
   ts.idx + length(s) - 1 > length(ts.input) && return false
   for j = 1:length(s)
@@ -36,19 +76,35 @@ function lookahead(ts::TokenBuffer, s; boundary = false)
   return true
 end
 
+"""
+    character(::TokenBuffer)
+
+Push the next character in the input into the buffer's current token.
+"""
 function character(ts)
   push!(ts.buffer, ts[])
   ts.idx += 1
   return true
 end
 
-function spaces(ts::TokenBuffer)
+"""
+    spaces(::TokenBuffer)
+
+If there is whitespace in the input, skip it, and flush the current token.
+"""
+function spaces(ts)
   isspace(ts[]) || return false
   flush!(ts)
   ts.idx += 1
   return true
 end
 
+"""
+    atoms(::TokenBuffer, ["--", "...", ...])
+
+Matches a set of atomic tokens, such as `...`, which should always be treated
+as a single token, regardless of word boundaries.
+"""
 function atoms(ts, as)
   for a in as
     lookahead(ts, a) || continue
@@ -62,6 +118,12 @@ function atoms(ts, as)
   return true
 end
 
+"""
+    suffixes(::TokenBuffer, ["'ll", "'re", ...])
+
+Matches tokens with suffixes, such as `you're`, that should be treated as
+separate tokens.
+"""
 function suffixes(ts, ss)
   isempty(ts.buffer) && return false
   for s in ss
@@ -73,6 +135,12 @@ function suffixes(ts, ss)
   return false
 end
 
+"""
+    suffixes(::TokenBuffer, [("cannot", 3), ("gimme", 3), ...])
+
+Matches tokens that should be split at the given index. For example, `cannot`
+would be split into `can` and `not`.
+"""
 function splits(ts, ss)
   for (s, l) in ss
     lookahead(ts, s, boundary=true) || continue
@@ -83,6 +151,11 @@ function splits(ts, ss)
   return false
 end
 
+"""
+    openquote(::TokenBuffer)
+
+Matches " used as an opening quote, and tokenises it as ``.
+"""
 function openquote(ts)
   ts[] == '"' || return false
   flush!(ts, "``")
@@ -90,6 +163,11 @@ function openquote(ts)
   return true
 end
 
+"""
+    openquote(::TokenBuffer)
+
+Matches " used as a closing quote, and tokenises it as ''.
+"""
 function closingquote(ts)
   ts[] == '"' || return false
   flush!(ts, "''")
@@ -97,6 +175,11 @@ function closingquote(ts)
   return true
 end
 
+"""
+    number(::TokenBuffer)
+
+Matches numbers such as `10,000.5`, preserving formatting.
+"""
 function number(ts, sep = (':', ',', '\'', '.'))
   isdigit(ts[]) || return false
   i = ts.idx
