@@ -136,7 +136,7 @@ function suffixes(ts, ss)
 end
 
 """
-    suffixes(::TokenBuffer, [("cannot", 3), ("gimme", 3), ...])
+    splits(::TokenBuffer, [("cannot", 3), ("gimme", 3), ...])
 
 Matches tokens that should be split at the given index. For example, `cannot`
 would be split into `can` and `not`.
