@@ -177,3 +177,45 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
 
     entities_replaced_text = replace(input_text, HTML_ENTITIES_REGEX => convert_entity)
 end
+
+
+function tweet_tokenize(source::AbstractString,
+                            strip_handle=false,
+                            reduce_len=false,
+                            preserve_case=true )
+
+    function reduce_lengthening(source::AbstractString)
+        replace(source, r"(.)\1{2,}" => s"\1\1\1")
+    end
+
+    function remove_handles(source::AbstractString)
+        replace(source, HANDLES_REGEX => " ")
+    end
+
+    # Fix HTML Character entities
+    source = replace_html_entities(source)
+    # Remove username handles
+    if strip_handle
+        source = remove_handles(source)
+    end
+    # Reduce Lengthening
+    if reduce_len
+        source = reduce_lengthening(source)
+    end
+    # Shorten some sequences of characters
+    safe_text = replace(source, r"""([^a-zA-Z0-9])\1{3,}""" => s"\1\1\1")
+    # Tokenize
+    tokens = collect((m.match for m = eachmatch(WORD_REGEX,
+                                            safe_text,
+                                            overlap=false)))
+    # Alter the case with presrving it for emoji
+    if  (!preserve_case)
+        for (index, word) in enumerate(tokens)
+            if !occursin(EMOTICONS_REGEX,word)
+                tokens[index] = lowercase(word)
+            end
+        end
+    end
+
+    return tokens
+end
