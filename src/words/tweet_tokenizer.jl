@@ -200,14 +200,16 @@ The basic logic is following:
 1. The regular expressions are made for WORD_REGEX (core tokenizer), HANG_REGEX
    and EMOTICONS_REGEX.
 2  Replacing HTML entities, tweet handles, reducing length of repeated characters
-   and other features, make it suitable for tweets
-3. The tokenization is done and returned
+   and other features, make it suitable for tweets.
+3. The String is tokenized and returned.
 4. `preserve_case` By default is set to `true`. If it is set to `false`,
    then the tokenizer will downcase everything except for emoticons.
 
 Example:
+
 ```
 julia> tweet_tokenize("This is a cooool #dummysmiley: :-) :-P <3 and some arrows < > -> <--")
+
 16-element Array{SubString{String},1}:
  "This"
  "is"
@@ -227,7 +229,7 @@ julia> tweet_tokenize("This is a cooool #dummysmiley: :-) :-P <3 and some arrows
  "<--"
 ```
 """
-function tweet_tokenize(source::AbstractString,
+function tweet_tokenize(source::AbstractString;
                             strip_handle=false,
                             reduce_len=false,
                             preserve_case=true )
