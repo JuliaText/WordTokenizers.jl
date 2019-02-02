@@ -1,14 +1,22 @@
 module WordTokenizers
 
+using HTML_Entities
+using StrTables
+using StringEncodings
+
+
 export poormans_tokenize, punctuation_space_tokenize,
        penn_tokenize, improved_penn_tokenize, nltk_word_tokenize,
+       tweet_tokenize,
        tokenize,
        rulebased_split_sentences,
        split_sentences,
        set_tokenizer, set_sentence_splitter
 
+
 include("words/simple.jl")
 include("words/sedbased.jl")
+include("words/tweet_tokenizer.jl")
 include("sentences/sentence_splitting.jl")
 
 
