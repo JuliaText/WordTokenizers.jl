@@ -63,6 +63,8 @@ The word tokenizers basically assume sentence splitting has already been done.
 
   (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005))
 
+- **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
+
 
 # Sentence Splitters
 We currently only have one sentence splitter.
