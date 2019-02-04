@@ -1,4 +1,4 @@
-EMOTICONS_REGEX = r"""(?x)
+const EMOTICONS_REGEX = r"""(?x)
             (?:
              [<>]?
              [:;=8]
@@ -14,7 +14,7 @@ EMOTICONS_REGEX = r"""(?x)
             )"""
 
 
-URLS = r"""(?x)
+const URLS = r"""(?x)
         (?:
         https?:
           (?:
@@ -55,7 +55,7 @@ URLS = r"""(?x)
       """
 
 
-PHONE_NUMBERS = r"""(?x)
+const PHONE_NUMBERS = r"""(?x)
            (?:
              (?:
                \+?[01]
@@ -72,20 +72,20 @@ PHONE_NUMBERS = r"""(?x)
            )"""
 
 
-HTML_TAGS = r"""<[^>\s]+>"""
-ASCII_ARROWS = r"""[\-]+>|<[\-]+"""
-TWITTER_USERNAME = r"""(?:@[\w_]+)"""
-TWITTER_HASHTAGS = r"""(?:\#+[\w_]+[\w\'_\-]*[\w_]+)"""
-EMAIL_ADDRESSES = r"""[\w.+-]+@[\w-]+\.(?:[\w-]\.?)+[\w-]"""
-WORDS_WITH_APOSTROPHE_DASHES = r"""(?:[^\W\d_](?:[^\W\d_]|['\-_])+[^\W\d_])"""
-NUMBERS_FRACTIONS_DECIMALS = r"""(?:[+\-]?\d+[,/.:-]\d+[+\-]?)"""
-ELLIPSIS_DOTS = r"""(?:\.(?:\s*\.){1,})"""
-WORDS_WITHOUT_APOSTROPHE_DASHES = r"""(?:[\w_]+)"""
+const HTML_TAGS = r"""<[^>\s]+>"""
+const ASCII_ARROWS = r"""[\-]+>|<[\-]+"""
+const TWITTER_USERNAME = r"""(?:@[\w_]+)"""
+const TWITTER_HASHTAGS = r"""(?:\#+[\w_]+[\w\'_\-]*[\w_]+)"""
+const EMAIL_ADDRESSES = r"""[\w.+-]+@[\w-]+\.(?:[\w-]\.?)+[\w-]"""
+const WORDS_WITH_APOSTROPHE_DASHES = r"""(?:[^\W\d_](?:[^\W\d_]|['\-_])+[^\W\d_])"""
+const NUMBERS_FRACTIONS_DECIMALS = r"""(?:[+\-]?\d+[,/.:-]\d+[+\-]?)"""
+const ELLIPSIS_DOTS = r"""(?:\.(?:\s*\.){1,})"""
+const WORDS_WITHOUT_APOSTROPHE_DASHES = r"""(?:[\w_]+)"""
 
 
 
 # Core tokenizing regex
-WORD_REGEX = Regex("(?i:" * join([URLS.pattern
+const WORD_REGEX = Regex("(?i:" * join([URLS.pattern
                     PHONE_NUMBERS.pattern
                     EMOTICONS_REGEX.pattern
                     HTML_TAGS.pattern
@@ -104,12 +104,12 @@ WORD_REGEX = Regex("(?i:" * join([URLS.pattern
 
 
 # WORD_REGEX performs poorly on these patterns:
-HANG_REGEX = r"""([^a-zA-Z0-9])\1{3,}"""
+const HANG_REGEX = r"""([^a-zA-Z0-9])\1{3,}"""
 
 # Regex for replacing HTML_Entities
-HTML_ENTITIES_REGEX = r"""&(#?(x?))([^&;\s]+);"""
+const HTML_ENTITIES_REGEX = r"""&(#?(x?))([^&;\s]+);"""
 
-HANDLES_REGEX = r"""(?x)
+const HANDLES_REGEX = r"""(?x)
                 (?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){20}(?!@))
                 |
                 (?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)
@@ -138,7 +138,8 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
         else
             if isempty(groups[2])
                 is_numeric = all(isdigit, entity_text)
-                number = parse(Int, entity_text, base=10)
+                if is_numeric
+                    number = parse(Int, entity_text, base=10)
                 end
             else
                 base_16_letters = ('a', 'b', 'c', 'd', 'e', 'f')
@@ -156,13 +157,11 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
             # see: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
 
             if 0x80 <= number <= 0x9F
-                if number ∉ [129 141 143 144 157])
+                if number ∉ (129, 141, 143, 144, 157)
                     return decode([UInt8(number)], "WINDOWS-1252")
                 end
-            elseif
-                Unicode.isassigned(number)
-                    return (Char(number))
-                end
+            elseif Unicode.isassigned(number)
+                    return Char(number)
             end
         end
 
@@ -174,6 +173,7 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
     end
 
     entities_replaced_text = replace(input_text, HTML_ENTITIES_REGEX => convert_entity)
+    return entities_replaced_text
 end
 
 
@@ -222,34 +222,26 @@ function tweet_tokenize(source::AbstractString;
                             reduce_len=false,
                             preserve_case=true )
 
-    function reduce_lengthening(source::AbstractString)
-        replace(source, r"(.)\1{2,}" => s"\1\1\1")
-    end
-
-    function remove_handles(source::AbstractString)
-        replace(source, HANDLES_REGEX => " ")
-    end
-
     # Fix HTML Character entities
     source = replace_html_entities(source)
     # Remove username handles
     if strip_handle
-        source = remove_handles(source)
+        source = replace(source, HANDLES_REGEX => " ")
     end
     # Reduce Lengthening
     if reduce_len
-        source = reduce_lengthening(source)
+        source = replace(source, r"(.)\1{2,}" => s"\1\1\1")
     end
     # Shorten some sequences of characters
     safe_text = replace(source, r"""([^a-zA-Z0-9])\1{3,}""" => s"\1\1\1")
     # Tokenize
-    tokens = collect((m.match for m = eachmatch(WORD_REGEX,
+    tokens = collect((m.match for m in eachmatch(WORD_REGEX,
                                             safe_text,
                                             overlap=false)))
     # Alter the case with presrving it for emoji
-    if  (!preserve_case)
+    if  !preserve_case
         for (index, word) in enumerate(tokens)
-            if !occursin(EMOTICONS_REGEX,word)
+            if !occursin(EMOTICONS_REGEX, word)
                 tokens[index] = lowercase(word)
             end
         end
