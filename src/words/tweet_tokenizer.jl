@@ -122,7 +122,7 @@ HANDLES_REGEX = r"""(?x)
 
 Removes entities from text by converting them to their corresponding unicode character.
 `input_text::AbstractString` The string on which HTML entities need to be replaced
-`remove_illegal::Bool` If `True`, entities that can't be converted are
+`remove_illegal::Bool` If `true`, entities that can't be converted are
 removed. Otherwise, entities that can't be converted are kept "as
 is".
 Returns `entities_replaced_text::AbstractString`
@@ -130,35 +130,23 @@ Returns `entities_replaced_text::AbstractString`
 function replace_html_entities(input_text::AbstractString, remove_illegal=true)
 
     function convert_entity(matched_text)
-
         groups = match(HTML_ENTITIES_REGEX, matched_text).captures
-        entity_body = groups[3]
-        local number::Number = 0
+        entity_text = groups[3]
+        number = 0
         if isempty(groups[1])
-            return(lookupname(HTML_Entities.default, entity_body))
+            return lookupname(HTML_Entities.default, entity_text)
         else
             if isempty(groups[2])
-                is_numeric = true
-                for i in entity_body
-                    if !isdigit(i)
-                        is_numeric = false
-                        break
-                    end
-                end
-                if is_numeric
-                    number = parse(Int, entity_body, base=10)
+                is_numeric = all(isdigit, entity_text)
+                number = parse(Int, entity_text, base=10)
                 end
             else
-                is_base_16 = true
-                allowed_letters = ['a', 'b', 'c', 'd', 'e', 'f']
-                for i in entity_body
-                    if !(isdigit(i) || i in allowed_letters)
-                        is_base_16 = false
-                        break
-                    end
+                base_16_letters = ('a', 'b', 'c', 'd', 'e', 'f')
+                is_base_16 = all(entity_text) do i
+                    isdigit(i) || i in base_16_letters
                 end
                 if is_base_16
-                    number = parse(Int, entity_body, base=16)
+                    number = parse(Int, entity_text, base=16)
                 end
             end
 
@@ -168,11 +156,11 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
             # see: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
 
             if 0x80 <= number <= 0x9F
-                if !(number in [129 141 143 144 157])
+                if number ∉ [129 141 143 144 157])
                     return decode([UInt8(number)], "WINDOWS-1252")
                 end
-            else
-                if Unicode.isassigned(number)
+            elseif
+                Unicode.isassigned(number)
                     return (Char(number))
                 end
             end
