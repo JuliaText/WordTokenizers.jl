@@ -7,6 +7,7 @@ export poormans_tokenize, punctuation_space_tokenize,
        split_sentences,
        set_tokenizer, set_sentence_splitter
 
+include("words/fast.jl")
 include("words/simple.jl")
 include("words/sedbased.jl")
 include("sentences/sentence_splitting.jl")
