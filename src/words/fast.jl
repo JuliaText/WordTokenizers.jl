@@ -4,15 +4,41 @@
     TokenBuffer("foo bar")
 
 Turns a string into a readable stream, used for building tokenisers. Utility
-parser such as `spaces` and `number` read characters from the stream and
+parsers such as `spaces` and `number` read characters from the stream and
 into an array of tokens.
 
 Parsers return `true` or `false` to indicate whether they matched anything
 in the input stream. They can therefore be combined easily, e.g.
 
-    spaces(ts) || number(ts)
+    spacesornumber(ts) = spaces(ts) || number(ts)
 
 either skips whitespace or parses a number token, if possible.
+
+The simplest possible tokeniser accepts any `character` with no token breaks:
+
+    function tokenise(input)
+      ts = TokenBuffer(input)
+      while !isdone(ts)
+        character(ts)
+      end
+      return ts.tokens
+    end
+
+    tokenise("foo bar baz") # ["foo bar baz"]
+
+The second simplest splits only on spaces:
+
+    function tokenise(input)
+      ts = TokenBuffer(input)
+      while !isdone(ts)
+        spaces(ts) || character(ts)
+      end
+      return ts.tokens
+    end
+
+    tokenise("foo bar baz") # ["foo", "bar", "baz"]
+
+See `nltk_word_tokenize` for a more advanced example.
 """
 mutable struct TokenBuffer
   input::Vector{Char}
@@ -26,7 +52,12 @@ TokenBuffer(input) = TokenBuffer(input, [], [], 1)
 TokenBuffer(input::AbstractString) = TokenBuffer(collect(input))
 
 Base.getindex(ts::TokenBuffer, i = ts.idx) = ts.input[i]
-isdone(ts::TokenBuffer) = ts.idx > length(ts.input)
+
+function isdone(ts::TokenBuffer)
+  done = ts.idx > length(ts.input)
+  done && flush!(ts)
+  return done
+end
 
 """
     flush!(::TokenBuffer, tokens...)
