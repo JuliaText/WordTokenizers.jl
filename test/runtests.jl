@@ -4,7 +4,8 @@ using Test
 files = ["simple",
          "sedbased",
          "sentence_splitting",
-         "set_method_api"
+         "set_method_api",
+         "tweet_tokenize"
         ]
 
 @testset "$file" for file in files

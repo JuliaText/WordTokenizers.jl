@@ -9,3 +9,9 @@ set_tokenizer(penn_tokenize)
 
 set_tokenizer(nltk_word_tokenize)
 @test tokenize("it cannot cannot be today") == ["it", "can", "not", "can", "not", "be", "today"]
+
+set_tokenizer(tweet_tokenize)
+@test tokenize("it cannot cannot be today") == ["it", "cannot", "cannot", "be", "today"]
+
+set_tokenizer(nltk_word_tokenize)
+@test tokenize("it cannot cannot be today") == ["it", "can", "not", "can", "not", "be", "today"]
