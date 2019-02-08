@@ -3,6 +3,7 @@ module WordTokenizers
 using HTML_Entities
 using StrTables
 using StringEncodings
+using Unicode
 
 
 export poormans_tokenize, punctuation_space_tokenize,

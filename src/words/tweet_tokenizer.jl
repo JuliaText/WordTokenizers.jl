@@ -130,13 +130,20 @@ Returns `entities_replaced_text::AbstractString`
 function replace_html_entities(input_text::AbstractString, remove_illegal=true)
 
     function convert_entity(matched_text)
-        groups = match(HTML_ENTITIES_REGEX, matched_text).captures
-        entity_text = groups[3]
+        # HTML entity can be named or encoded in Decimal/Hex form
+        # - Named_entity : "&Delta;" => "Δ",
+        # - Decimal : "&#916;" => "Δ",
+        # - Hex : ""&#x394;" => "Δ",
+        #
+        # However for bytes (hex) 80-9f are interpreted in Windows-1252
+        is_numeric_encoded, is_hex_encoded, entity_text = match(HTML_ENTITIES_REGEX,
+                                                matched_text).captures
         number = 0
-        if isempty(groups[1])
+
+        if isempty(is_numeric_encoded)
             return lookupname(HTML_Entities.default, entity_text)
         else
-            if isempty(groups[2])
+            if isempty(is_hex_encoded)
                 is_numeric = all(isdigit, entity_text)
                 if is_numeric
                     number = parse(Int, entity_text, base=10)
