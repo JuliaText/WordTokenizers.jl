@@ -66,5 +66,16 @@ end
     @test tweet_tokenize("Another HTML Entity - &#x394;") ==
         ["Another", "HTML", "Entity", "-", "Δ"]
 
+    @test tweet_tokenize("Price: &pound;100") ==
+        [ "Price", ":", "£", "100"]
+
+    @test tweet_tokenize("Check out this invalid symbol &#x81;", preserve_case=false) ==
+        [ "check", "out", "this", "invalid", "symbol"]
+
+    @test tweet_tokenize("A&#x95;B = B&#x95;A ") ==
+        [ "A", "•", "B", "=", "B", "•", "A"]
+
+    @test WordTokenizers.replace_html_entities("Check out this invalid symbol &#x81;", remove_illegal=false) ==
+        "Check out this invalid symbol &#x81;"
 
 end

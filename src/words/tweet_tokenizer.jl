@@ -161,7 +161,7 @@ function replace_html_entities(input_text::AbstractString; remove_illegal=true)
             # Numeric character references in the 80-9F range are typically
             # interpreted by browsers as representing the characters mapped
             # to bytes 80-9F in the Windows-1252 encoding. For more info
-            # see: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
+            # see: https://en.wikipedia.org/wiki/ISO/IEC_8859-1#Similar_character_sets
 
             if number >= 0
                 if 0x80 <= number <= 0x9F
@@ -247,7 +247,7 @@ function tweet_tokenize(source::AbstractString;
     tokens = collect((m.match for m in eachmatch(WORD_REGEX,
                                             safe_text,
                                             overlap=false)))
-    # Alter the case with presrving it for emoji
+    # Alter the case with preserving it for emoji
     if  !preserve_case
         for (index, word) in enumerate(tokens)
             if !occursin(EMOTICONS_REGEX, word)
