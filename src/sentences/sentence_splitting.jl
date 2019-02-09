@@ -23,7 +23,7 @@ Developed for use as postprocessing for the GENIA sentence
 splitter on PubMed abstracts, with minor tweaks for
 full-text documents.
 
-`sentences` should be a string, with line breaks on sentence boundries.
+`sentences` should be a string, with line breaks on sentence boundaries.
 Returns a similar string, but more correct.
 
 Based on
@@ -49,8 +49,8 @@ function postproc_splits(sentences::AbstractString)
 
     # no breaks inside parens/brackets. (To protect against cases where a
     # pair of locally mismatched parentheses in different parts of a large
-    # document happen to match, limit size of intervening context. As this
-    # is not an issue in cases where there are no interveining brackets,
+    # document happens to match, limit size of intervening context. As this
+    # is not an issue in cases where there are no intervening brackets,
     # allow an unlimited length match in those cases.)
 
     # unlimited length for no intevening parens/brackets
