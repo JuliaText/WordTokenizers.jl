@@ -127,7 +127,7 @@ removed. Otherwise, entities that can't be converted are kept "as
 is".
 Returns `entities_replaced_text::AbstractString`
 """
-function replace_html_entities(input_text::AbstractString, remove_illegal=true)
+function replace_html_entities(input_text::AbstractString; remove_illegal=true)
 
     function convert_entity(matched_text)
         # HTML entity can be named or encoded in Decimal/Hex form
@@ -138,7 +138,7 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
         # However for bytes (hex) 80-9f are interpreted in Windows-1252
         is_numeric_encoded, is_hex_encoded, entity_text = match(HTML_ENTITIES_REGEX,
                                                 matched_text).captures
-        number = 0
+        number = -1
 
         if isempty(is_numeric_encoded)
             return lookupname(HTML_Entities.default, entity_text)
@@ -163,12 +163,14 @@ function replace_html_entities(input_text::AbstractString, remove_illegal=true)
             # to bytes 80-9F in the Windows-1252 encoding. For more info
             # see: http://en.wikipedia.org/wiki/Character_encodings_in_HTML
 
-            if 0x80 <= number <= 0x9F
-                if number ∉ (129, 141, 143, 144, 157)
-                    return decode([UInt8(number)], "WINDOWS-1252")
+            if number >= 0
+                if 0x80 <= number <= 0x9F
+                    if number ∉ (129, 141, 143, 144, 157)
+                        return decode([UInt8(number)], "WINDOWS-1252")
+                    end
+                elseif Unicode.isassigned(number)
+                        return Char(number)
                 end
-            elseif Unicode.isassigned(number)
-                    return Char(number)
             end
         end
 
