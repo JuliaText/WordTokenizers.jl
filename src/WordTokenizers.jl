@@ -1,3 +1,4 @@
+
 module WordTokenizers
 
 export poormans_tokenize, punctuation_space_tokenize,
@@ -5,9 +6,9 @@ export poormans_tokenize, punctuation_space_tokenize,
        tokenize,
        rulebased_split_sentences,
        split_sentences,
-       set_tokenizer, set_sentence_splitter
+       set_tokenizer, set_sentence_splitter,
+       rev_tokenize, rev_detokenize
 
-include("words/fast.jl")
 include("words/simple.jl")
 include("words/sedbased.jl")
 include("sentences/sentence_splitting.jl")
@@ -15,6 +16,6 @@ include("sentences/sentence_splitting.jl")
 
 include("set_method_api.jl")
 include("split_api.jl")
-
+include("reversible_tokenize.jl")
 
 end # module
