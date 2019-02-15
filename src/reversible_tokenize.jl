@@ -1,5 +1,23 @@
 # A simple reversible tokenizer
+"""
+A simple reversible tokenizer
 
+```
+tokenized = rev_tokenizer(instring)
+de_tokenized = rev_detokenizer(token)
+```
+
+The rev_tokenize tokenizer splits into token based on space and punctuations and in 
+addition it leaves some MERGESYMBOLS for the tokens to be re-arranged when needed 
+using the rev_detokenize.
+It uses a character based approach for splitting and re-merging.
+
+Parameters:
+
+- instring		= Input string to be tokenized 
+- token			= Collection to tokens i.e String Array
+
+"""
 MERGESYMBOL = '~'
 
 function is_weird(c::AbstractChar)
