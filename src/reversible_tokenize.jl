@@ -21,7 +21,7 @@ Parameters:
 MERGESYMBOL = '~'
 
 function is_weird(c::AbstractChar)
-    return !(isletter(c) ||isnumeric(c) || isspace(c))
+    return !(isletter(c) || isnumeric(c) || isspace(c))
 end
 
 
@@ -33,14 +33,14 @@ function rev_tokenize(instring::AbstractString)
         c_n = ind < length(instring) ? instring[ind+1] : c
         
         if !is_weird(c)
-            write(ans,c)
+            write(ans, c)
         else
             if !isspace(c_p)
-                write(ans," ",MERGESYMBOL)
+                write(ans, " ", MERGESYMBOL)
             end
-            write(ans,c)
+            write(ans, c)
             if !isspace(c_n) && !is_weird(c_n)
-                write(ans,MERGESYMBOL," ")
+                write(ans, MERGESYMBOL, " ")
             end
         end
        
@@ -52,7 +52,7 @@ end
 function rev_detokenizer(instring::Array{AbstractString})
     ind = 1
     ans = IOBuffer()
-    instring = join(instring," ")
+    instring = join(instring, " ")
     while ind <= length(instring)
         c = instring[ind]
         c_p = ind > 1 ? instring[ind-1] : c
@@ -63,10 +63,10 @@ function rev_detokenizer(instring::Array{AbstractString})
         if c * c_n == ' ' * MERGESYMBOL && is_weird(c_nn)
             ind += 2
         elseif is_weird(c) && c_n * c_nn == MERGESYMBOL * ' '
-            write(ans,c)
+            write(ans, c)
             ind += 3
         else
-            write(ans,c)
+            write(ans, c)
             ind += 1
         end
     end
