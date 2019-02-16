@@ -7,13 +7,13 @@ export poormans_tokenize, punctuation_space_tokenize,
        rulebased_split_sentences,
        split_sentences,
        set_tokenizer, set_sentence_splitter,
-       rev_tokenize, rev_detokenize
+       rev_tokenizer, rev_detokenizer
 
 include("words/simple.jl")
 include("words/sedbased.jl")
 include("sentences/sentence_splitting.jl")
 
-
+include("words/fast.jl")
 include("set_method_api.jl")
 include("split_api.jl")
 include("reversible_tokenize.jl")

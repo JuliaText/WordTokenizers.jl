@@ -25,7 +25,7 @@ function is_weird(c::AbstractChar)
 end
 
 
-function rev_tokenize(instring::AbstractString)
+function rev_tokenizer(instring::AbstractString)
     ans = IOBuffer()
     for ind in eachindex(instring)
         c = instring[ind]
@@ -49,7 +49,7 @@ function rev_tokenize(instring::AbstractString)
 end
 
 
-function rev_detokenizer(instring::Array{AbstractString})
+function rev_detokenizer(instring::Array{String})
     ind = 1
     ans = IOBuffer()
     instring = join(instring, " ")
