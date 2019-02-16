@@ -18,7 +18,7 @@ Parameters:
 - token			= Collection to tokens i.e String Array
 
 """
-MERGESYMBOL = '~'
+MERGESYMBOL = '⇆'
 
 function is_weird(c::AbstractChar)
     return !(isletter(c) || isnumeric(c) || isspace(c))
@@ -49,25 +49,26 @@ function rev_tokenizer(instring::AbstractString)
 end
 
 
-function rev_detokenizer(instring::Array{String})
+function rev_detokenizer(instring)
     ind = 1
     ans = IOBuffer()
     instring = join(instring, " ")
-    while ind <= length(instring)
-        c = instring[ind]
-        c_p = ind > 1 ? instring[ind-1] : c
-        c_n = ind < length(instring) ? instring[ind+1] : c
-        c_pp = ind > 2 ? instring[ind-2] : c
-        c_nn = ind < length(instring) - 1 ? instring[ind+2] : c
+    last_index = thisind(instring, lastindex(instring))
+    while  thisind(instring, ind) <= last_index
+        c    = instring[thisind(instring, ind)]
+        c_p  = thisind(instring, ind) > 1 ? instring[prevind(instring, ind)] : c
+        c_n  = thisind(instring, ind) < last_index ? instring[nextind(instring, ind)] : c
+        c_pp = thisind(instring, ind) > nextind(instring, 1) ? instring[prevind(instring, prevind(instring, ind))] : c
+        c_nn = thisind(instring, ind) < prevind(instring, last_index) ? instring[nextind(instring, nextind(instring, ind))] : c
         
         if c * c_n == ' ' * MERGESYMBOL && is_weird(c_nn)
-            ind += 2
+            ind = nextind(instring, nextind(instring, ind))
         elseif is_weird(c) && c_n * c_nn == MERGESYMBOL * ' '
             write(ans, c)
-            ind += 3
+            ind = nextind(instring, nextind(instring, nextind(instring, ind)))
         else
             write(ans, c)
-            ind += 1
+            ind = nextind(instring, ind)
         end
     end
     return String(take!(ans))
