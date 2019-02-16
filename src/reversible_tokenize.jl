@@ -28,9 +28,9 @@ end
 function rev_tokenizer(instring::AbstractString)
     ans = IOBuffer()
     for ind in eachindex(instring)
-        c = instring[ind]
-        c_p = ind > 1 ? instring[ind-1] : c
-        c_n = ind < length(instring) ? instring[ind+1] : c
+        c   = instring[thisind(instring, ind)]
+        c_p = thisind(instring, ind) > 1 ? instring[prevind(instring, ind)] : c
+        c_n = thisind(instring, ind) < thisind(instring, lastindex(instring)) ? instring[nextind(instring, ind)] : c
         
         if !is_weird(c)
             write(ans, c)
@@ -49,7 +49,7 @@ function rev_tokenizer(instring::AbstractString)
 end
 
 
-function rev_detokenizer(instring)
+function rev_detokenizer(instring::Array{String})
     ind = 1
     ans = IOBuffer()
     instring = join(instring, " ")
