@@ -8,17 +8,17 @@ de_tokenized = rev_detokenizer(token)
 ```
 
 The rev_tokenize tokenizer splits into token based on space, punctuations and special symbols and in 
-addition it leaves some MERGESYMBOLS for the tokens to be re-arranged when needed 
+addition it leaves some merge-symbols (`'\ue302'`) for the tokens to be re-arranged when needed 
 using the rev_detokenize.
 It uses a character based approach for splitting and re-merging.
 
 Parameters:
 
-- instring		= Input string to be tokenized 
-- token			= Collection to tokens i.e String Array
+- instring: Input string to be tokenized 
+- token: Collection to tokens i.e String Array
 
 """
-const global MERGESYMBOL = '\ue302'
+const MERGESYMBOL = '\ue302'
 
 function is_weird(c::AbstractChar)
     return !(isletter(c) || isnumeric(c) || isspace(c))
