@@ -1,26 +1,36 @@
 using Test
 using WordTokenizers
 
-str = "The quick brown fox jumped over the lazy dog"                
-tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog"]
+@testset "default behaviour" begin
+	str = "The quick brown fox jumped over the lazy dog"                
+	tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog"]
 
-@test tokenized == String.(rev_tokenizer(str))           # testing defualt functioning of rev_tokenizer
-@test str == rev_detokenizer(tokenized)                  # testing defualt functioning of rev_detokenizer
-
-
-str = "Some of 100,000 households (usually, a minority) ate breakfast."
-tokenized = ["Some", "of", "100", "⇆,⇆", "000", "households", "(⇆", "usually", "⇆,", "a", "minority", "⇆)", "ate", "breakfast", "⇆."]
-
-@test tokenized == String.(rev_tokenizer(str))         # multi-byte character tokenizer case
-@test str == rev_detokenizer(tokenized)                # multi-byte character de-tokenizer case
+	@test tokenized == String.(rev_tokenizer(str))           
+	@test str == rev_detokenizer(tokenized)              
+end
 
 
-str = "Some of   100,000 households (usually, a minority) ate breakfast.  "
+@testset "multi-space" begin
+    	str = "Some of   100,000 households (usually, a minority) ate breakfast.  "
+    	tokenized = ["Some", "of", "100", "\ue302,\ue302", "000", "households", "(\ue302", "usually", "\ue302,", "a", "minority", "\ue302)", "ate", "breakfast", "\ue302."]
 
-@test tokenized == String.(rev_tokenizer(str))        # multi-space condition
- 
+	@test tokenized == String.(rev_tokenizer(str))        
+end
 
-str = "The quick brown fox jumped over the lazy dog ⌣⌣"
-tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog", "⌣", "⇆⌣"]
-@test tokenized == String.(rev_tokenizer(str))        # multi-byte character in input case
-@test str == rev_detokenizer(tokenized)
+
+@testset "multi-byte character output" begin
+	str = "Some of 100,000 households (usually, a minority) ate breakfast."
+	tokenized = ["Some", "of", "100", "\ue302,\ue302", "000", "households", "(\ue302", "usually", "\ue302,", "a", "minority", "\ue302)", "ate", "breakfast", "\ue302."]
+
+	@test tokenized == String.(rev_tokenizer(str))         
+	@test str == rev_detokenizer(tokenized)                
+end
+
+
+@testset "multi-byte character input" begin
+	str = "The quick brown fox jumped over the lazy dog ⌣⌣"
+	tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog", "⌣", "\ue302⌣"]
+
+	@test tokenized == String.(rev_tokenizer(str))        
+	@test str == rev_detokenizer(tokenized)
+end
