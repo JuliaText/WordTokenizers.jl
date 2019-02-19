@@ -3,8 +3,8 @@
 A simple reversible tokenizer
 
 ```
-tokenized = rev_tokenizer(instring)
-de_tokenized = rev_detokenizer(token)
+tokenized = rev_tokenize(instring)
+de_tokenized = rev_detokenize(token)
 ```
 
 The rev_tokenize tokenizer splits into token based on space, punctuations and special symbols and in 
@@ -38,7 +38,7 @@ function nth_ind(instring, startind, n)
 end
 
 
-function rev_tokenizer(instring::AbstractString)
+function rev_tokenize(instring::AbstractString)
     ans = IOBuffer()
     for ind in eachindex(instring)
         c   = instring[thisind(instring, ind)]
@@ -62,7 +62,7 @@ function rev_tokenizer(instring::AbstractString)
 end
 
 
-function rev_detokenizer(instring::Array{String})
+function rev_detokenize(instring::Array{String})
     ind = 1
     ans = IOBuffer()
     instring = join(instring, " ")
