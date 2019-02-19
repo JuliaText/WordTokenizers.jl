@@ -5,8 +5,8 @@ using WordTokenizers
 	str = "The quick brown fox jumped over the lazy dog"                
 	tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog"]
 
-	@test tokenized == String.(rev_tokenizer(str))           
-	@test str == rev_detokenizer(tokenized)              
+	@test tokenized == String.(rev_tokenize(str))           
+	@test str == rev_detokenize(tokenized)              
 end
 
 
@@ -14,7 +14,7 @@ end
     	str = "Some of   100,000 households (usually, a minority) ate breakfast.  "
     	tokenized = ["Some", "of", "100", "\ue302,\ue302", "000", "households", "(\ue302", "usually", "\ue302,", "a", "minority", "\ue302)", "ate", "breakfast", "\ue302."]
 
-	@test tokenized == String.(rev_tokenizer(str))        
+	@test tokenized == String.(rev_tokenize(str))        
 end
 
 
@@ -22,8 +22,8 @@ end
 	str = "Some of 100,000 households (usually, a minority) ate breakfast."
 	tokenized = ["Some", "of", "100", "\ue302,\ue302", "000", "households", "(\ue302", "usually", "\ue302,", "a", "minority", "\ue302)", "ate", "breakfast", "\ue302."]
 
-	@test tokenized == String.(rev_tokenizer(str))         
-	@test str == rev_detokenizer(tokenized)                
+	@test tokenized == String.(rev_tokenize(str))         
+	@test str == rev_detokenize(tokenized)                
 end
 
 
@@ -31,6 +31,6 @@ end
 	str = "The quick brown fox jumped over the lazy dog ⌣⌣"
 	tokenized = ["The", "quick", "brown", "fox", "jumped", "over", "the", "lazy", "dog", "⌣", "\ue302⌣"]
 
-	@test tokenized == String.(rev_tokenizer(str))        
-	@test str == rev_detokenizer(tokenized)
+	@test tokenized == String.(rev_tokenize(str))        
+	@test str == rev_detokenize(tokenized)
 end
