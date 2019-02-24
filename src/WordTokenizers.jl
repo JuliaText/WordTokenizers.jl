@@ -13,11 +13,11 @@ include("words/fast.jl")
 
 include("words/simple.jl")
 include("words/nltk_word.jl")
+include("words/reversible_tokenize.jl")
 include("words/sedbased.jl")
 include("sentences/sentence_splitting.jl")
 
 include("set_method_api.jl")
 include("split_api.jl")
-include("reversible_tokenize.jl")
 
 end # module
