@@ -3,9 +3,18 @@
 
 const nltk_atoms = collect.(["--", "...", "``", "\$"])
 const nltk_suffixes = collect.(["'ll", "'re", "'ve", "n't", "'s", "'m", "'d"])
-const nltk_splits = [("cannot", 3), ("gimme", 3), ("lemme", 3), ("mor'n", 3),
-                     ("d'ye", 3), ("gonna", 3), ("gotta", 3), ("wanna", 3),
-                     ("'tis", 2), ("'twas", 2)]
+const nltk_splits = [
+    "cannot"=>("can", "not"),
+    "gimme"=>("gim", "me"),
+    "lemme"=>("lem", "me"),
+    "mor'n"=>("mor", "'n"),
+    "d'ye"=>("d'n", "e"),
+    "gonna"=>("gon","na"),
+    "gotta"=>("got","ta"),
+    "wanna"=>("wan","na"),
+    "'tis"=>("'t", "is"),
+    "'twas"=>("'t", "was"),
+]
 
 """
     nltk_word_tokenize(input)
@@ -37,7 +46,7 @@ function nltk_word_tokenize(input)
     openquote(ts) ||
     suffixes(ts, nltk_suffixes) ||
     atoms(ts, nltk_atoms) ||
-    splits(ts, nltk_splits) ||
+    replaces(ts, nltk_splits) ||
     number(ts) ||
     character(ts)
     !isdone(ts) && closingquote(ts)
