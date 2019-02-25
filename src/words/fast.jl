@@ -167,16 +167,19 @@ function suffixes(ts, ss)
 end
 
 """
-    splits(::TokenBuffer, [("cannot", 3), ("gimme", 3), ...])
+    replaces(::TokenBuffer, ["cannot"=>("can", "not"), ("freeeee"=>("free",), ...])
 
-Matches tokens that should be split at the given index. For example, `cannot`
-would be split into `can` and `not`.
+Matches tokens, and flushs their replacement to the stream.
+The replacements should be a tuple of strings (potentially a 1-tuple), as this
+can be used for splitting tokens.
+For example, `cannot` would be split into `can` and `not`.
+`freeeee` would be replaced with `free`
 """
-function splits(ts, ss)
-  for (s, l) in ss
-    lookahead(ts, s, boundary=true) || continue
-    flush!(ts, s[1:l], s[l+1:end])
-    ts.idx += length(s)
+function replaces(ts, ss)
+  for (pat, subs) in ss
+    lookahead(ts, pat, boundary=true) || continue
+    flush!(ts, subs...)
+    ts.idx += length(pat)
     return true
   end
   return false
