@@ -175,9 +175,9 @@ can be used for splitting tokens.
 For example, `cannot` would be split into `can` and `not`.
 `freeeee` would be replaced with `free`
 """
-function replaces(ts, ss)
+function replaces(ts, ss, boundary = true)
   for (pat, subs) in ss
-    lookahead(ts, pat, boundary=true) || continue
+    lookahead(ts, pat, boundary) || continue
     flush!(ts, subs...)
     ts.idx += length(pat)
     return true
