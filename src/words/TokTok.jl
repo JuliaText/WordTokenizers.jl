@@ -6,14 +6,14 @@ const NON_BREAKING = ["\u00A0"], " "
 # Pad some funky punctuation.
 const FUNKY_PUNCT_1 = String.(split("،;؛¿!])}»›”؟¡%٪°±©®।॥…", ""))
 # Pad more funky punctuation.
-const FUNKY_PUNCT_2 = String.(split("\[“‘„‚«‹「『", ""))          
+const FUNKY_PUNCT_2 = String.(split("[“‘„‚«‹「『", ""))          
 # Pad En dash and em dash
 const EN_EM_DASHES = ["–—"]
 
 # Replace problematic character with numeric character reference.
 const AMPERCENT = ["&"], "&amp;"
 const TAB = ["\t"], "&#9;"
-const PIPE = ["\|"], "&#124;"
+const PIPE = ["|"], "&#124;"
 
 # Just pad problematic (often neurotic) hyphen/single quote, etc.
 const PROB_SINGLE_QUOTES = ["'", "’", "`"]           
@@ -127,7 +127,7 @@ This handles type of regex where a string is to be matched and it must not be
 proceeded by some specific pattern.
 Flushes them. 
 Eg. URL_FOE_1 = r":(?!//)"
-    URL_FOE_2 = r"\?(?!\S)"
+    URL_FOE_2 = r"\\?(?!\\S)"
 """
 function url_handler(ts::TokenBuffer, str, pattern::String)
     if lookahead(ts, str)
