@@ -167,7 +167,7 @@ function suffixes(ts, ss)
 end
 
 """
-    replaces(::TokenBuffer, ["cannot"=>("can", "not"), ("freeeee"=>("free",), ...])
+    replaces(::TokenBuffer, ["cannot"=>("can", "not"), ("freeeee"=>("free",), ...]; boundary = true)
 
 Matches tokens, and flushs their replacement to the stream.
 The replacements should be a tuple of strings (potentially a 1-tuple), as this
@@ -175,7 +175,7 @@ can be used for splitting tokens.
 For example, `cannot` would be split into `can` and `not`.
 `freeeee` would be replaced with `free`
 """
-function replaces(ts, ss, boundary = true)
+function replaces(ts, ss; boundary = true)
   for (pat, subs) in ss
     lookahead(ts, pat, boundary) || continue
     flush!(ts, subs...)
