@@ -24,7 +24,7 @@ The simplest possible tokeniser accepts any `character` with no token breaks:
       return ts.tokens
     end
 
-    tokenise("foo bar baz") # ["foo bar baz"]
+    tokenise("foo bar baz") # ["foo bar baz"]
 
 The second simplest splits only on spaces:
 
@@ -167,7 +167,7 @@ function suffixes(ts, ss)
 end
 
 """
-    replaces(::TokenBuffer, ["cannot"=>("can", "not"), ("freeeee"=>("free",), ...]; boundary = true)
+    replaces(::TokenBuffer, ["cannot"=>("can", "not"), ("freeeee"=>("free",), ...; boundary = true)
 
 Matches tokens, and flushs their replacement to the stream.
 The replacements should be a tuple of strings (potentially a 1-tuple), as this
@@ -177,7 +177,7 @@ For example, `cannot` would be split into `can` and `not`.
 """
 function replaces(ts, ss; boundary = true)
   for (pat, subs) in ss
-    lookahead(ts, pat, boundary) || continue
+    lookahead(ts, pat, boundary= boundary) || continue
     flush!(ts, subs...)
     ts.idx += length(pat)
     return true
