@@ -48,12 +48,13 @@ const CLOSE_PUNCT =(
     
 # This is the \p{Close_Punctuation} from Perl's perluniprops             
 const CURRENCY_SYM = (
-        "\xa2", "\xa3", "\xa4", "\xa5", "\u058f", "\u060b", "\u09f2", "\u09f3", "\u09fb",
+        "\u00a2", "\u00a3", "\u00a4", "\u00a5", "\u058f", "\u060b", "\u09f2", "\u09f3", 
         "\u0af1", "\u0bf9", "\u0e3f", "\u17db", "\u20a0", "\u20a1", "\u20a2", "\u20a3",
         "\u20a4", "\u20a5", "\u20a6", "\u20a7", "\u20a8", "\u20a9", "\u20aa", "\u20ab",
         "\u20ac", "\u20ad", "\u20ae", "\u20af", "\u20b0", "\u20b1", "\u20b2", "\u20b3",
         "\u20b4", "\u20b5", "\u20b6", "\u20b7", "\u20b8", "\u20b9", "\u20ba", "\ua838",
-        "\ufdfc", "\ufe69", "\uff04", "\uffe0", "\uffe1", "\uffe5", "\uffe6")
+        "\ufdfc", "\ufe69", "\uff04", "\uffe0", "\uffe1", "\uffe5", "\uffe6", "\u09fb",)
+
 
 # Use for tokenizing URL-unfriendly characters: [:/?#]
 const URL_FOE_3 = (":", "/", "+", ".", "\r", "\n", "\t", "\f", "\v",) => "/"
@@ -67,13 +68,14 @@ const ONE_SPACE = ("  ",) => " "
 
 
 const rules_atoms = [
+        CURRENCY_SYM,
         FUNKY_PUNCT_1,
         FUNKY_PUNCT_2,
         EN_EM_DASHES,
         PROB_SINGLE_QUOTES,
         OPEN_PUNCT,
-        CLOSE_PUNCT,
-        CURRENCY_SYM
+        CLOSE_PUNCT
+        
     ]
 
 const rules_replaces = [
@@ -90,11 +92,11 @@ const rules_replaces = [
 
 function toktok_tokenize(instring::AbstractString)
     ts = TokenBuffer(instring)
-    isempty(input) && return ts.tokens
+    isempty(ts.input) && return ts.tokens
  
     flag = length(ts.input)
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
-    if ts.input[end-1 : end] != ".."
+    if length(ts.input) >= 2 && ts.input[end] == "." && ts.input[end-1] != "."
         flush!(ts, ".")
         flag -= 1
     end
@@ -110,19 +112,21 @@ function toktok_tokenize(instring::AbstractString)
             flush!(ts, ts.input[i:end])
         end
     end
- 
+    
     while !isdone(ts) && ts.idx <= flag
-       atoms(ts, vcat(rules_atoms...)) || 
+      atoms(ts, Tuple(Iterators.flatten(rules_atoms))) || 
        replaces(ts, vcat(rules_replaces...)) || 
        replaces(ts, vcat(LSTRIP, RSTRIP), boundary = true) ||
        url_handler(ts, ":", "//") || 
        url_handler(ts, "?", RSTRIP[1]) ||
        repeated_character_seq(ts, ",", 2) || 
        repeated_character_seq(ts, "-", 2) || 
-       repeated_character_seq(ts, ".", 2) 
-       number(ts) || 
+       repeated_character_seq(ts, ".", 2) ||
+       number(ts) ||
+       spaces(ts) || 
        character(ts)
     end
+    flush!(ts)
     return ts.tokens
 end
 
@@ -146,7 +150,7 @@ function url_handler(ts::TokenBuffer, str, pattern::String)
     return false
 end
 
-function url_handler(ts::TokenBuffer, str, patterns::Array{String})
+function url_handler(ts::TokenBuffer, str, patterns::NTuple{N, String}) where {N}
     if lookahead(ts, str)
         for pattern in patterns
             for i in 1: length(pattern)
@@ -171,8 +175,8 @@ function repeated_character_seq(ts, char, min_repeats=2)
   end
   seq_end_ind = i - 1  # remove last failing step
 
-  seq_end_ind - ts.ind < min_repeats && return false  # not enough repeats.
+  seq_end_ind - ts.idx < min_repeats && return false  # not enough repeats.
   flush!(ts, String(ts[ts.idx : seq_end_ind]))
   ts.idx = seq_end_ind + 1 
   return true
-    end
+end
