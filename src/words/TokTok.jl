@@ -1,6 +1,5 @@
 # Tok-Tok Tokenizer
 # Replace non-breaking spaces with normal spaces.
-
 const NON_BREAKING = ("\u00A0",) => " "
 
 # Pad some funky punctuation.
@@ -55,45 +54,68 @@ const CURRENCY_SYM = (
         "\u20b4", "\u20b5", "\u20b6", "\u20b7", "\u20b8", "\u20b9", "\u20ba", "\ua838",
         "\ufdfc", "\ufe69", "\uff04", "\uffe0", "\uffe1", "\uffe5", "\uffe6", "\u09fb",)
 
-
-# Use for tokenizing URL-unfriendly characters: [:/?#]
-const URL_FOE_3 = (":", "/", "+", ".", "\r", "\n", "\t", "\f", "\v",) => "/"
-const URL_FOE_4 = (" /",) => "/"
-
 # Left/Right strip, i.e. remove heading/trailing spaces.
 const LSTRIP = (" ",) => ""           
 const RSTRIP = ("\r", "\n", "\t", "\f", "\v",) => "\n"  
 # Merge multiple spaces.
 const ONE_SPACE = ("  ",) => " "
 
-
-const rules_atoms = [
+rules_atoms = [
         CURRENCY_SYM,
         FUNKY_PUNCT_1,
         FUNKY_PUNCT_2,
         EN_EM_DASHES,
         PROB_SINGLE_QUOTES,
         OPEN_PUNCT,
-        CLOSE_PUNCT
-        
+        CLOSE_PUNCT    
     ]
+rules_atoms = Tuple(Iterators.flatten(rules_atoms))
 
-const rules_replaces = [
+rules_replaces = [
         NON_BREAKING,
         AMPERCENT,
         TAB,
         PIPE,
         STUPID_QUOTES_1,
         STUPID_QUOTES_2,
-        URL_FOE_3,
-        URL_FOE_4,
         ONE_SPACE
     ]
+rules_replaces = vcat(rules_replaces...)
+
+rules_splitting = vcat(LSTRIP, RSTRIP)
 
 function toktok_tokenize(instring::AbstractString)
     ts = TokenBuffer(instring)
     isempty(ts.input) && return ts.tokens
  
+    flag = handle_final_periods(ts)
+    
+    while !isdone(ts) && ts.idx <= flag
+        url_handler1(ts) ||   # these url handlers have priority over others
+        url_handler2(ts) ||
+        url_handler3(ts) || 
+        url_handler4(ts) ||
+        atoms(ts, rules_atoms) ||
+        replaces(ts, rules_replaces) || 
+        replaces(ts, rules_splitting, boundary = true) ||
+        repeated_character_seq(ts, ",", 2) || 
+        repeated_character_seq(ts, "-", 2) || 
+        repeated_character_seq(ts, ".", 2) ||
+        number(ts) ||
+        spaces(ts) || 
+        character(ts)
+    end
+    flush!(ts)
+    return ts.tokens
+end
+
+"""
+    handle_final_periods(::TokenBuffer)
+Handles the following rules using TokenBuffer API:  
+FINAL_PERIOD_1
+FINAL_PERIOD_2
+"""
+function handle_final_periods(ts::TokenBuffer)
     flag = length(ts.input)
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
     if length(ts.input) >= 2 && ts.input[end] == "." && ts.input[end-1] != "."
@@ -112,56 +134,93 @@ function toktok_tokenize(instring::AbstractString)
             flush!(ts, ts.input[i:end])
         end
     end
-    
-    while !isdone(ts) && ts.idx <= flag
-      atoms(ts, Tuple(Iterators.flatten(rules_atoms))) || 
-       replaces(ts, vcat(rules_replaces...)) || 
-       replaces(ts, vcat(LSTRIP, RSTRIP), boundary = true) ||
-       url_handler(ts, ":", "//") || 
-       url_handler(ts, "?", RSTRIP[1]) ||
-       repeated_character_seq(ts, ",", 2) || 
-       repeated_character_seq(ts, "-", 2) || 
-       repeated_character_seq(ts, ".", 2) ||
-       number(ts) ||
-       spaces(ts) || 
-       character(ts)
-    end
-    flush!(ts)
-    return ts.tokens
+    return flag
 end
 
-
 """
-    url_handler(::TokenBuffer, string, pattern)
-This handles type of regex where a string is to be matched and it must not be 
-proceeded by some specific pattern.
-Flushes them. 
-Eg. URL_FOE_1 = r":(?!//)"
-    URL_FOE_2 = r"\\?(?!\\S)"
+    url_handler1(::TokenBuffer)
+Handles this rule from python using TokenBuffer API:  
+URL_FOE_1 = re.compile(r':(?!//)'), r' : '  
 """
-function url_handler(ts::TokenBuffer, str, pattern::String)
-    if lookahead(ts, str)
-        for i in 1: length(pattern)
-            ts.input[ts.idx + length(str) -1 + i] != pattern[i] || return false
-        end
+function url_handler1(ts::TokenBuffer)
+    str = ":"
+    pattern = "//"
+    if ts.idx + length(pattern) <= length(ts.input) && ts.input[ts.idx] == str && 
+       ts.input[ts.idx + 1: ts.idx + length(pattern)] != pattern
         flush!(ts, str)
+        return true
+    elseif ts.idx + length(pattern) <= length(ts.input) && ts.input[ts.idx] == str
+        for i in 1: length(pattern) + 1
+            push!(ts.buffer, ts.input[ts.idx])
+            ts.idx += 1
+        end
         return true
     end
     return false
 end
 
-function url_handler(ts::TokenBuffer, str, patterns::NTuple{N, String}) where {N}
-    if lookahead(ts, str)
-        for pattern in patterns
-            for i in 1: length(pattern)
-                ts.input[ts.idx + length(str) -1 + i] != pattern[i] || return false
+"""
+    url_handler2(::TokenBuffer)
+Handles this rule from python using TokenBuffer API:  
+URL_FOE_2 = re.compile(r'\\?(?!\\S)'), r' ? '  
+"""
+function url_handler2(ts::TokenBuffer)
+    str = "?"
+    if ts.idx + 1 <= length(ts.input) && ts.input[ts.idx] == str && isspace(ts.input[ts.idx + 1])
+        flush!(ts, str)
+        return true
+    elseif ts.idx + 1 <= length(ts.input) && ts.input[ts.idx] == str
+        for i in 1: 2
+            push!(ts.buffer, ts.input[ts.idx])
+            ts.idx += 1
+        end
+        return true
+    end
+    return false
+end
+
+"""
+    url_handler3(::TokenBuffer)
+Handles this rule from python using TokenBuffer API:  
+URL_FOE_3 = re.compile(r'(://)[\\S+\\.\\S+/\\S+][/]'), ' / '
+"""
+function url_handler3(ts::TokenBuffer)
+    str = "://"
+    pattern = [":", "/", "."]
+    if lookahead(ts, str) && ts.idx + 4 <= length(ts.input)
+        if (ts.input[ts.idx + length(str)] in pattern || isspace(ts.input[ts.idx + length(str)])) && 
+            ts.input[ts.idx + length(str) + 1] == "/"
+            flush!(ts, "/")
+            ts.idx += 4
+            return true
+        else
+            for i in 1: 5
+                push!(ts.buffer, ts.input[ts.idx])
+                ts.idx += 1
             end
-            flush!(ts, str)
             return true
         end
     end
     return false
 end
+
+"""
+    url_handler4(::TokenBuffer)
+Handles this rule from python using TokenBuffer API:  
+URL_FOE_4 = re.compile(r' /'), r' / '
+"""
+function url_handler4(ts::TokenBuffer)
+    if lookahead(ts, " /")
+        flush!(ts, "/")
+        ts.idx += 1
+        return true
+    elseif lookahead(ts, "/")
+        push!(ts.buffer, '/')
+        ts.idx += 1
+    end
+    return false
+end
+
 
 """
     repeated_character_seq(::TokenBuffer, char, min_repeats=2)
