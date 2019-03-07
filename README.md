@@ -60,6 +60,8 @@ The word tokenizers basically assume sentence splitting has already been done.
  - **Penn Tokenizer:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokenizer used for the Penn Treebank. Splits contractions.
  - **Improved Penn Tokenizer:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
  - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step. **(default tokenizer)**
+- **Reversible Tokenizer:** (`rev_tokenize` and `rev_detokenize`) This tokenizer splits on punctuations, space and special symbols. The generated tokens can be de-tokenized by using the `rev_detokenizer` function into the state before tokenization. 
+
 
   (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005))
 

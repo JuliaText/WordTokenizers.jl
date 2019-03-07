@@ -5,7 +5,9 @@ files = ["simple",
          "sedbased",
          "sentence_splitting",
          "set_method_api",
-         "tweet_tokenize"
+         "tweet_tokenize",
+	 "reversible_tok"
+
         ]
 
 @testset "$file" for file in files
