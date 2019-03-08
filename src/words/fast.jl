@@ -198,7 +198,7 @@ function openquote(ts)
 end
 
 """
-    openquote(::TokenBuffer)
+    closingquote(::TokenBuffer)
 
 Matches " used as a closing quote, and tokenises it as ''.
 """
