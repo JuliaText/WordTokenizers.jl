@@ -3,7 +3,6 @@ module WordTokenizers
 
 using HTML_Entities
 using StrTables
-using StringEncodings
 using Unicode
 
 

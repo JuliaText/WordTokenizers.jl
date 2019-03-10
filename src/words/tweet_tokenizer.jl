@@ -106,8 +106,6 @@ const WORD_REGEX = Regex("(?i:" * join([URLS.pattern
 # WORD_REGEX performs poorly on these patterns:
 const HANG_REGEX = r"""([^a-zA-Z0-9])\1{3,}"""
 
-# Regex for replacing HTML_Entities
-const HTML_ENTITIES_REGEX = r"""&(#?(x?))([^&;\s]+);"""
 
 const HANDLES_REGEX = r"""(?x)
                 (?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){20}(?!@))
@@ -117,74 +115,107 @@ const HANDLES_REGEX = r"""(?x)
 
 
 """
-    replace_html_entities(input_text::AbstractString,
-                    remove_illegal=true) => (entities_replaced_text::AbstractString)
+html_entities(ts::TokenBuffer; remove_illegal=true)
 
 Removes entities from text by converting them to their corresponding unicode character.
-`input_text::AbstractString` The string on which HTML entities need to be replaced
+
+`remove_illegal::Bool` If `true`, entities that can't be converted are
+removed. Otherwise, entities that can't be converted are kept "as
+is".
+
+HTML entity can be named or encoded in Decimal/Hex form
+- Named_entity : "&Delta;" => "Δ",
+- Decimal : "&#916;" => "Δ",
+- Hex : "&#x394;" => "Δ",
+However for bytes (hex) 80-9f are interpreted in Windows-1252
+
+"""
+function html_entity(ts::TokenBuffer, remove_illegal=true)
+  (ts.idx + 1 > length(ts.input) || ts.input[ts.idx] != '&' ) && return false
+  if ts.input[ts.idx + 1] != '#'    # Entity is of the type "&Delta;" => "Δ"
+    i = ts.idx + 1
+    while i <= length(ts.input) && isascii(ts[i]) &&
+            (isdigit(ts[i]) || islowercase(ts[i]) || isuppercase(ts[i]))
+      i += 1
+    end
+    (i > length(ts.input) || ts[i] != ';') && return false
+    entity = lookupname(HTML_Entities.default, String(ts[ts.idx+1:i-1]))
+    isempty(entity) && !remove_illegal && return false
+    !isempty(entity) && push!(ts.buffer, entity[1])
+    ts.idx = i + 1
+    return true
+  else
+    number = -1
+    i = ts.idx + 2
+    if ts.input[ts.idx + 2] != 'x'    # Entity is of the type "&#916;" => "Δ"
+      while i <= length(ts.input) && isdigit(ts[i])
+        i += 1
+      end
+      (i > length(ts.input) || ts[i] != ';') && return false
+      if ((ts.idx + 2 ) == i)
+        !remove_illegal && return false
+        ts.idx +=3
+        return true
+      end
+      (number = parse(Int, String(ts[ts.idx+2:i-1]), base=10))
+    else   # Entity is of the type "&#x394;" => "Δ"
+      i += 1
+      base16letters = ('a', 'b', 'c', 'd', 'e', 'f')
+      while i <= length(ts.input) && (isdigit(ts[i]) || ts[i] in base16letters)
+        i += 1
+      end
+      (i > length(ts.input) || ts[i] != ';') && return false
+
+      if (ts.idx + 3) == i
+        !remove_illegal && return false
+        ts.idx += 4
+        return true
+      end
+      number = parse(Int, String(ts[ts.idx+3:i-1]), base=16)
+    end
+
+    windows_1252_chars = ['€', '\u81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰',
+                          'Š', '‹', 'Œ', '\u8d','Ž', '\u8f', '\u90', '‘', '’',
+                          '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ',
+                          '\u9d', 'ž', 'Ÿ']
+    if 0x80 <= number <= 0x9F
+      push!(ts.buffer, windows_1252_chars[number - 127])
+      ts.idx = i + 1
+      return true
+    end
+    if (number <= 0 || !Unicode.isassigned(number))
+        !remove_illegal && return false
+        ts.idx = i + 1
+    else
+    push!(ts.buffer, Char(number))
+    ts.idx = i + 1
+    end
+  end
+  return true
+end
+
+
+
+"""
+    replace_html_entities(input::AbstractString,
+                    remove_illegal=true) => (entities_replaced_text::AbstractString)
+
+
+`input::AbstractString` The string on which HTML entities need to be replaced
 `remove_illegal::Bool` If `true`, entities that can't be converted are
 removed. Otherwise, entities that can't be converted are kept "as
 is".
 Returns `entities_replaced_text::AbstractString`
 """
-function replace_html_entities(input_text::AbstractString; remove_illegal=true)
+function replace_html_entities(input::AbstractString; remove_illegal=true)
+    ts = TokenBuffer(input)
+    isempty(input) && return ts.tokens
 
-    function convert_entity(matched_text)
-        # HTML entity can be named or encoded in Decimal/Hex form
-        # - Named_entity : "&Delta;" => "Δ",
-        # - Decimal : "&#916;" => "Δ",
-        # - Hex : ""&#x394;" => "Δ",
-        #
-        # However for bytes (hex) 80-9f are interpreted in Windows-1252
-        is_numeric_encoded, is_hex_encoded, entity_text = match(HTML_ENTITIES_REGEX,
-                                                matched_text).captures
-        number = -1
-
-        if isempty(is_numeric_encoded)
-            return lookupname(HTML_Entities.default, entity_text)
-        else
-            if isempty(is_hex_encoded)
-                is_numeric = all(isdigit, entity_text)
-                if is_numeric
-                    number = parse(Int, entity_text, base=10)
-                end
-            else
-                base_16_letters = ('a', 'b', 'c', 'd', 'e', 'f')
-                is_base_16 = all(entity_text) do i
-                    isdigit(i) || i in base_16_letters
-                end
-                if is_base_16
-                    number = parse(Int, entity_text, base=16)
-                end
-            end
-
-            # Numeric character references in the 80-9F range are typically
-            # interpreted by browsers as representing the characters mapped
-            # to bytes 80-9F in the Windows-1252 encoding. For more info
-            # see: https://en.wikipedia.org/wiki/ISO/IEC_8859-1#Similar_character_sets
-
-            if number >= 0
-                if 0x80 <= number <= 0x9F
-                    if number ∉ (129, 141, 143, 144, 157)
-                        return decode([UInt8(number)], "WINDOWS-1252")
-                    end
-                elseif Unicode.isassigned(number)
-                        return Char(number)
-                end
-            end
-        end
-
-        if remove_illegal
-            return ""
-        else
-            return matched_text
-        end
+    while !isdone(ts)
+      html_entity(ts, remove_illegal) || character(ts)
     end
-
-    entities_replaced_text = replace(input_text, HTML_ENTITIES_REGEX => convert_entity)
-    return entities_replaced_text
+    return ts.tokens[1]
 end
-
 
 """
     tweet_tokenize(input::AbstractString) => tokens
@@ -231,6 +262,7 @@ function tweet_tokenize(source::AbstractString;
                             reduce_len=false,
                             preserve_case=true )
 
+    length(source) == 0 && return []
     # Fix HTML Character entities
     source = replace_html_entities(source)
     # Remove username handles
@@ -258,3 +290,4 @@ function tweet_tokenize(source::AbstractString;
 
     return tokens
 end
+
