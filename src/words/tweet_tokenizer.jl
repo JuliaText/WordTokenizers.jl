@@ -102,17 +102,7 @@ const WORD_REGEX = Regex("(?i:" * join([URLS.pattern
                     * ")"
                     )
 
-
-# WORD_REGEX performs poorly on these patterns:
 const HANG_REGEX = r"""([^a-zA-Z0-9])\1{3,}"""
-
-
-const HANDLES_REGEX = r"""(?x)
-                (?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){20}(?!@))
-                |
-                (?<![A-Za-z0-9_!@#\$%&*])@(([A-Za-z0-9_]){1,19})(?![A-Za-z0-9_]*@)
-                """
-
 
 """
 html_entities(ts::TokenBuffer; remove_illegal=true)
@@ -184,8 +174,8 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
       return true
     end
     if (number <= 0 || !Unicode.isassigned(number))
-        !remove_illegal && return false
-        ts.idx = i + 1
+      !remove_illegal && return false
+      ts.idx = i + 1
     else
     push!(ts.buffer, Char(number))
     ts.idx = i + 1
@@ -194,27 +184,140 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
   return true
 end
 
+"""
+lookbehind(ts::TokenBuffer)
+A helper function for twitter_handle. Checks if the beginning of the detected
+handle is preceded by alphanumeric or special chars like('_', '!', '@', '#', '\$', '%', '&', '*')
+"""
+
+function lookbehind(ts::TokenBuffer,
+                match_pattern = ('_', '!', '@', '#', '$', '%', '&', '*'))
+  ts.idx == 1 && return false
+
+  c = ts[ts.idx - 1]
+  ( islowercase(c) || isdigit(c) || isuppercase(c) || c ∈ match_pattern ) && return true
+
+  return false
+end
 
 
 """
-    replace_html_entities(input::AbstractString,
-                    remove_illegal=true) => (entities_replaced_text::AbstractString)
+  twitter_handle(ts::TokenBuffer)
+
+For removing Twitter Handles. If it detects a twitter handle, then it jumps to
+makes the index of TokenBuffer to the desired location skipping the handle.
+"""
+function twitter_handle(ts)
+
+  (ts.idx + 2 > length(ts.input) || ts.input[ts.idx] != '@' ) && return false
+  lookbehind(ts) && return false
+
+  i = ts.idx + 1
+  while i <= length(ts.input) &&
+          ( isascii(ts[i]) && (isdigit(ts[i]) || islowercase(ts[i]) ||
+           isuppercase(ts[i]) || ts[i] == '_'))
+    i += 1
+  end
+  (i <= length(ts.input)) && (i == ts.idx + 1 || ts[i] == '@') && return false
+
+  ts.idx = i
+  return true
+end
+
+
+"""
+  reduce_all_repeated(ts::TokenBuffer)
+
+For handling repeated characters like "helloooooo" -> :hellooo".
+
+"""
+function reduce_all_repeated(ts)
+  ts.idx + 4 > length(ts.input) && return false
+
+  (ts[ts.idx] == '\n' || ts[ts.idx] != ts[ts.idx + 1] ||
+          ts[ts.idx] != ts[ts.idx + 2]) && return false
+
+  i = ts.idx + 3
+  while i <= length(ts.input) && ts[i] == ts[ts.idx]
+    i += 1
+  end
+  for i in 1:3
+    push!(ts.buffer, ts[ts.idx])
+  end
+  ts.idx = i
+  return true
+end
+
+"""
+  safe_text(ts::TokenBuffer)
+
+This feature covers up for the characters where the main tokenizing function lacks
+For example - "........" -> "..." and this is detected by the key tokenizer as a
+single token of "..."
+"""
+function safe_text(ts)
+  ts.idx + 4 > length(ts.input) && return false
+
+  ((isascii(ts[ts.idx]) && ( islowercase(ts[ts.idx]) ||
+                 isuppercase(ts[ts.idx]) ||  isdigit(ts[ts.idx]))) ||
+          ts[ts.idx] != ts[ts.idx + 1] ||
+          ts[ts.idx] != ts[ts.idx + 2] )  && return false
+
+  i = ts.idx + 3
+
+  while i <= length(ts.input) && ts[i] == ts[ts.idx]
+    i += 1
+  end
+  for i in 1:3
+    push!(ts.buffer, ts[ts.idx])
+  end
+  ts.idx = i
+  return true
+end
+
+
+"""
+    replace_html_entities(input::AbstractString, remove_illegal=true)
 
 
 `input::AbstractString` The string on which HTML entities need to be replaced
 `remove_illegal::Bool` If `true`, entities that can't be converted are
 removed. Otherwise, entities that can't be converted are kept "as
 is".
-Returns `entities_replaced_text::AbstractString`
+
 """
 function replace_html_entities(input::AbstractString; remove_illegal=true)
-    ts = TokenBuffer(input)
-    isempty(input) && return ts.tokens
+  ts = TokenBuffer(input)
+  isempty(input) && return ""
 
-    while !isdone(ts)
-      html_entity(ts, remove_illegal) || character(ts)
-    end
-    return ts.tokens[1]
+  while !isdone(ts)
+    html_entity(ts, remove_illegal) || character(ts)
+  end
+  return ts.tokens[1]
+end
+
+
+"""
+function  pre_process(input::AbstractString, strip_handle=false,
+                            reduce_len=false) => ()
+
+This function processes on the input string and optionally remove twitter handles
+and reduce length of repeated characters (like "waaaaay" -> "waaay")
+and for elements like ".........?????? -> "...???" to increase the performance
+of the key tokenizer.
+"""
+function pre_process(input::AbstractString, strip_handle::Bool, reduce_len::Bool)
+  ts = TokenBuffer(input)
+  isempty(input) && return ""
+
+  while !isdone(ts)
+    (strip_handle && twitter_handle(ts)) ||   # Remove username handles
+    (reduce_len && reduce_all_repeated(ts)) ||    # Reduce Lengthening
+    safe_text(ts) ||  # Shorten some sequences of characters
+    character(ts)
+  end
+
+  return ts.tokens[1]
 end
 
 """
@@ -262,32 +365,24 @@ function tweet_tokenize(source::AbstractString;
                             reduce_len=false,
                             preserve_case=true )
 
-    length(source) == 0 && return []
-    # Fix HTML Character entities
-    source = replace_html_entities(source)
-    # Remove username handles
-    if strip_handle
-        source = replace(source, HANDLES_REGEX => " ")
-    end
-    # Reduce Lengthening
-    if reduce_len
-        source = replace(source, r"(.)\1{2,}" => s"\1\1\1")
-    end
-    # Shorten some sequences of characters
-    safe_text = replace(source, r"""([^a-zA-Z0-9])\1{3,}""" => s"\1\1\1")
-    # Tokenize
-    tokens = collect((m.match for m in eachmatch(WORD_REGEX,
-                                            safe_text,
-                                            overlap=false)))
-    # Alter the case with preserving it for emoji
-    if  !preserve_case
-        for (index, word) in enumerate(tokens)
-            if !occursin(EMOTICONS_REGEX, word)
-                tokens[index] = lowercase(word)
-            end
-        end
-    end
+  length(source) == 0 && return []
+  # Fix HTML Character entities
+  source = replace_html_entities(source)
 
-    return tokens
+  length(source) == 0 && return []
+  safe_text = pre_process(source, strip_handle, reduce_len)
+
+  tokens = collect((m.match for m in eachmatch(WORD_REGEX,
+                                          safe_text,
+                                          overlap=false)))
+  # Alter the case with preserving it for emoji
+  if  !preserve_case
+    for (index, word) in enumerate(tokens)
+      if !occursin(EMOTICONS_REGEX, word)
+        tokens[index] = lowercase(word)
+      end
+    end
+  end
+
+  return tokens
 end
-
