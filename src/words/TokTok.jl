@@ -60,7 +60,7 @@ const RSTRIP = ("\r", "\n", "\t", "\f", "\v",) => "\n"
 # Merge multiple spaces.
 const ONE_SPACE = ("  ",) => " "
 
-rules_atoms = [
+const rules_atoms = Tuple(Iterators.flatten([
         CURRENCY_SYM,
         FUNKY_PUNCT_1,
         FUNKY_PUNCT_2,
@@ -68,10 +68,9 @@ rules_atoms = [
         PROB_SINGLE_QUOTES,
         OPEN_PUNCT,
         CLOSE_PUNCT    
-    ]
-rules_atoms = Tuple(Iterators.flatten(rules_atoms))
+    ])
 
-rules_replaces = [
+const rules_replaces = vcat(
         NON_BREAKING,
         AMPERCENT,
         TAB,
@@ -79,11 +78,16 @@ rules_replaces = [
         STUPID_QUOTES_1,
         STUPID_QUOTES_2,
         ONE_SPACE
-    ]
-rules_replaces = vcat(rules_replaces...)
+    )
 
-rules_splitting = vcat(LSTRIP, RSTRIP)
+const rules_splitting = vcat(LSTRIP, RSTRIP)
 
+"""
+    totok_tokenize(instring::AstractString)
+This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized. 
+Tok-tok has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese,
+Tajik, and a few others.
+"""
 function toktok_tokenize(instring::AbstractString)
     ts = TokenBuffer(instring)
     isempty(ts.input) && return ts.tokens
@@ -146,11 +150,11 @@ function url_handler1(ts::TokenBuffer)
     str = ":"
     pattern = "//"
     if ts.idx + length(pattern) <= length(ts.input) && ts.input[ts.idx] == str && 
-       ts.input[ts.idx + 1: ts.idx + length(pattern)] != pattern
+       ts.input[ts.idx + 1 : ts.idx + length(pattern)] != pattern
         flush!(ts, str)
         return true
     elseif ts.idx + length(pattern) <= length(ts.input) && ts.input[ts.idx] == str
-        for i in 1: length(pattern) + 1
+        for i in 1 : length(pattern) + 1
             push!(ts.buffer, ts.input[ts.idx])
             ts.idx += 1
         end
@@ -170,7 +174,7 @@ function url_handler2(ts::TokenBuffer)
         flush!(ts, str)
         return true
     elseif ts.idx + 1 <= length(ts.input) && ts.input[ts.idx] == str
-        for i in 1: 2
+        for i in 1 : 2
             push!(ts.buffer, ts.input[ts.idx])
             ts.idx += 1
         end
@@ -194,7 +198,7 @@ function url_handler3(ts::TokenBuffer)
             ts.idx += 4
             return true
         else
-            for i in 1: 5
+            for i in 1 : 5
                 push!(ts.buffer, ts.input[ts.idx])
                 ts.idx += 1
             end
