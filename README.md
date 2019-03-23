@@ -1,4 +1,9 @@
 # WordTokenizers
+[![GitHub release](https://img.shields.io/github/release/JuliaText/WordTokenizers.jl.svg)](https://github.com/JuliaText/WordTokenizers.jl/releases/)
+[![Build Status](https://travis-ci.org/JuliaText/WordTokenizers.jl.svg?branch=master)](https://travis-ci.org/JuliaText/WordTokenizers.jl)
+[![codecov](https://codecov.io/gh/JuliaText/WordTokenizers.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaText/WordTokenizers.jl)
+![AppVeyor]((https://img.shields.io/appveyor/ci/oxinabox/wordtokenizers-jl.svg)](https://ci.appveyor.com/project/oxinabox/wordtokenizers-jl)
+[![HitCount](http://hits.dwyl.io/JuliaText/WordTokenizers.svg)](http://hits.dwyl.io/JuliaText/WordTokenizers)
 Some basic tokenizers for Natural Language Processing:
 
 The normal way to used this package is to call

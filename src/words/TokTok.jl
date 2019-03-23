@@ -92,11 +92,11 @@ function toktok_tokenize(instring::AbstractString)
         url_handler3(ts) ||
         url_handler2(ts) ||
         url_handler1(ts) ||
-        atoms(ts, rules_atoms) ||
+	repeated_character_seq(ts, ',', 2) ||
+        repeated_character_seq(ts, '-', 2) ||
+        repeated_character_seq(ts, '.', 2) ||        
+	atoms(ts, rules_atoms) ||
         replaces(ts, rules_replaces) ||
-        repeated_character_seq(ts, ",", 2) ||
-        repeated_character_seq(ts, "-", 2) ||
-        repeated_character_seq(ts, ".", 2) ||
         number(ts) ||
         spaces(ts) ||      # Handles ONE_SPACE rules from original toktok perl script
         character(ts)
@@ -114,7 +114,7 @@ Don't tokenize period unless it ends the line(FINAL_PERIOD_2)
 function handle_final_periods(ts::TokenBuffer)
     effective_end = length(ts.input)
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
-    if length(ts.input) >= 2 && ts.input[end] == "." && ts.input[end-1] != "."
+    if length(ts.input) >= 2 && ts.input[end] == '.' && ts.input[end-1] != '.'
         flush!(ts, ".")
         effective_end -= 1
         return effective_end
@@ -211,12 +211,6 @@ function url_handler3(ts::TokenBuffer)
             flush!(ts, "/")
             ts.idx += 5
             return true
-        else
-            for i in 1 : 5
-                push!(ts.buffer, ts.input[ts.idx])
-                ts.idx += 1
-            end
-            return true
         end
     end
     return false
@@ -245,7 +239,7 @@ end
 Matches sequences of characters that are repreated at least `min_repeats` times.
 Treat them as fake characters and ignores them.
 """
-function repeated_character_seq(ts, char, min_repeats=2)
+function repeated_character_seq(ts, char, min_repeats = 2)
     count = 0
     ind = ts.idx
     while ind <= length(ts.input) && ts.input[ind] == char
