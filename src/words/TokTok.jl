@@ -95,10 +95,10 @@ function toktok_tokenize(instring::AbstractString)
 	repeated_character_seq(ts, ',', 2) ||
         repeated_character_seq(ts, '-', 2) ||
         repeated_character_seq(ts, '.', 2) ||        
-	atoms(ts, rules_atoms) ||
-        replaces(ts, rules_replaces) ||
-        number(ts) ||
+	number(ts) ||
         spaces(ts) ||      # Handles ONE_SPACE rules from original toktok perl script
+	replaces(ts, rules_replaces) ||    # most expensive steps, keep low priority
+	atoms(ts, rules_atoms) ||	
         character(ts)
     end
     flush!(ts)
@@ -240,7 +240,9 @@ Matches sequences of characters that are repreated at least `min_repeats` times.
 Treat them as fake characters and ignores them.
 """
 function repeated_character_seq(ts, char, min_repeats = 2)
-    count = 0
+    if ts.input[ts.idx] != char
+	return false
+    end
     ind = ts.idx
     while ind <= length(ts.input) && ts.input[ind] == char
         ind += 1

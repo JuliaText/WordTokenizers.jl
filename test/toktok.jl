@@ -2,7 +2,7 @@ using Test
 using WordTokenizers
 
 @testset "default behaviour" begin
-	str = "Is 9.5 or 525,600 my favorite number?"                
+	str = "Is 9.5 or 525,600 my favorite\u00A0 number?"                
 	tokenized = ["Is", "9.5", "or", "525,600", "my", "favorite", "number", "?"]
 
 	@test tokenized == toktok_tokenize(str)           
