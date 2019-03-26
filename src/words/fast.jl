@@ -24,7 +24,7 @@ The simplest possible tokeniser accepts any `character` with no token breaks:
       return ts.tokens
     end
 
-    tokenise("foo bar baz") # ["foo bar baz"]
+    tokenise("foo bar baz") # ["foo bar baz"]
 
 The second simplest splits only on spaces:
 
@@ -225,3 +225,4 @@ function number(ts, sep = (':', ',', '\'', '.'))
     ts.idx = i
     return true
 end
+
