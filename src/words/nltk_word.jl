@@ -33,22 +33,21 @@ Depends exactly what you want it for.
 This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
 """
 function nltk_word_tokenize(input)
-  ts = TokenBuffer(input)
-  isempty(input) && return ts.tokens
-  stop = ts.input[end] == '.' # `.` is usually absorbed into tokens (`Dr.`)
+    ts = TokenBuffer(input)
+    isempty(input) && return ts.tokens
+    stop = ts.input[end] == '.' # `.` is usually absorbed into tokens (`Dr.`)
                               # Treat the last `.` specially.
-  stop && pop!(ts.input)
-  while !isdone(ts)
-    spaces(ts) && continue
-    openquote(ts) ||
-    suffixes(ts, nltk_suffixes) ||
-    atoms(ts, nltk_atoms) ||
-    replaces(ts, nltk_splits) ||
-    number(ts) ||
-    character(ts)
-    !isdone(ts) && closingquote(ts)
-  end
-  stop && push!(ts.tokens, ".")
-  return ts.tokens
+    stop && pop!(ts.input)
+    while !isdone(ts)
+        spaces(ts) && continue
+        openquote(ts) ||
+        suffixes(ts, nltk_suffixes) ||
+        atoms(ts, nltk_atoms) ||
+        replaces(ts, nltk_splits) ||
+        number(ts) ||
+        character(ts)
+        !isdone(ts) && closingquote(ts)
+    end
+    stop && push!(ts.tokens, ".")
+    return ts.tokens
 end
-

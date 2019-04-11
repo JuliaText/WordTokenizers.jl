@@ -6,8 +6,8 @@ files = ["simple",
          "sentence_splitting",
          "set_method_api",
          "tweet_tokenize",
-	 "reversible_tok"
-
+         "reversible_tok",
+         "toktok"
         ]
 
 @testset "$file" for file in files

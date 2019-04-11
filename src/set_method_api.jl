@@ -26,5 +26,5 @@ function set_sentence_splitter(fun)
 end
 
 
-set_tokenizer(nltk_word_tokenize)
+set_tokenizer(toktok_tokenize)
 set_sentence_splitter(rulebased_split_sentences)
