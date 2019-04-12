@@ -322,6 +322,88 @@ function pre_process(input::AbstractString, strip_handle::Bool, reduce_len::Bool
     return ts.tokens[1]
 end
 
+function flushaboutindex!(ts::TokenBuffer, uptoidx)
+    flush!(ts, String(ts[ts.idx:uptoidx]))
+    ts.idx = uptoidx + 1
+    return true
+end
+
+const forehead = ['>', '<']
+const eyes = [':' ';' '=' '8']
+const nose = ['-','o','*','\'']
+const mouth = [')', ']', '}', '(', '[', '{', 'd', 'D', 'p', 'P', '\\', '/', ':', '@', '|']
+
+"""
+    function emoticons(ts::TokenBuffer)
+
+This function checks for the emoticons for the type `{forehead}{eyes}{nose}{mouth}
+explicitely in this order, with {forehead} and {nose} being optional
+
+Example:
+- `:)`, `;p`    # (without nose and forehead)
+- `:-)`, `:-p`  # (with nose)
+- `>:)`         # (with forehead)
+- `>:-)`        # (with forehead and nose)
+
+Also checks for `<3` emoji
+"""
+function emoticons(ts)
+    ts.idx + 1 > length(ts.input) && return false
+    idx = ts.idx
+
+    ts[idx] ∈ eyes && (
+        (ts[idx + 1] ∈ mouth && return(flushaboutindex!(ts, idx + 1))) ||
+        (idx + 2 <= length(ts.input) && ts[idx + 1] ∈ nose && ts[idx + 2] ∈ mouth &&
+            return(flushaboutindex!(ts, idx + 2))) ||
+        return false
+    )
+
+    idx + 2 <= length(ts.input) && ts[idx] ∈ forehead && ts[idx + 1] ∈ eyes && (
+            (ts[idx + 2] ∈ mouth && return(flushaboutindex!(ts, idx + 2))) ||
+            (idx + 3 <= length(ts.input) && ts[idx + 2] ∈ nose &&
+                ts[idx + 3] ∈ mouth && return(flushaboutindex!(ts, idx + 3))) ||
+            return false
+    )
+
+    ts[idx] == '<' && ts[idx + 1] == '3' && return(flushaboutindex!(ts, idx + 1))
+
+    return false
+end
+
+"""
+    function emoticonsreverse(ts::TokenBuffer)
+
+This function checks for the emoticons in reverse order to those of `function emoticons`
+explicitely in this order `{mouth}{nose}{eyes}{forehead}`, with {forehead} and {nose} being optional
+
+Example:
+- `(:`, `d:`    # (without nose and forehead)
+- `(-:`, `d-:`  # (with nose)
+- (:<`          # (with forehead)
+- `(-:<`        # (with forehead and nose)
+
+"""
+function emoticonsreverse(ts)
+    ts.idx + 1 > length(ts.input) && return false
+    idx = ts.idx
+
+    ts[idx] ∈ mouth && (
+        ts[idx + 1] ∈ eyes && (
+            (ts[idx + 2] ∈ forehead && return(flushaboutindex!(ts, idx + 2))) ||
+            return(flushaboutindex!(ts, idx+1))
+        ) ||
+        ts[idx + 1] ∈ nose && (
+            ts[idx + 2] ∈ eyes && (
+                (ts[idx + 3] ∈ forehead && return(flushaboutindex!(ts, idx + 3))) ||
+                return(flushaboutindex!(ts, idx + 3))
+            )
+        )
+    )
+
+    return false
+end
+
+
 """
     tweet_tokenize(input::AbstractString) => tokens
 
@@ -375,6 +457,19 @@ function tweet_tokenize(source::AbstractString;
     safe_text = pre_process(source, strip_handle, reduce_len)
 
     # The key tokenizing function begins
+    # ts = TokenBuffer(safe_text)
+    # isempty(safe_text) && return ts.tokens
+    #
+    # while !isdone(ts)
+    #     spaces(ts) && continue
+    #     emoticons(ts) ||
+    #     emoticonsreverse(ts) ||
+    #     character(ts)
+    # end
+    #
+    #
+    # tokens = ts.tokens
+    #
     tokens = collect((m.match for m in eachmatch(WORD_REGEX,
                                             safe_text,
                                             overlap=false)))
