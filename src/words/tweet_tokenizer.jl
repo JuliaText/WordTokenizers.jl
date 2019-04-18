@@ -352,20 +352,20 @@ function emoticons(ts)
     idx = ts.idx
 
     ts[idx] ∈ eyes && (
-        (ts[idx + 1] ∈ mouth && return(flushaboutindex!(ts, idx + 1))) ||
+        (ts[idx + 1] ∈ mouth && return flushaboutindex!(ts, idx + 1)) ||
         (idx + 2 <= length(ts.input) && ts[idx + 1] ∈ nose && ts[idx + 2] ∈ mouth &&
-            return(flushaboutindex!(ts, idx + 2))) ||
+            return flushaboutindex!(ts, idx + 2)) ||
         return false
     )
 
     idx + 2 <= length(ts.input) && ts[idx] ∈ forehead && ts[idx + 1] ∈ eyes && (
-            (ts[idx + 2] ∈ mouth && return(flushaboutindex!(ts, idx + 2))) ||
+            (ts[idx + 2] ∈ mouth && return flushaboutindex!(ts, idx + 2)) ||
             (idx + 3 <= length(ts.input) && ts[idx + 2] ∈ nose &&
-                ts[idx + 3] ∈ mouth && return(flushaboutindex!(ts, idx + 3))) ||
+                ts[idx + 3] ∈ mouth && return flushaboutindex!(ts, idx + 3)) ||
             return false
     )
 
-    ts[idx] == '<' && ts[idx + 1] == '3' && return(flushaboutindex!(ts, idx + 1))
+    ts[idx] == '<' && ts[idx + 1] == '3' && return flushaboutindex!(ts, idx + 1)
 
     return false
 end
@@ -389,18 +389,65 @@ function emoticonsreverse(ts)
 
     ts[idx] ∈ mouth && (
         ts[idx + 1] ∈ eyes && (
-            (ts[idx + 2] ∈ forehead && return(flushaboutindex!(ts, idx + 2))) ||
-            return(flushaboutindex!(ts, idx+1))
+            (ts[idx + 2] ∈ forehead && return flushaboutindex!(ts, idx + 2)) ||
+            return flushaboutindex!(ts, idx+1)
         ) ||
         ts[idx + 1] ∈ nose && (
             ts[idx + 2] ∈ eyes && (
-                (ts[idx + 3] ∈ forehead && return(flushaboutindex!(ts, idx + 3))) ||
-                return(flushaboutindex!(ts, idx + 3))
+                (ts[idx + 3] ∈ forehead && return flushaboutindex!(ts, idx + 3)) ||
+                return flushaboutindex!(ts, idx + 3)
             )
         )
     )
 
     return false
+end
+
+"""
+    htmltags(ts::TokenBuffer)
+
+Matches the HTML tags which contain no space inside the tags.
+"""
+function htmltags(ts)
+    (ts.idx + 2 > length(ts.input) || ts[ts.idx] != '<'
+                || ts[ts.idx + 1] == '>') && return false
+    i = ts.idx
+    while i <= length(ts.input) && ts[i] != '>'
+        isspace(ts[]) && return false
+        i += 1
+    end
+    i > length(ts.input) && return false
+    return flushaboutindex!(ts, i)
+end
+
+
+# To-Do : Find a way to make arrowsascii repeatedly check for recheck
+"""
+    arrowsascii(ts::TokenBuffer)
+
+Matches the ascii arrows - made up of arrows like `<--` and `--->`
+"""
+function arrowsascii(ts)
+    (
+        ts.idx + 1 > length(ts.input) ||
+        (
+            (ts[ts.idx] != '<' || ts[ts.idx + 1] != '-' ) &&
+            (ts[ts.idx] != '-')
+        )
+    )   && return false
+
+    i = ts.idx
+    if ts[i] == '<'
+        i += 1
+        while i <= length(ts.input) && ts[i] == '-'
+            i += 1
+        end
+        return flushaboutindex!(ts, i - 1)
+    end
+    while i <= length(ts.input) && ts[i] == '-'
+        i += 1
+    end
+    ts[ts.idx] == '>' && return flushaboutindex!(ts, i)
 end
 
 
@@ -462,8 +509,12 @@ function tweet_tokenize(source::AbstractString;
     #
     # while !isdone(ts)
     #     spaces(ts) && continue
+    #     urls(ts) ||
+    #     phonenumbers(ts) ||
     #     emoticons(ts) ||
     #     emoticonsreverse(ts) ||
+    #     htmltags(ts) ||
+    #     arrowsascii(ts) ||
     #     character(ts)
     # end
     #
