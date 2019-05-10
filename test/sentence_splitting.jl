@@ -15,6 +15,10 @@ using WordTokenizers
     @testset "period only" begin
         @test length(rulebased_split_sentences("a good day . . Yes"))==2
     end
+
+    @testset "Acronyms" begin
+        @test length(rulebased_split_sentences("Adamson is not from USA. They are from Europe."))==2
+    end
 end
 
 

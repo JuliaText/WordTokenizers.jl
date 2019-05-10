@@ -71,7 +71,7 @@ function postproc_splits(sentences::AbstractString)
 
 
     # No break after an single letter other than I, which could be an initial in a name
-    sentences = replace(sentences, r"([A-HJ-Z]\.)\n" => s"\1 ")
+    sentences = replace(sentences, r"(\s[A-HJ-Z]\.)\n" => s"\1 ")
 
     # no break before CC ...
     sentences = replace(sentences, r"\n(and )" => s" \1")
