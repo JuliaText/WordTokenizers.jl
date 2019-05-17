@@ -450,6 +450,79 @@ function arrowsascii(ts)
     ts[ts.idx] == '>' && return flushaboutindex!(ts, i)
 end
 
+# Checks the string till non word char appears, so takes relatively more time.
+"""
+    emailaddresses(ts)
+
+Matches for email addresses.
+"""
+function emailaddresses(ts)
+    ts.idx + 5 >= length(ts.input) && return false
+
+    i = ts.idx
+
+    while i + 5 <= length(ts.input) && isascii(ts[i]) &&
+            (isdigit(ts[i]) || islowercase(ts[i]) ||
+                isuppercase(ts[i]) || ts[i] ∈ ['.', '+', '-', '_'])
+        i += 1
+    end
+
+    (i == ts.idx || ts[i] != '@') && return false
+
+    i += 1
+    j = i
+
+    while i + 3 <= length(ts.input) && isascii(ts[i]) &&
+            (isdigit(ts[i]) || islowercase(ts[i]) ||
+                isuppercase(ts[i]) || ts[i] == '-' || ts == '_')
+        i += 1
+    end
+
+    (j == i || ts[i] != '.') && return false
+
+    i += 1
+    j = i
+
+    while i <= length(ts.input) && isascii(ts[i]) &&
+            (isdigit(ts[i]) || islowercase(ts[i]) ||
+                isuppercase(ts[i]) || ts[i] ∈ ['.', '-', '_'])
+        i += 1
+    end
+
+    (j + 2 >= i && ts[i-1] != '.') && return flushaboutindex!(ts, i-1)
+
+    return false
+end
+
+"""
+    twitterhashtags(ts)
+
+Matches for twitter hashtags.
+"""
+function twitterhashtags(ts)
+    (ts.idx + 2 > length(ts.input) || ts[ts.idx] != '#' ||
+                    ts[ts.idx + 1] ∈ ['\'', '-']) && return false
+
+    i = ts.idx + 1
+    last_word_char = i
+
+    while i <= length(ts.input) && isascii(ts[i]) &&
+                        (isdigit(ts[i]) || islowercase(ts[i]) ||
+                         isuppercase(ts[i]) || ts[i] ∈ ['_', '\'', '-'])
+
+        if ts[i] ∉  ['\'', '-']
+            last_word_char = i
+        end
+
+        i += 1
+    end
+
+    last_word_char >= ts.idx + 2 && ts[ts.idx + 1] ∉ ['\'', '-'] &&
+            ts[last_word_char] ∉ ['\'', '-'] && return flushaboutindex!(ts, last_word_char)
+
+    return false
+end
+
 
 """
     tweet_tokenize(input::AbstractString) => tokens
@@ -507,14 +580,18 @@ function tweet_tokenize(source::AbstractString;
     # ts = TokenBuffer(safe_text)
     # isempty(safe_text) && return ts.tokens
     #
+    # # # To-Do: OpenQuotes and Closing quotes
     # while !isdone(ts)
     #     spaces(ts) && continue
-    #     urls(ts) ||
-    #     phonenumbers(ts) ||
+    #     # urls(ts) ||
+    #     # phonenumbers(ts) ||
     #     emoticons(ts) ||
     #     emoticonsreverse(ts) ||
     #     htmltags(ts) ||
+    #     twitterhashtags(ts) ||
+    #     # atoms(ts, []) ||
     #     arrowsascii(ts) ||
+    #     emailaddresses(ts) ||
     #     character(ts)
     # end
     #
