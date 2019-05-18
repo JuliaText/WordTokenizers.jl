@@ -185,10 +185,9 @@ end
 
 """
     lookbehind(ts::TokenBuffer)
-A helper function for twitter_handle. Checks if the beginning of the detected
+A helper function for strip_twitter_handle. Checks if the beginning of the detected
 handle is preceded by alphanumeric or special chars like('_', '!', '@', '#', '\$', '%', '&', '*')
 """
-
 function lookbehind(ts::TokenBuffer,
                 match_pattern = ('_', '!', '@', '#', '$', '%', '&', '*'))
     ts.idx == 1 && return false
@@ -201,12 +200,12 @@ end
 
 
 """
-    twitter_handle(ts::TokenBuffer)
+    strip_twitter_handle(ts::TokenBuffer)
 
 For removing Twitter Handles. If it detects a twitter handle, then it jumps to
 makes the index of TokenBuffer to the desired location skipping the handle.
 """
-function twitter_handle(ts)
+function strip_twitter_handle(ts)
 
     (ts.idx + 2 > length(ts.input) || ts.input[ts.idx] != '@' ) && return false
     lookbehind(ts) && return false
@@ -313,7 +312,7 @@ function pre_process(input::AbstractString, strip_handle::Bool, reduce_len::Bool
     isempty(input) && return ""
 
     while !isdone(ts)
-        (strip_handle && twitter_handle(ts)) ||   # Remove username handles
+        (strip_handle && strip_twitter_handle(ts)) ||   # Remove username handles
         (reduce_len && reduce_all_repeated(ts)) ||    # Reduce Lengthening
         safe_text(ts) ||  # Shorten some sequences of characters
         character(ts)
@@ -411,12 +410,14 @@ Matches the HTML tags which contain no space inside the tags.
 function htmltags(ts)
     (ts.idx + 2 > length(ts.input) || ts[ts.idx] != '<'
                 || ts[ts.idx + 1] == '>') && return false
+
     i = ts.idx
     while i <= length(ts.input) && ts[i] != '>'
-        isspace(ts[]) && return false
+        isspace(ts[i]) && return false
         i += 1
     end
     i > length(ts.input) && return false
+
     return flushaboutindex!(ts, i)
 end
 
@@ -449,6 +450,7 @@ function arrowsascii(ts)
     end
     ts[ts.idx] == '>' && return flushaboutindex!(ts, i)
 end
+
 
 # Checks the string till non word char appears, so takes relatively more time.
 """
@@ -493,6 +495,7 @@ function emailaddresses(ts)
 
     return false
 end
+
 
 """
     twitterhashtags(ts)
@@ -589,9 +592,12 @@ function tweet_tokenize(source::AbstractString;
     #     emoticonsreverse(ts) ||
     #     htmltags(ts) ||
     #     twitterhashtags(ts) ||
+    #     twitterusername(ts) ||
+    #     ellipsis_dots(ts) ||
     #     # atoms(ts, []) ||
     #     arrowsascii(ts) ||
     #     emailaddresses(ts) ||
+    #     # words_including_apostrophe_dashes(ts) ||
     #     character(ts)
     # end
     #
