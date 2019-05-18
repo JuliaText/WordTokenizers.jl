@@ -526,6 +526,47 @@ function twitterhashtags(ts)
     return false
 end
 
+"""
+    twitterusername(ts)
+
+Matches for twitter usernames.
+"""
+function twitterusername(ts)
+    (ts.idx + 1 > length(ts.input) || ts[ts.idx] != '@' ) && return false
+
+    i = ts.idx + 1
+    while i <= length(ts.input) && isascii(ts[i]) &&
+                        (isdigit(ts[i]) || islowercase(ts[i]) ||
+                         isuppercase(ts[i]) || ts[i] == '_')
+        i += 1
+    end
+    i > ts.idx + 1 && return flushaboutindex!(ts, i - 1)
+
+    return false
+end
+
+"""
+    ellipsis_dots(ts)
+
+Matches for ellipsis and dots, ignoring the spaces, tabs, newlines between them.
+"""
+function ellipsis_dots(ts)
+    (ts.idx + 1 > length(ts.input) || ts[ts.idx] != '.' ) && return false
+
+    i = ts.idx + 1
+    last_dot = ts.idx
+
+    while i <= length(ts.input) && (isspace(ts[i]) || ts[i] == '.')
+        if ts[i] == '.'
+            last_dot = i
+        end
+        i += 1
+    end
+
+    last_dot != ts.idx && return flushaboutindex!(ts, last_dot)
+
+    return false
+end
 
 """
     tweet_tokenize(input::AbstractString) => tokens
