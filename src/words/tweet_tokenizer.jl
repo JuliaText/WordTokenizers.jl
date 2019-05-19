@@ -459,22 +459,19 @@ end
 Matches for email addresses.
 """
 function emailaddresses(ts)
-    ts.idx + 5 >= length(ts.input) && return false
+    ts.idx + 4 > length(ts.input) && return false
 
     i = ts.idx
-
-    while i + 5 <= length(ts.input) && isascii(ts[i]) &&
+    while i + 3 <= length(ts.input) && isascii(ts[i]) &&
             (isdigit(ts[i]) || islowercase(ts[i]) ||
                 isuppercase(ts[i]) || ts[i] ∈ ['.', '+', '-', '_'])
         i += 1
     end
-
     (i == ts.idx || ts[i] != '@') && return false
 
     i += 1
     j = i
-
-    while i + 3 <= length(ts.input) && isascii(ts[i]) &&
+    while i + 2 <= length(ts.input) && isascii(ts[i]) &&
             (isdigit(ts[i]) || islowercase(ts[i]) ||
                 isuppercase(ts[i]) || ts[i] == '-' || ts == '_')
         i += 1
@@ -482,20 +479,26 @@ function emailaddresses(ts)
 
     (j == i || ts[i] != '.') && return false
 
-    i += 1
     j = i
+    last_dot = i
+    i += 1
 
     while i <= length(ts.input) && isascii(ts[i]) &&
             (isdigit(ts[i]) || islowercase(ts[i]) ||
-                isuppercase(ts[i]) || ts[i] ∈ ['.', '-', '_'])
+                isuppercase(ts[i]) || ts[i] ∈ ['-', '_'])
+
+        if i + 1 < length(ts.input) && ts[i + 1] == '.'
+            i += 1
+            last_dot = i
+        end
+
         i += 1
     end
 
-    (j + 2 >= i && ts[i-1] != '.') && return flushaboutindex!(ts, i-1)
+    i > last_dot + 1 && i > j + 2 && return flushaboutindex!(ts, i - 1)
 
     return false
 end
-
 
 """
     twitterhashtags(ts)
