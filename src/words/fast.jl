@@ -214,9 +214,13 @@ end
 
 Matches numbers such as `10,000.5`, preserving formatting.
 """
-function number(ts, sep = (':', ',', '\'', '.'))
-    isdigit(ts[]) || return false
+function number(ts, sep = (':', ',', '\'', '.'); check_sign = false)
     i = ts.idx
+    if check_sign && ts[] ∈ ['+', '-']
+        i += 1
+    end
+
+    i <= length(ts.input) && isdigit(ts[i]) || return false
     while i <= length(ts.input) && (isdigit(ts[i]) ||
                 (ts[i] in sep && i < length(ts.input) && isdigit(ts[i+1])))
         i += 1
@@ -225,4 +229,3 @@ function number(ts, sep = (':', ',', '\'', '.'))
     ts.idx = i
     return true
 end
-
