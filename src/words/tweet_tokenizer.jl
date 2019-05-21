@@ -572,6 +572,42 @@ function ellipsis_dots(ts)
 end
 
 """
+    words_including_apostrophe_dashes(ts)
+
+TokenBuffer matcher for words that may or maynot have dashes or apostrophe in it.
+"""
+function words_including_apostrophe_dashes(ts)
+    (ts.idx + 1 > length(ts.input) ||  !(isascii(ts[ts.idx]) &&
+                (islowercase(ts[ts.idx]) || isuppercase(ts[ts.idx])
+                        || isdigit(ts[ts.idx]) || ts[ts.idx] == '_' ))) && return false
+
+    has_apostrophe_dashes = false
+    i = ts.idx + 1
+    last_char = ts.idx
+
+    if isuppercase(ts[ts.idx]) || islowercase(ts[ts.idx])
+        while i <= length(ts.input) && isascii(ts[i]) &&
+                (islowercase(ts[i]) || isuppercase(ts[i]) || ts[i] ∈ ['_', '\'', '-'])
+            if has_apostrophe_dashes == false && ts[i] ∈ ['\'', '-']
+                has_apostrophe_dashes = true
+            else
+                last_char = i
+            end
+            i += 1
+        end
+    end
+
+    has_apostrophe_dashes && last_char != ts.idx && return flushaboutindex!(ts, last_char)
+
+    while i <= length(ts.input) && isascii(ts[i]) && (isdigit(ts[i]) ||
+                    islowercase(ts[i]) || isuppercase(ts[i]) || ts[i] == '_')
+        i += 1
+    end
+
+    return flushaboutindex!(ts, i - 1)
+end
+
+"""
     tweet_tokenize(input::AbstractString) => tokens
 
 Twitter-aware tokenizer, designed to be flexible and
@@ -624,35 +660,35 @@ function tweet_tokenize(source::AbstractString;
     safe_text = pre_process(source, strip_handle, reduce_len)
 
     # The key tokenizing function begins
-    # ts = TokenBuffer(safe_text)
-    # isempty(safe_text) && return ts.tokens
-    #
-    # # # To-Do: OpenQuotes and Closing quotes
-    # while !isdone(ts)
-    #     spaces(ts) && continue
-    #     # urls(ts) ||
-    #     # phonenumbers(ts) ||
-    #     emoticons(ts) ||
-    #     emoticonsreverse(ts) ||
-    #     htmltags(ts) ||
-    #     twitterhashtags(ts) ||
-    #     twitterusername(ts) ||
-    #     ellipsis_dots(ts) ||
-    #     # atoms(ts, []) ||
-    #     arrowsascii(ts) ||
-    #     emailaddresses(ts) ||
-    #     # words_including_apostrophe_dashes(ts) ||
-    #     character(ts)
-    # end
-    #
-    #
-    # tokens = ts.tokens
-    #
-    tokens = collect((m.match for m in eachmatch(WORD_REGEX,
-                                            safe_text,
-                                            overlap=false)))
+    ts = TokenBuffer(safe_text)
+    isempty(safe_text) && return ts.tokens
 
-  # Alter the case with preserving it for emoji
+    # # To-Do: OpenQuotes and Closing quotes
+    while !isdone(ts)
+        spaces(ts) && continue
+        # urls(ts) ||
+        emoticons(ts) ||
+        emoticonsreverse(ts) ||
+        htmltags(ts) ||
+        twitterhashtags(ts) ||
+        twitterusername(ts) ||
+        ellipsis_dots(ts) ||
+        arrowsascii(ts) ||
+        emailaddresses(ts) ||
+        # phonenumbers(ts) || # Phone numbers must be present above numbers.
+        atoms(ts, []) ||
+        words_including_apostrophe_dashes(ts) ||
+        number(ts, check_sign = true) ||
+        character(ts)
+    end
+
+    tokens = ts.tokens
+
+    # tokens = collect((m.match for m in eachmatch(WORD_REGEX,
+    #                                         safe_text,
+    #                                         overlap=false)))
+
+    # Alter the case with preserving it for emoji
     if  !preserve_case
         for (index, word) in enumerate(tokens)
             if !occursin(EMOTICONS_REGEX, word)

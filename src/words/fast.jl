@@ -216,7 +216,7 @@ Matches numbers such as `10,000.5`, preserving formatting.
 """
 function number(ts, sep = (':', ',', '\'', '.'); check_sign = false)
     i = ts.idx
-    if check_sign && ts[] ∈ ['+', '-']
+    if check_sign && ts[] ∈ ['+', '-'] && ( i == 1 || isspace(ts[i-1]))
         i += 1
     end
 
