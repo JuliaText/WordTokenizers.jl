@@ -608,6 +608,183 @@ function words_including_apostrophe_dashes(ts)
 end
 
 """
+    nltk_casual_phonenumbers(ts)
+
+The TokenBuffer function for nltk's tweet tokenizer regex for phonenumbers.
+"""
+function nltk_phonenumbers(ts)
+    (ts.idx + 5 > length(ts.input) || !(isdigit(ts[ts.idx]) ||
+                                    ts[ts.idx] ∈ ['+', '('] )) && return false
+
+    i = ts.idx
+    optional_1_confirmed = false
+
+    # Checking for the part 1 of regex which is optional
+    if ts[i] == '+'
+        ts[i + 1] ∈ ['0', '1'] || return false
+        i += 2
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        i + 5 > length(ts.input) && return false
+
+        optional_1_confirmed = true
+    elseif ts[i] ∈ ['0', '1']
+        i += 1
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        i + 5 > length(ts.input) && return false
+
+        if i - ts.idx > 1  || ts[i] == '('
+            optional_1_confirmed = true
+        end
+    end
+
+    if i == ts.idx || optional_1_confirmed
+        # This is called when either the first part is sure to present or absent, otherwise next one called
+        if ts[i] == '('
+            i += 1
+
+            for repeat in 1:2 # repeat is unused variable inside loop
+                if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]))
+
+                    return false
+                end
+
+                i += 3
+                while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                    i += 1
+                end
+            end
+
+            !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                        isdigit(ts[i + 2]) && isdigit(ts[i + 3])) && return false
+
+            return flushaboutindex!(ts, i + 3)
+        else
+            if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                        isdigit(ts[i + 2]))
+
+                return false
+            end
+            i += 3
+
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
+
+            if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                        isdigit(ts[i + 2]))
+
+                return false
+            end
+            i += 3
+            j = i
+
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
+
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                    isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return flushaboutindex!(ts, i + 3)
+
+            isdigit(ts[j]) && return flushaboutindex!(ts, j)
+
+            return false
+        end
+    else
+        # Checks if the pattern fits with or without part 1, if both do then go for bigger one.
+        index_including_1 = 0
+        index_excluding_1 = 0
+        j = i
+
+        # Checking if including the first optional part of regex matches the pattern.
+
+        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]))
+            index_including_1 = -1
+        end
+        i += 3
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]))
+            index_including_1 = -1
+        end
+        i += 3
+        j = i
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        if i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+             isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && index_including_1 == 0
+            index_including_1 = i + 3
+        elseif isdigit(ts[j]) && index_including_1 == 0
+            index_including_1 = j
+        end
+
+        # Checking  if including the first optional part of regex matches the pattern.
+        i = ts.idx
+
+        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]))
+            index_excluding_1 = -1
+        end
+        i += 3
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]))
+            index_excluding_1 = -1
+        end
+        i += 3
+        j = i
+
+        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            i += 1
+        end
+
+        if i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                    isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && index_excluding_1 == 0
+            index_excluding_1 = i + 3
+        elseif isdigit(ts[j]) && index_excluding_1 == 0
+            index_excluding_1 = j
+        end
+
+        # Flushing out the bigger of the two.
+        index_including_1 <= 0 && index_excluding_1 <= 0 && return false
+        index_excluding_1 > index_including_1 && return flushaboutindex!(ts, index_excluding_1)
+        return flushaboutindex!(ts, index_including_1)
+    end
+
+    return false
+end
+
+"""
+    extra_phonenumbers(ts)
+
+Extra matching patterns for phone numbers.
+"""
+function extra_phonenumbers(ts)
+    return false
+end
+
+
+"""
     tweet_tokenize(input::AbstractString) => tokens
 
 Twitter-aware tokenizer, designed to be flexible and
@@ -652,6 +829,8 @@ function tweet_tokenize(source::AbstractString;
                             reduce_len=false,
                             preserve_case=true )
 
+    phonenumbers(ts) = nltk_phonenumbers(ts) || extra_phonenumbers(ts)
+
     length(source) == 0 && return []
     # Fix HTML Character entities
     source = replace_html_entities(source)
@@ -666,7 +845,7 @@ function tweet_tokenize(source::AbstractString;
     # # To-Do: OpenQuotes and Closing quotes
     while !isdone(ts)
         spaces(ts) && continue
-        # urls(ts) ||
+        # urls(ts) || # urls must be called before words.
         emoticons(ts) ||
         emoticonsreverse(ts) ||
         htmltags(ts) ||
@@ -674,8 +853,8 @@ function tweet_tokenize(source::AbstractString;
         twitterusername(ts) ||
         ellipsis_dots(ts) ||
         arrowsascii(ts) ||
-        emailaddresses(ts) ||
-        # phonenumbers(ts) || # Phone numbers must be present above numbers.
+        emailaddresses(ts) || # emailaddresses must be called before words
+        phonenumbers(ts) || # Phone numbers must be called before numbers.
         atoms(ts, []) ||
         words_including_apostrophe_dashes(ts) ||
         number(ts, check_sign = true) ||
