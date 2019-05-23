@@ -84,21 +84,21 @@ function toktok_tokenize(instring::AbstractString)
     effective_end = handle_final_periods(ts)
 
     while !isdone(ts) && ts.idx <= effective_end
-	if string(ts.input[ts.idx]) == NON_BREAKING[1]
-		ts.input[ts.idx] = NON_BREAKING[2]
-	end
+        if string(ts.input[ts.idx]) == NON_BREAKING[1]
+            ts.input[ts.idx] = NON_BREAKING[2]
+        end
 
         url_handler4(ts) ||   # these url handlers have priority over others
         url_handler3(ts) ||
         url_handler2(ts) ||
         url_handler1(ts) ||
-	repeated_character_seq(ts, ',', 2) ||
+        repeated_character_seq(ts, ',', 2) ||
         repeated_character_seq(ts, '-', 2) ||
-        repeated_character_seq(ts, '.', 2) ||        
-	number(ts) ||
+        repeated_character_seq(ts, '.', 2) ||
+        number(ts) ||
         spaces(ts) ||      # Handles ONE_SPACE rules from original toktok perl script
-	replaces(ts, rules_replaces) ||    # most expensive steps, keep low priority
-	atoms(ts, rules_atoms) ||	
+        replaces(ts, rules_replaces) ||    # most expensive steps, keep low priority
+        atoms(ts, rules_atoms) ||
         character(ts)
     end
     flush!(ts)
@@ -121,19 +121,19 @@ function handle_final_periods(ts::TokenBuffer)
     end
 
     # handles FINAL_PERIOD_2 = r"(?<!\.)\.\s*(["'’»›”]) *$"
-    if ts.input[end] in "“”‘’›" || isspace(ts.input[end]) 
+    if ts.input[end] in "“”‘’›" || isspace(ts.input[end])
         while effective_end >=1 && isspace(ts.input[effective_end] )
             effective_end -= 1
         end
-        
+
         if ts.input[effective_end] in "“”‘’›"
             token_position = effective_end
             effective_end -= 1
-            
+
             while effective_end >=1 && isspace(ts.input[effective_end] )
                 effective_end -= 1
             end
-            
+
             if ts.input[effective_end] == '.'
                 if effective_end >= 2 && ts.input[effective_end - 1] == '.'
                     return length(ts.input)
@@ -181,7 +181,7 @@ URL_FOE_2 = re.compile(r'\\?(?!\\S)'), r' ? '
 """
 function url_handler2(ts::TokenBuffer)
     str = '?'
-    if ts.idx + 1 <= length(ts.input) && ts.input[ts.idx] == str 
+    if ts.idx + 1 <= length(ts.input) && ts.input[ts.idx] == str
         if isspace(ts.input[ts.idx + 1])
             flush!(ts, string(str))
             ts.idx += 1
@@ -241,17 +241,17 @@ Treat them as fake characters and ignores them.
 """
 function repeated_character_seq(ts, char, min_repeats = 2)
     if ts.input[ts.idx] != char
-	return false
+        return false
     end
     ind = ts.idx
     while ind <= length(ts.input) && ts.input[ind] == char
         ind += 1
     end
-    
+
     if ind - ts.idx >= min_repeats
         ts.idx = ind
         return true
     end
-    
+
     return false
 end
