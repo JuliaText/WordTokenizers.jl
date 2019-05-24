@@ -993,7 +993,7 @@ function tweet_tokenize(source::AbstractString;
                             preserve_case=true)
 
     phonenumbers(ts) = nltk_phonenumbers(ts) || extra_phonenumbers(ts)
-    # urls(ts) = nltk_url1(ts) || nltk_url2(ts)
+    urls(ts) = nltk_url1(ts) || nltk_url2(ts)
 
     length(source) == 0 && return []
     # Fix HTML Character entities
@@ -1015,7 +1015,7 @@ function tweet_tokenize(source::AbstractString;
         arrowsascii(ts) ||
         twitterhashtags(ts) ||
         ellipsis_dots(ts) ||
-        # urls(ts) || # urls must be called before words.
+        urls(ts) || # urls must be called before words.
         twitterusername(ts) ||
         emailaddresses(ts) || # emailaddresses must be called before words
         phonenumbers(ts) || # Phone numbers must be called before numbers.
