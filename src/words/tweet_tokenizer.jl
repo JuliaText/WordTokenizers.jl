@@ -783,6 +783,156 @@ function extra_phonenumbers(ts)
     return false
 end
 
+"""
+    nltk_url1(ts)
+
+Matches the url patterns starting with `http/https`.
+"""
+function nltk_url1(ts)
+    ts.idx + 3 > length(ts.input) && return false
+    i = ts.idx
+
+    if ts[i:i+3] == ['h', 't', 't', 'p'] # Check if url starts with pattern - https?:(?:\/{1,3}|[a-z0-9%])
+        i += 4
+        i + 2 > length(ts.input) && return false
+
+        if ts[i] == 's'
+            i += 1
+        end
+
+        ts[i] == ':' || return false
+        i += 1
+
+        if i >= length(ts.input) || !(isascii(ts[i]) && (islowercase(ts[i]) ||
+                     isdigit(ts[i]) || ts[i] == '%' || ts[i] == '/'))
+            return false
+        end
+
+        i += 1
+    else # Check if url starts with the regex pattern - [a-z0-9.\-]+[.](?:[a-z]{2,13})\/
+        last_dot = ts.idx
+
+        while i <= length(ts.input) && isascii(ts[i]) && (islowercase(ts[i]) || isdigit(ts[i]) ||
+                                                            ts[i] == '.' || ts[i] == '-')
+            if ts[i] == '.'
+                last_dot = i
+            elseif !islowercase(ts[i])
+                last_dot = ts.idx
+            end
+
+            i += 1
+        end
+
+        if i + 2 > length(ts.input) || last_dot <= ts.idx + 1 || i - last_dot > 14 ||
+                                    i - last_dot <= 2 || ts[i] != '/'
+            return false
+        end
+        i += 1
+    end
+
+    return true
+    # URL is supposed to have 2 more parts.
+    # The first of these parts occuring at least once and second one exactly once.
+    # After every match of the first part, we keep a track if the second one follows it.
+    # and store the maximum index in `index_matched`. We flush about the index = index_matched then.
+
+    # index_matched = ts.idx
+    #
+    # while i + 1 <= length(ts.input) && !(isspace(ts[i]))
+    #     if ts[i] == '('
+    #         i += 1
+    #         (i > length(ts.idx) || isspace(ts[i])) && break
+    #         j = i
+    #
+    #         while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #             j += 1
+    #         end
+    #
+    #         (j > length(ts.idx) || isspace(ts[j])) && break
+    #
+    #         if ts[j] == ')'
+    #             j - i <= 1 && break
+    #             i = j
+    #         else
+    #             i = j
+    #
+    #             i > length(ts.idx) && break
+    #
+    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #                 j += 1
+    #             end
+    #
+    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+    #
+    #             j - i <= 1 && break
+    #             j += 1
+    #
+    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #                 j += 1
+    #             end
+    #
+    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+    #             i = j
+    #         end
+    #         i += 1
+    #     else
+    #         (isspace(ts[i])|| ts[i] ∈ [')', '<', '>', '{', '}', '[', ']'] ) && break
+    #         i += 1
+    #     end
+    #
+    #     i > length(ts.length) && break
+    #
+    #     Might have error as i is increasing instead, use another variable j to calculate index_matched.
+    #     if ts[i] == '('
+    #         i += 1
+    #         (i > length(ts.idx) || isspace(ts[i])) && break
+    #         j = i
+    #
+    #         while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #             j += 1
+    #         end
+    #
+    #         (j > length(ts.idx) || isspace(ts[j])) && break
+    #
+    #         if ts[j] == ')'
+    #             j - i <= 1 && break
+    #             i = j
+    #         else
+    #             i = j
+    #
+    #             i > length(ts.idx) && break
+    #
+    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #                 j += 1
+    #             end
+    #
+    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+    #
+    #             j - i <= 1 && break
+    #             j += 1
+    #
+    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+    #                 j += 1
+    #             end
+    #
+    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+    #             i = j
+    #         end
+    #         index_matched = i
+    #         i += 1
+    #     else
+    #         (isspace(ts[i])|| ts[i] ∈ ['`', '!', ')', '[', ']', '{', '}', ';',
+    #                                    ':', '\'', '"', '.', ',', '<', '>', '?',
+    #                                    '«', '»', '“', '”', '‘', '’'] ) && break
+    #         index_matched = i
+    #         i += 1
+    #     end
+    # end
+
+    index_matched == ts.idx && return false
+    return flushaboutindex!(ts, index_matched)
+end
+
 
 """
     tweet_tokenize(input::AbstractString) => tokens
@@ -827,9 +977,10 @@ julia> tweet_tokenize("This is a cooool #dummysmiley: :-) :-P <3 and some arrows
 function tweet_tokenize(source::AbstractString;
                             strip_handle=false,
                             reduce_len=false,
-                            preserve_case=true )
+                            preserve_case=true)
 
     phonenumbers(ts) = nltk_phonenumbers(ts) || extra_phonenumbers(ts)
+    # urls(ts) = nltk_url1(ts) || nltk_url2(ts)
 
     length(source) == 0 && return []
     # Fix HTML Character entities
@@ -845,14 +996,14 @@ function tweet_tokenize(source::AbstractString;
     # # To-Do: OpenQuotes and Closing quotes
     while !isdone(ts)
         spaces(ts) && continue
-        # urls(ts) || # urls must be called before words.
         emoticons(ts) ||
         emoticonsreverse(ts) ||
         htmltags(ts) ||
-        twitterhashtags(ts) ||
-        twitterusername(ts) ||
-        ellipsis_dots(ts) ||
         arrowsascii(ts) ||
+        twitterhashtags(ts) ||
+        ellipsis_dots(ts) ||
+        # urls(ts) || # urls must be called before words.
+        twitterusername(ts) ||
         emailaddresses(ts) || # emailaddresses must be called before words
         phonenumbers(ts) || # Phone numbers must be called before numbers.
         atoms(ts, []) ||
