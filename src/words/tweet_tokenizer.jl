@@ -792,6 +792,7 @@ function nltk_url1(ts)
     ts.idx + 3 > length(ts.input) && return false
     i = ts.idx
 
+    # Checking for part 1 of regex
     if ts[i:i+3] == ['h', 't', 't', 'p'] # Check if url starts with pattern - https?:(?:\/{1,3}|[a-z0-9%])
         i += 4
         i + 2 > length(ts.input) && return false
@@ -830,109 +831,121 @@ function nltk_url1(ts)
         i += 1
     end
 
-    return true
     # URL is supposed to have 2 more parts.
-    # The first of these parts occuring at least once and second one exactly once.
+    # Both Part 2 and Part 3 each having 3 possible alternatives.
+    # Part 2 occurs at least once and Part 3 exactly once.
     # After every match of the first part, we keep a track if the second one follows it.
-    # and store the maximum index in `index_matched`. We flush about the index = index_matched then.
+    # and store the maximum index in `index_matched`.
+    # Finally, we flush about the index = index_matched then.
 
-    # index_matched = ts.idx
-    #
-    # while i + 1 <= length(ts.input) && !(isspace(ts[i]))
-    #     if ts[i] == '('
-    #         i += 1
-    #         (i > length(ts.idx) || isspace(ts[i])) && break
-    #         j = i
-    #
-    #         while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #             j += 1
-    #         end
-    #
-    #         (j > length(ts.idx) || isspace(ts[j])) && break
-    #
-    #         if ts[j] == ')'
-    #             j - i <= 1 && break
-    #             i = j
-    #         else
-    #             i = j
-    #
-    #             i > length(ts.idx) && break
-    #
-    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #                 j += 1
-    #             end
-    #
-    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
-    #
-    #             j - i <= 1 && break
-    #             j += 1
-    #
-    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #                 j += 1
-    #             end
-    #
-    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
-    #             i = j
-    #         end
-    #         i += 1
-    #     else
-    #         (isspace(ts[i])|| ts[i] ∈ [')', '<', '>', '{', '}', '[', ']'] ) && break
-    #         i += 1
-    #     end
-    #
-    #     i > length(ts.length) && break
-    #
-    #     Might have error as i is increasing instead, use another variable j to calculate index_matched.
-    #     if ts[i] == '('
-    #         i += 1
-    #         (i > length(ts.idx) || isspace(ts[i])) && break
-    #         j = i
-    #
-    #         while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #             j += 1
-    #         end
-    #
-    #         (j > length(ts.idx) || isspace(ts[j])) && break
-    #
-    #         if ts[j] == ')'
-    #             j - i <= 1 && break
-    #             i = j
-    #         else
-    #             i = j
-    #
-    #             i > length(ts.idx) && break
-    #
-    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #                 j += 1
-    #             end
-    #
-    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
-    #
-    #             j - i <= 1 && break
-    #             j += 1
-    #
-    #             while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
-    #                 j += 1
-    #             end
-    #
-    #             (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
-    #             i = j
-    #         end
-    #         index_matched = i
-    #         i += 1
-    #     else
-    #         (isspace(ts[i])|| ts[i] ∈ ['`', '!', ')', '[', ']', '{', '}', ';',
-    #                                    ':', '\'', '"', '.', ',', '<', '>', '?',
-    #                                    '«', '»', '“', '”', '‘', '’'] ) && break
-    #         index_matched = i
-    #         i += 1
-    #     end
-    # end
+    index_matched = ts.idx
+
+    while i + 1 <= length(ts.input) && !(isspace(ts[i]))
+
+        # Check if part 2 matches otherwise break.
+        # Part 2 could be one of the three patterns.
+        #   i.   ` \([^\s]+?\)`
+        #   ii.  `\([^\s()]*?\([^\s()]+?\)[^\s()]*?\)`
+        #   iii. `[^\s()<>{}\[\]]+`
+        if ts[i] == '(' # Checking for i. and ii. above.
+            i += 1
+            (i > length(ts.idx) || isspace(ts[i])) && break
+            j = i
+
+            while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                j += 1
+            end
+
+            (j > length(ts.idx) || isspace(ts[j])) && break
+
+            if ts[j] == ')' # Checking for i.
+                j - i <= 1 && break
+                i = j
+            else # Checking for ii.
+                i = j
+                i > length(ts.idx) && break
+
+                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                    j += 1
+                end
+
+                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+                j - i <= 1 && break
+                j += 1
+
+                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                    j += 1
+                end
+
+                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+                i = j
+            end
+            i += 1
+        else # Checking for iii.
+            (isspace(ts[i])|| ts[i] ∈ [')', '<', '>', '{', '}', '[', ']'] ) && break
+            i += 1
+        end
+
+        i > length(ts.input)  && break
+        k = i # Just for temporarily storing i.
+
+        # Check if part 3 matches otherwise continue.
+        # Part 3 could be one of the three patterns.
+        #   i.   `\([^\s()]*?\([^\s()]+?\)[^\s()]*?\)`
+        #   ii.  `[^\s`!()\[\]{};:'".,<>?«»“”‘’]`
+        #   iii. ` \([^\s]+?\)`
+        if ts[i] == '(' # Check for part i. and iii.
+
+            i += 1
+            (i > length(ts.idx) || isspace(ts[i])) && continue
+            j = i
+
+            while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                j += 1
+            end
+
+            (j > length(ts.idx) || isspace(ts[j])) && continue
+
+            if ts[j] == ')' # Check for part iii.
+                j - i <= 1 && break
+                i = j
+            else # Check for part i.
+                i = j
+                i > length(ts.idx) && continue
+
+                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                    j += 1
+                end
+
+                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && continue
+                j - i <= 1 && continue
+
+                j += 1
+                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                    j += 1
+                end
+
+                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && continue
+                i = j
+            end
+            index_matched = i
+            i += 1
+        else # Check for part ii.
+            isspace(ts[i]) && break
+            ts[i] ∈ ['`', '!', ')', '[', ']', '{', '}', ';', ':', '\'', '"', '.',
+                     ',', '<', '>', '?', '«', '»', '“', '”', '‘', '’'] && continue
+            index_matched = i
+        end
+        i = k
+    end
 
     index_matched == ts.idx && return false
     return flushaboutindex!(ts, index_matched)
 end
 
+function nltk_url2(ts)
+    return false
+end
 
 """
     tweet_tokenize(input::AbstractString) => tokens
@@ -993,7 +1006,7 @@ function tweet_tokenize(source::AbstractString;
     ts = TokenBuffer(safe_text)
     isempty(safe_text) && return ts.tokens
 
-    # # To-Do: OpenQuotes and Closing quotes
+    # # TODO: OpenQuotes and Closing quotes
     while !isdone(ts)
         spaces(ts) && continue
         emoticons(ts) ||
