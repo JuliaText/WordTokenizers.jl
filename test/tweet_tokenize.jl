@@ -3,7 +3,6 @@ using WordTokenizers
 
 @testset "Tweet Tokenize" begin
     @testset "Basic Tests" begin
-
         s0 = "This is a cooool #dummysmiley: :-) :-P <3 and some arrows < > -> <--"
         @test tweet_tokenize(s0) ==
             ["This", "is", "a", "cooool", "#dummysmiley", ":", ":-)", ":-P", "<3", "and", "some", "arrows", "<", ">", "->", "<--"]
@@ -27,27 +26,25 @@ using WordTokenizers
         s5 = "@crushinghes the summer holidays are great but I'm so bored already :("
         @test tweet_tokenize(s5, reduce_len=true) ==
             ["@crushinghes", "the", "summer", "holidays", "are", "great", "but", "I'm", "so", "bored", "already", ":("]
+     
+        s6 = "@jrmy: I'm REALLY HAPPYYY about that! NICEEEE :D :P"
+        @test tweet_tokenize(s6) ==
+            ["@jrmy", ":", "I'm", "REALLY", "HAPPYYY", "about", "that", "!", "NICEEEE", ":D", ":P"]
     end
 
     @testset "Remove Handles and Reduce Length" begin
-        s6 = "@remy: This is waaaaayyyy too much for you!!!!!!"
-        @test tweet_tokenize(s6, strip_handle=true, reduce_len=true) ==
+        s7 = "@remy: This is waaaaayyyy too much for you!!!!!!"
+        @test tweet_tokenize(s7, strip_handle=true, reduce_len=true) ==
             [":", "This", "is", "waaayyy", "too", "much", "for", "you", "!", "!", "!"]
 
-        s7 = "@_willy65: No place for @chuck tonight. Sorry."
-        @test tweet_tokenize(s7, strip_handle=true, reduce_len=true) ==
+        s8 = "@_willy65: No place for @chuck tonight. Sorry."
+        @test tweet_tokenize(s8, strip_handle=true, reduce_len=true) ==
             [":", "No", "place", "for", "tonight", ".", "Sorry", "."]
 
-        s8 = "@mar_tin is a great developer. Contact him at mar_tin@email.com."
-        @test tweet_tokenize(s8, strip_handle=true, reduce_len=true) ==
+        s9 = "@mar_tin is a great developer. Contact him at mar_tin@email.com."
+        @test tweet_tokenize(s9, strip_handle=true, reduce_len=true) ==
             ["is", "a", "great", "developer", ".", "Contact", "him", "at", "mar_tin@email.com", "."]
-    end
-
-    @testset "Preserve Case" begin
-        s9 = "@jrmy: I'm REALLY HAPPYYY about that! NICEEEE :D :P"
-        @test tweet_tokenize(s9, preserve_case=false) ==
-            ["@jrmy", ":", "i'm", "really", "happyyy", "about", "that", "!", "niceeee", ":D", ":P"]
-    end
+       end
 
     @testset "Test long sentences" begin
         s10 = "Photo: Aujourd'hui sur http://t.co/0gebOFDUzn Projet... http://t.co/bKfIUbydz2.............................. http://fb.me/3b6uXpz0L"

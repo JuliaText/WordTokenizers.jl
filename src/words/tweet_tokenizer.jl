@@ -987,16 +987,14 @@ julia> tweet_tokenize("This is a cooool #dummysmiley: :-) :-P <3 and some arrows
  "<--"
 ```
 """
-function tweet_tokenize(source::AbstractString;
-                            strip_handle=false,
-                            reduce_len=false,
-                            preserve_case=true)
+function tweet_tokenize(source::AbstractString; strip_handle=false,
+                                            reduce_len=false)
 
     phonenumbers(ts) = nltk_phonenumbers(ts) || extra_phonenumbers(ts)
     urls(ts) = nltk_url1(ts) || nltk_url2(ts)
 
-    length(source) == 0 && return []
     # Fix HTML Character entities
+    length(source) == 0 && return []
     source = replace_html_entities(source)
 
     length(source) == 0 && return []
@@ -1026,19 +1024,6 @@ function tweet_tokenize(source::AbstractString;
     end
 
     tokens = ts.tokens
-
-    # tokens = collect((m.match for m in eachmatch(WORD_REGEX,
-    #                                         safe_text,
-    #                                         overlap=false)))
-
-    # Alter the case with preserving it for emoji
-    if  !preserve_case
-        for (index, word) in enumerate(tokens)
-            if !occursin(EMOTICONS_REGEX, word)
-                tokens[index] = lowercase(word)
-            end
-        end
-    end
 
     return tokens
 end
