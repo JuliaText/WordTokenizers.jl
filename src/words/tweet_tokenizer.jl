@@ -344,7 +344,7 @@ function arrowsascii(ts)
     ts[ts.idx] == '>' && return flushaboutindex!(ts, i)
 end
 
-
+# TODO: integrate this with words_including_apostrophe_dashes() to reduce time taken.
 # Checks the string till non word char appears, so takes relatively more time.
 """
     emailaddresses(ts)
@@ -834,6 +834,40 @@ function nltk_url1(ts)
 end
 
 function nltk_url2(ts)
+    (ts.idx > length(ts.input) || (ts.idx > 1 && ts[ts.idx - 1] == '@')) && return false
+
+    (isascii(ts[ts.idx]) && (isdigit(ts[ts.idx]) || islowercase(ts[ts.idx]))) || return false
+
+    i = ts.idx + 1
+    while i <= length(ts.input) && isascii(ts[i]) && (isdigit(ts[i]) || islowercase(ts[i]))
+        i += 1
+    end
+
+    flush_about = 0
+
+    while i < length(ts.input) && ts[i] ∈ ['.', '-']
+        j = ts[i] == '.' ? i : 0
+        i += 1
+
+        (isascii(ts[i]) && (isdigit(ts[i]) || islowercase(ts[i]))) || break
+        i += 1
+
+        while i <= length(ts.input) && isascii(ts[i]) && (isdigit(ts[i]) || islowercase(ts[i]))
+            i += 1
+        end
+
+        if j != 0 && 3 <= i - j <= 14
+            if i <= length(ts.input) && ts[i] == '/' && (i + 1 > length(ts.input) || ts[i + 1] != '@')
+                flush_about = i
+                break
+            end
+            flush_about = i - 1
+        end
+    end
+
+    flush_about == 0 && return false
+    (flush_about >= length(ts.input) || ts[flush_about + 1] != '@') && return flushaboutindex!(ts, flush_about)
+
     return false
 end
 

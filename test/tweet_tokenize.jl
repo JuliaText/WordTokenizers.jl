@@ -26,7 +26,7 @@ using WordTokenizers
         s5 = "@crushinghes the summer holidays are great but I'm so bored already :("
         @test tweet_tokenize(s5, reduce_len=true) ==
             ["@crushinghes", "the", "summer", "holidays", "are", "great", "but", "I'm", "so", "bored", "already", ":("]
-     
+
         s6 = "@jrmy: I'm REALLY HAPPYYY about that! NICEEEE :D :P"
         @test tweet_tokenize(s6) ==
             ["@jrmy", ":", "I'm", "REALLY", "HAPPYYY", "about", "that", "!", "NICEEEE", ":D", ":P"]
@@ -74,5 +74,4 @@ end
 
     @test tweet_tokenize("Check out this symbol in Windows-1252 encoding &#x80;") ==
         [ "Check", "out", "this", "symbol", "in", "Windows", "-", "1252", "encoding", "€"]
-
 end
