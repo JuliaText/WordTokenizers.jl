@@ -281,20 +281,20 @@ function emoticonsreverse(ts)
     ts.idx + 1 > length(ts.input) && return false
     idx = ts.idx
 
-    ts[idx] ∈ mouth && (
-        ts[idx + 1] ∈ eyes && (
-            (ts[idx + 2] ∈ forehead && return flushaboutindex!(ts, idx + 2)) ||
-            return flushaboutindex!(ts, idx+1)
-        ) ||
-        ts[idx + 1] ∈ nose && (
-            ts[idx + 2] ∈ eyes && (
-                (ts[idx + 3] ∈ forehead && return flushaboutindex!(ts, idx + 3)) ||
-                return flushaboutindex!(ts, idx + 3)
-            )
-        )
-    )
+    ts[idx] ∈ mouth || return false
+    idx += 1
 
-    return false
+    if ts[idx] ∈ nose
+        idx >= length(ts.input) && return false
+        idx += 1
+    end
+
+    ts[idx] ∈ eyes|| return false
+    idx += 1
+
+    idx <= length(ts.input) && ts[idx] ∈ forehead && return flushaboutindex!(ts, idx)
+
+    return flushaboutindex!(ts, idx -1 )
 end
 
 """
@@ -316,8 +316,6 @@ function htmltags(ts)
     return flushaboutindex!(ts, i)
 end
 
-
-# To-Do : Find a way to make arrowsascii repeatedly check for recheck
 """
     arrowsascii(ts::TokenBuffer)
 
@@ -594,72 +592,69 @@ function nltk_phonenumbers(ts)
             return false
         end
     else
-        # Checks if the pattern fits with or without part 1, if both do then go for bigger one.
-        index_including_1 = 0
-        index_excluding_1 = 0
-        j = i
+        function index_including_part_1(ts, i)
+            index_including_1 = 0
+            j = i
 
-        # Checking if including the first optional part of regex matches the pattern.
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]) || return -1
 
-        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]))
-            index_including_1 = -1
-        end
-        i += 3
+            i += 3
 
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
-            i += 1
-        end
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
 
-        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]))
-            index_including_1 = -1
-        end
-        i += 3
-        j = i
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                            isdigit(ts[i + 2]) || return -1
 
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
-            i += 1
-        end
+            i += 3
+            j = i
 
-        if i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-             isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && index_including_1 == 0
-            index_including_1 = i + 3
-        elseif isdigit(ts[j]) && index_including_1 == 0
-            index_including_1 = j
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
+
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                            isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return i + 3
+
+            isdigit(ts[j]) && return j
+
+            return -1
         end
 
-        # Checking  if including the first optional part of regex matches the pattern.
-        i = ts.idx
+        function index_excluding_part_1(ts)
+            i = ts.idx
 
-        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]))
-            index_excluding_1 = -1
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                isdigit(ts[i + 2]) || return -1
+
+            i += 3
+
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
+
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                isdigit(ts[i + 2]) || return -1
+
+            i += 3
+            j = i
+
+            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                i += 1
+            end
+
+            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                        isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return i + 3
+
+            isdigit(ts[j]) && return j
+
+            return -1
         end
-        i += 3
 
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
-            i += 1
-        end
-
-        if !(i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]))
-            index_excluding_1 = -1
-        end
-        i += 3
-        j = i
-
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
-            i += 1
-        end
-
-        if i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                    isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && index_excluding_1 == 0
-            index_excluding_1 = i + 3
-        elseif isdigit(ts[j]) && index_excluding_1 == 0
-            index_excluding_1 = j
-        end
-
+        index_excluding_1 = index_excluding_part_1(ts)
+        index_including_1 = index_including_part_1(ts, i)
         # Flushing out the bigger of the two.
         index_including_1 <= 0 && index_excluding_1 <= 0 && return false
         index_excluding_1 > index_including_1 && return flushaboutindex!(ts, index_excluding_1)
