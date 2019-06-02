@@ -653,8 +653,8 @@ function nltk_phonenumbers(ts)
             return -1
         end
 
-        index_excluding_1 = index_excluding_part_1(ts)
         index_including_1 = index_including_part_1(ts, i)
+        index_excluding_1 = index_excluding_part_1(ts)
         # Flushing out the bigger of the two.
         index_including_1 <= 0 && index_excluding_1 <= 0 && return false
         index_excluding_1 > index_including_1 && return flushaboutindex!(ts, index_excluding_1)
@@ -739,35 +739,35 @@ function nltk_url1(ts)
         #   iii. `[^\s()<>{}\[\]]+`
         if ts[i] == '(' # Checking for i. and ii. above.
             i += 1
-            (i > length(ts.idx) || isspace(ts[i])) && break
+            (i > length(ts.input) || isspace(ts[i])) && break
             j = i
 
-            while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+            while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                 j += 1
             end
 
-            (j > length(ts.idx) || isspace(ts[j])) && break
+            (j > length(ts.input) || isspace(ts[j])) && break
 
             if ts[j] == ')' # Checking for i.
                 j - i <= 1 && break
                 i = j
             else # Checking for ii.
                 i = j
-                i > length(ts.idx) && break
+                i > length(ts.input) && break
 
-                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                     j += 1
                 end
 
-                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+                (j > length(ts.input) || isspace(ts[j]) || ts[j] == '(') && break
                 j - i <= 1 && break
                 j += 1
 
-                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                     j += 1
                 end
 
-                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && break
+                (j > length(ts.input) || isspace(ts[j]) || ts[j] == '(') && break
                 i = j
             end
             i += 1
@@ -787,35 +787,35 @@ function nltk_url1(ts)
         if ts[i] == '(' # Check for part i. and iii.
 
             i += 1
-            (i > length(ts.idx) || isspace(ts[i])) && continue
+            (i > length(ts.input) || isspace(ts[i])) && continue
             j = i
 
-            while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+            while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                 j += 1
             end
 
-            (j > length(ts.idx) || isspace(ts[j])) && continue
+            (j > length(ts.input) || isspace(ts[j])) && continue
 
             if ts[j] == ')' # Check for part iii.
                 j - i <= 1 && break
                 i = j
             else # Check for part i.
                 i = j
-                i > length(ts.idx) && continue
+                i > length(ts.input) && continue
 
-                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                     j += 1
                 end
 
-                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && continue
+                (j > length(ts.input) || isspace(ts[j]) || ts[j] == '(') && continue
                 j - i <= 1 && continue
 
                 j += 1
-                while j <= length(ts.idx) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
+                while j <= length(ts.input) && ts[j] != ')' && ts[j] != '(' && !isspace(ts[j])
                     j += 1
                 end
 
-                (j > length(ts.idx) || isspace(ts[j]) || ts[j] == '(') && continue
+                (j > length(ts.input) || isspace(ts[j]) || ts[j] == '(') && continue
                 i = j
             end
             index_matched = i
