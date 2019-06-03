@@ -65,13 +65,13 @@ The word tokenizers basically assume sentence splitting has already been done.
 
  - **Penn Tokenizer:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokenizer used for the Penn Treebank. Splits contractions.
  - **Improved Penn Tokenizer:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
- - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step. 
-- **Reversible Tokenizer:** (`rev_tokenize` and `rev_detokenize`) This tokenizer splits on punctuations, space and special symbols. The generated tokens can be de-tokenized by using the `rev_detokenizer` function into the state before tokenization.
-- **TokTok Tokenizer:** (`toktok_tokenize`) This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized. Tok-tok has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese, Tajik, and a few others. **(default tokenizer)**
+ - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
 
   (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005))
 
-- **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
+ - **Reversible Tokenizer:** (`rev_tokenize` and `rev_detokenize`) This tokenizer splits on punctuations, space and special symbols. The generated tokens can be de-tokenized by using the `rev_detokenizer` function into the state before tokenization.
+ - **TokTok Tokenizer:** (`toktok_tokenize`) This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized. Tok-tok has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese, Tajik, and a few others. **(default tokenizer)**
+ - **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
 
 
 # Sentence Splitters
@@ -114,3 +114,94 @@ So
 `split(foo, Words)` is the same as `tokenize(foo)`,  
 and  
 `split(foo, Sentences)` is the same as `split_sentences(foo)`.
+
+## Using TokenBuffer API for Custom Tokenizers
+We offer a `TokenBuffer` API and supporting utility parsers
+for high speed tokenization.
+
+The order in which the parsers are written needs to be taken care of in some cases-
+
+For example: `987-654-3210` matches as a phone number
+as well as numbers, but number will only match upto `987`
+and split about it.
+
+```julia
+julia> using WordTokenizers: TokenBuffer, isdone, character, spaces, nltk_phonenumbers, number
+
+julia> order1(ts) = number(ts) || nltk_phonenumbers(ts)
+order1 (generic function with 1 method)
+
+julia> order2(ts) = nltk_phonenumbers(ts) || number(ts)
+order2 (generic function with 1 method)
+
+julia> function tokenize1(input)
+           ts = TokenBuffer(input)
+           while !isdone(ts)
+               order1(ts) ||
+               character(ts)
+           end
+           return ts.tokens
+       end
+tokenize1 (generic function with 1 method)
+
+julia> function tokenize2(input)
+           ts = TokenBuffer(input)
+           while !isdone(ts)
+               order2(ts) ||
+               character(ts)
+           end
+           return ts.tokens
+       end
+tokenize2 (generic function with 1 method)
+
+julia> tokenize1("987-654-3210") # number(ts) || nltk_phonenumbers(ts)
+5-element Array{String,1}:
+ "987"
+ "-"
+ "654"
+ "-"
+ "3210"
+
+julia> tokenize2("987-654-3210") # nltk_phonenumbers(ts) || number(ts)
+1-element Array{String,1}:
+ "987-654-3210"
+```
+
+#### Writing your own TokenBuffer parsers
+
+`TokenBuffer` turns a string into a readable stream, used for building tokenizers.
+Utility parsers such as `spaces` and `number` read characters from the
+stream and into an array of tokens.
+
+Parsers return `true` or `false` to indicate whether they matched
+in the input stream. They can therefore be combined easily, e.g.
+
+    spacesornumber(ts) = spaces(ts) || number(ts)
+
+either skips whitespace or parses a number token, if possible.
+
+The simplest possible tokenizer accepts any `character` with no token breaks:
+
+    function tokenise(input)
+        ts = TokenBuffer(input)
+        while !isdone(ts)
+            character(ts)
+        end
+        return ts.tokens
+    end
+
+    tokenise("foo bar baz") # ["foo bar baz"]
+
+The second simplest splits only on spaces:
+
+    function tokenise(input)
+        ts = TokenBuffer(input)
+        while !isdone(ts)
+            spaces(ts) || character(ts)
+        end
+        return ts.tokens
+    end
+
+    tokenise("foo bar baz") # ["foo", "bar", "baz"]
+
+You may see `nltk_word_tokenize` for a more advanced example.
