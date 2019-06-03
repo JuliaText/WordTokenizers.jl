@@ -119,7 +119,71 @@ and
 We offer a `TokenBuffer` API and supporting utility parsers
 for high speed tokenization.
 
-The order in which the parsers are written needs to be taken care of in some cases-
+#### Writing your own TokenBuffer parsers
+
+`TokenBuffer` turns a string into a readable stream, used for building tokenizers.
+Utility parsers such as `spaces` and `number` read characters from the
+stream and into an array of tokens.
+
+Parsers return `true` or `false` to indicate whether they matched
+in the input stream. They can therefore be combined easily, e.g.
+
+    spacesornumber(ts) = spaces(ts) || number(ts)
+
+either skips whitespace or parses a number token, if possible.
+
+The simplest useful tokenizer splits on spaces.
+
+    using WordTokenizers: TokenBuffer, isdone, spaces, character
+
+    function tokenise(input)
+        ts = TokenBuffer(input)
+        while !isdone(ts)
+            spaces(ts) || character(ts)
+        end
+        return ts.tokens
+    end
+
+    tokenise("foo bar baz") # ["foo", "bar", "baz"]
+
+Many prewritten components for building custom tokenizers
+can be found in `src/words/fast.jl` and `src/words/tweet_tokenizer.jl`
+These components can be mixed and matched to create more complex tokenizers.
+
+Here is a more complex example.
+
+```julia
+julia> using WordTokenizers: TokenBuffer, isdone, character, spaces # Present in fast.jl
+
+julia> using WordTokenizers: nltk_url1, nltk_url2, nltk_phonenumbers # Present in tweet_tokenizer.jl
+
+julia> function tokeinze(input)
+           urls(ts) = nltk_url1(ts) || nltk_url2(ts)
+
+           ts = TokenBuffer(input)
+           while !isdone(ts)
+               spaces(ts) && continue
+               urls(ts) ||
+               nltk_phonenumbers(ts) ||
+               character(ts)
+           end
+           return ts.tokens
+       end
+tokeinze (generic function with 1 method)
+
+julia> tokeinze("A url https://github.com/JuliaText/WordTokenizers.jl/ and phonenumber +0 (987) - 2344321")
+6-element Array{String,1}:
+ "A"
+ "url"
+ "https://github.com/JuliaText/WordTokenizers.jl/" # URL detected.
+ "and"
+ "phonenumber"
+ "+0 (987) - 2344321" # Phone number detected.
+```
+
+#### Tips for writing custom tokenizers and your own TokenBuffer Parser/Feature
+
+1. The order in which the parsers are written needs to be taken care of in some cases-
 
 For example: `987-654-3210` matches as a phone number
 as well as numbers, but number will only match upto `987`
@@ -167,41 +231,61 @@ julia> tokenize2("987-654-3210") # nltk_phonenumbers(ts) || number(ts)
  "987-654-3210"
 ```
 
-#### Writing your own TokenBuffer parsers
+2. BoundsError and errors while handling edge cases are most common
+and need to be taken of while writing the TokenBuffer parsers.
 
-`TokenBuffer` turns a string into a readable stream, used for building tokenizers.
-Utility parsers such as `spaces` and `number` read characters from the
-stream and into an array of tokens.
+3. For some TokenBuffer `ts`, use `flush!(ts)`
+over push!(ts.tokens, input[i:j]), to make sure that characters
+in the Buffer (i.e. ts.Buffer) also gets flushed out as separate tokens.
 
-Parsers return `true` or `false` to indicate whether they matched
-in the input stream. They can therefore be combined easily, e.g.
+```julia
+julia> using WordTokenizers: TokenBuffer, flush!, spaces, character, isdone
 
-    spacesornumber(ts) = spaces(ts) || number(ts)
+julia> function tokenize(input)
+           ts = TokenBuffer(input)
 
-either skips whitespace or parses a number token, if possible.
+           while !isdone(ts)
+               spaces(ts) && continue
+               my_pattern(ts) ||
+               character(ts)
+           end
+           return ts.tokens
+       end
 
-The simplest possible tokenizer accepts any `character` with no token breaks:
+julia> function my_pattern(ts) # Matches the pattern for 2 continuous `_`
+           ts.idx + 1 <= length(ts.input) || return false
 
-    function tokenise(input)
-        ts = TokenBuffer(input)
-        while !isdone(ts)
-            character(ts)
-        end
-        return ts.tokens
-    end
+           if ts[ts.idx] == '_' && ts[ts.idx + 1] == '_'
+               flush!(ts, "__") # Using flush!
+               ts.idx += 2
+               return true
+           end
 
-    tokenise("foo bar baz") # ["foo bar baz"]
+           return false
+       end
+my_pattern (generic function with 1 method)
 
-The second simplest splits only on spaces:
+julia> tokenize("hi__hello")
+3-element Array{String,1}:
+ "hi"
+ "__"
+ "hello"
 
-    function tokenise(input)
-        ts = TokenBuffer(input)
-        while !isdone(ts)
-            spaces(ts) || character(ts)
-        end
-        return ts.tokens
-    end
+julia> function my_pattern(ts) # Matches the pattern for 2 continuous `_`
+           ts.idx + 1 <= length(ts.input) || return false
 
-    tokenise("foo bar baz") # ["foo", "bar", "baz"]
+           if ts[ts.idx] == '_' && ts[ts.idx + 1] == '_'
+               push!(ts.tokens, "__") # Without using flush!
+               ts.idx += 2
+               return true
+           end
 
-You may see `nltk_word_tokenize` for a more advanced example.
+           return false
+       end
+my_pattern (generic function with 1 method)
+
+julia> tokenize("hi__hello")
+2-element Array{String,1}:
+ "__"
+ "hihello"
+```
