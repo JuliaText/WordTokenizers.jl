@@ -17,11 +17,11 @@ either skips whitespace or parses a number token, if possible.
 The simplest possible tokeniser accepts any `character` with no token breaks:
 
     function tokenise(input)
-      ts = TokenBuffer(input)
-      while !isdone(ts)
-        character(ts)
-      end
-      return ts.tokens
+        ts = TokenBuffer(input)
+        while !isdone(ts)
+            character(ts)
+        end
+        return ts.tokens
     end
 
     tokenise("foo bar baz") # ["foo bar baz"]
@@ -29,11 +29,11 @@ The simplest possible tokeniser accepts any `character` with no token breaks:
 The second simplest splits only on spaces:
 
     function tokenise(input)
-      ts = TokenBuffer(input)
-      while !isdone(ts)
-        spaces(ts) || character(ts)
-      end
-      return ts.tokens
+        ts = TokenBuffer(input)
+        while !isdone(ts)
+            spaces(ts) || character(ts)
+        end
+        return ts.tokens
     end
 
     tokenise("foo bar baz") # ["foo", "bar", "baz"]
