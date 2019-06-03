@@ -58,10 +58,10 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
             number = parse(Int, String(ts[ts.idx+3:i-1]), base=16)
         end
 
-        windows_1252_chars = ['€', '\u81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰',
+        windows_1252_chars = ('€', '\u81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰',
                           'Š', '‹', 'Œ', '\u8d','Ž', '\u8f', '\u90', '‘', '’',
                           '“', '”', '•', '–', '—', '˜', '™', 'š', '›', 'œ',
-                          '\u9d', 'ž', 'Ÿ']
+                          '\u9d', 'ž', 'Ÿ')
         if 0x80 <= number <= 0x9F
             push!(ts.buffer, windows_1252_chars[number - 127])
             ts.idx = i + 1
@@ -80,8 +80,9 @@ end
 
 """
     lookbehind(ts::TokenBuffer)
-A helper function for strip_twitter_handle. Checks if the beginning of the detected
-handle is preceded by alphanumeric or special chars like('_', '!', '@', '#', '\$', '%', '&', '*')
+
+Checks if the beginning of the detected handle is preceded by alphanumeric
+or special characters like('_', '!', '@', '#', '\$', '%', '&', '*')
 """
 function lookbehind(ts::TokenBuffer,
                 match_pattern = ('_', '!', '@', '#', '$', '%', '&', '*'))
@@ -122,7 +123,6 @@ end
     reduce_all_repeated(ts::TokenBuffer)
 
 For handling repeated characters like "helloooooo" -> :hellooo".
-
 """
 function reduce_all_repeated(ts)
     ts.idx + 4 > length(ts.input) && return false

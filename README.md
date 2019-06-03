@@ -116,16 +116,16 @@ and
 `split(foo, Sentences)` is the same as `split_sentences(foo)`.
 
 ## Using TokenBuffer API for Custom Tokenizers
-We offer a `TokenBuffer` API and supporting utility parsers
+We offer a `TokenBuffer` API and supporting utility lexers
 for high speed tokenization.
 
-#### Writing your own TokenBuffer parsers
+#### Writing your own TokenBuffer tokenizers
 
 `TokenBuffer` turns a string into a readable stream, used for building tokenizers.
-Utility parsers such as `spaces` and `number` read characters from the
+Utility lexers such as `spaces` and `number` read characters from the
 stream and into an array of tokens.
 
-Parsers return `true` or `false` to indicate whether they matched
+Lexers return `true` or `false` to indicate whether they matched
 in the input stream. They can therefore be combined easily, e.g.
 
     spacesornumber(ts) = spaces(ts) || number(ts)
@@ -181,9 +181,9 @@ julia> tokeinze("A url https://github.com/JuliaText/WordTokenizers.jl/ and phone
  "+0 (987) - 2344321" # Phone number detected.
 ```
 
-#### Tips for writing custom tokenizers and your own TokenBuffer Parser/Feature
+#### Tips for writing custom tokenizers and your own TokenBuffer Lexer
 
-1. The order in which the parsers are written needs to be taken care of in some cases-
+1. The order in which the lexers are written needs to be taken care of in some cases-
 
 For example: `987-654-3210` matches as a phone number
 as well as numbers, but number will only match upto `987`
@@ -232,7 +232,7 @@ julia> tokenize2("987-654-3210") # nltk_phonenumbers(ts) || number(ts)
 ```
 
 2. BoundsError and errors while handling edge cases are most common
-and need to be taken of while writing the TokenBuffer parsers.
+and need to be taken of while writing the TokenBuffer lexers.
 
 3. For some TokenBuffer `ts`, use `flush!(ts)`
 over push!(ts.tokens, input[i:j]), to make sure that characters
