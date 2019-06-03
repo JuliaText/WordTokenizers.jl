@@ -1,3 +1,5 @@
+isalpha(c) = isascii(c) && (islowercase(c) || isuppercase(c))
+isalnum(c) = isascii(c) && (islowercase(c) || isuppercase(c) || isdigit(c))
 """
     html_entities(ts::TokenBuffer; remove_illegal=true)
 
@@ -18,8 +20,7 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
     (ts.idx + 1 > length(ts.input) || ts.input[ts.idx] != '&' ) && return false
     if ts.input[ts.idx + 1] != '#'    # Entity is of the type "&Delta;" => "Δ"
         i = ts.idx + 1
-        while i <= length(ts.input) && isascii(ts[i]) &&
-                (isdigit(ts[i]) || islowercase(ts[i]) || isuppercase(ts[i]))
+        while i <= length(ts.input) && isalnum(ts[i])
             i += 1
         end
         (i > length(ts.input) || ts[i] != ';') && return false
@@ -107,9 +108,7 @@ function strip_twitter_handle(ts)
     lookbehind(ts) && return false
 
     i = ts.idx + 1
-    while i <= length(ts.input) &&
-              ( isascii(ts[i]) && (isdigit(ts[i]) || islowercase(ts[i]) ||
-               isuppercase(ts[i]) || ts[i] == '_'))
+    while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] == '_')
         i += 1
     end
     (i <= length(ts.input)) && (i == ts.idx + 1 || ts[i] == '@') && return false
@@ -151,10 +150,7 @@ single token of "..."
 function safe_text(ts)
     ts.idx + 4 > length(ts.input) && return false
 
-    (
-       (isascii(ts[ts.idx]) && ( islowercase(ts[ts.idx]) ||
-                   isuppercase(ts[ts.idx]) ||  isdigit(ts[ts.idx]))) ||
-              ts[ts.idx] != ts[ts.idx + 1] ||
+    (isalnum(ts[ts.idx]) || ts[ts.idx] != ts[ts.idx + 1] ||
               ts[ts.idx] != ts[ts.idx + 2] )  && return false
 
     i = ts.idx + 3
@@ -355,18 +351,14 @@ function emailaddresses(ts)
     ts.idx + 4 > length(ts.input) && return false
 
     i = ts.idx
-    while i + 3 <= length(ts.input) && isascii(ts[i]) &&
-            (isdigit(ts[i]) || islowercase(ts[i]) ||
-                isuppercase(ts[i]) || ts[i] ∈ ['.', '+', '-', '_'])
+    while i + 3 <= length(ts.input) && (isalnum(ts[i]) || ts[i] ∈ ('.', '+', '-', '_'))
         i += 1
     end
     (i == ts.idx || ts[i] != '@') && return false
 
     i += 1
     j = i
-    while i + 2 <= length(ts.input) && isascii(ts[i]) &&
-            (isdigit(ts[i]) || islowercase(ts[i]) ||
-                isuppercase(ts[i]) || ts[i] == '-' || ts == '_')
+    while i + 2 <= length(ts.input) && (isalnum(ts[i]) || ts[i] == '-' || ts == '_')
         i += 1
     end
 
@@ -376,9 +368,7 @@ function emailaddresses(ts)
     last_dot = i
     i += 1
 
-    while i <= length(ts.input) && isascii(ts[i]) &&
-            (isdigit(ts[i]) || islowercase(ts[i]) ||
-                isuppercase(ts[i]) || ts[i] ∈ ['-', '_'])
+    while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] == '-' || ts == '_')
 
         if i + 1 < length(ts.input) && ts[i + 1] == '.'
             i += 1
@@ -400,14 +390,12 @@ Matches for twitter hashtags.
 """
 function twitterhashtags(ts)
     (ts.idx + 2 > length(ts.input) || ts[ts.idx] != '#' ||
-                    ts[ts.idx + 1] ∈ ['\'', '-']) && return false
+                    ts[ts.idx + 1] ∈ ('\'', '-')) && return false
 
     i = ts.idx + 1
     last_word_char = i
 
-    while i <= length(ts.input) && isascii(ts[i]) &&
-                        (isdigit(ts[i]) || islowercase(ts[i]) ||
-                         isuppercase(ts[i]) || ts[i] ∈ ['_', '\'', '-'])
+    while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] ∈ ('_', '\'', '-'))
 
         if ts[i] ∉  ['\'', '-']
             last_word_char = i
@@ -431,9 +419,7 @@ function twitterusername(ts)
     (ts.idx + 1 > length(ts.input) || ts[ts.idx] != '@' ) && return false
 
     i = ts.idx + 1
-    while i <= length(ts.input) && isascii(ts[i]) &&
-                        (isdigit(ts[i]) || islowercase(ts[i]) ||
-                         isuppercase(ts[i]) || ts[i] == '_')
+    while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] == '_')
         i += 1
     end
     i > ts.idx + 1 && return flushaboutindex!(ts, i - 1)
@@ -470,18 +456,16 @@ end
 TokenBuffer matcher for words that may or maynot have dashes or apostrophe in it.
 """
 function words_including_apostrophe_dashes(ts)
-    (ts.idx + 1 > length(ts.input) ||  !(isascii(ts[ts.idx]) &&
-                (islowercase(ts[ts.idx]) || isuppercase(ts[ts.idx])
-                        || isdigit(ts[ts.idx]) || ts[ts.idx] == '_' ))) && return false
+    ts.idx + 1 > length(ts.input) && return false
+    isalnum(ts[ts.idx]) || ts[ts.idx] == '_'  || return false
 
     has_apostrophe_dashes = false
     i = ts.idx + 1
     last_char = ts.idx
 
     if isuppercase(ts[ts.idx]) || islowercase(ts[ts.idx])
-        while i <= length(ts.input) && isascii(ts[i]) &&
-                (islowercase(ts[i]) || isuppercase(ts[i]) || ts[i] ∈ ['_', '\'', '-'])
-            if has_apostrophe_dashes == false && ts[i] ∈ ['\'', '-']
+        while i <= length(ts.input) && (isalpha(ts[i]) || ts[i] ∈ ('_', '\'', '-'))
+            if has_apostrophe_dashes == false && ts[i] ∈ ('\'', '-')
                 has_apostrophe_dashes = true
             else
                 last_char = i
@@ -492,13 +476,14 @@ function words_including_apostrophe_dashes(ts)
 
     has_apostrophe_dashes && last_char != ts.idx && return flushaboutindex!(ts, last_char)
 
-    while i <= length(ts.input) && isascii(ts[i]) && (isdigit(ts[i]) ||
-                    islowercase(ts[i]) || isuppercase(ts[i]) || ts[i] == '_')
+    while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] == '_')
         i += 1
     end
 
     return flushaboutindex!(ts, i - 1)
 end
+
+const allowed_chars_phone_numbers = (' ', '*', '-', '.', ')')
 
 """
     nltk_casual_phonenumbers(ts)
@@ -507,27 +492,27 @@ The TokenBuffer function for nltk's tweet tokenizer regex for phonenumbers.
 """
 function nltk_phonenumbers(ts)
     (ts.idx + 5 > length(ts.input) || !(isdigit(ts[ts.idx]) ||
-                                    ts[ts.idx] ∈ ['+', '('] )) && return false
+                                    ts[ts.idx] ∈ ('+', '('))) && return false
 
     i = ts.idx
     optional_1_confirmed = false
 
     # Checking for the part 1 of regex which is optional
     if ts[i] == '+'
-        ts[i + 1] ∈ ['0', '1'] || return false
+        ts[i + 1] == '0' || ts[i + 1] == '1' || return false
         i += 2
 
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+        while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
             i += 1
         end
 
         i + 5 > length(ts.input) && return false
 
         optional_1_confirmed = true
-    elseif ts[i] ∈ ['0', '1']
+    elseif ts[i] == '0' || ts[i] == '1'
         i += 1
 
-        while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+        while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
             i += 1
         end
 
@@ -551,7 +536,7 @@ function nltk_phonenumbers(ts)
                 end
 
                 i += 3
-                while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+                while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                     i += 1
                 end
             end
@@ -568,7 +553,7 @@ function nltk_phonenumbers(ts)
             end
             i += 3
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -580,7 +565,7 @@ function nltk_phonenumbers(ts)
             i += 3
             j = i
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -601,7 +586,7 @@ function nltk_phonenumbers(ts)
 
             i += 3
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -611,7 +596,7 @@ function nltk_phonenumbers(ts)
             i += 3
             j = i
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -631,7 +616,7 @@ function nltk_phonenumbers(ts)
 
             i += 3
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -641,7 +626,7 @@ function nltk_phonenumbers(ts)
             i += 3
             j = i
 
-            while i <= length(ts.input) && ts[i] ∈ [' ', '*', '-', '.', ')']
+            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
                 i += 1
             end
 
@@ -772,7 +757,7 @@ function nltk_url1(ts)
             end
             i += 1
         else # Checking for iii.
-            (isspace(ts[i])|| ts[i] ∈ [')', '<', '>', '{', '}', '[', ']'] ) && break
+            (isspace(ts[i])|| ts[i] ∈ (')', '<', '>', '{', '}', '[', ']') ) && break
             i += 1
         end
 
@@ -822,8 +807,8 @@ function nltk_url1(ts)
             i += 1
         else # Check for part ii.
             isspace(ts[i]) && break
-            ts[i] ∈ ['`', '!', ')', '[', ']', '{', '}', ';', ':', '\'', '"', '.',
-                     ',', '<', '>', '?', '«', '»', '“', '”', '‘', '’'] && continue
+            ts[i] ∈ ('`', '!', ')', '[', ']', '{', '}', ';', ':', '\'', '"', '.',
+                     ',', '<', '>', '?', '«', '»', '“', '”', '‘', '’') && continue
             index_matched = i
         end
         i = k
@@ -845,7 +830,7 @@ function nltk_url2(ts)
 
     flush_about = 0
 
-    while i < length(ts.input) && ts[i] ∈ ['.', '-']
+    while i < length(ts.input) && (ts[i] == '.' || ts[i] == '-')
         j = ts[i] == '.' ? i : 0
         i += 1
 
