@@ -218,10 +218,10 @@ function flushaboutindex!(ts::TokenBuffer, uptoidx)
     return true
 end
 
-const forehead = ['>', '<']
-const eyes = [':' ';' '=' '8']
-const nose = ['-','o','*','\'']
-const mouth = [')', ']', '}', '(', '[', '{', 'd', 'D', 'p', 'P', '\\', '/', ':', '@', '|']
+const forehead = ('>', '<')
+const eyes = (':', ';', '=', '8')
+const nose = ('-', 'o', '*', '\'')
+const mouth = (')', ']', '}', '(', '[', '{', 'd', 'D', 'p', 'P', '\\', '/', ':', '@', '|')
 
 """
     function emoticons(ts::TokenBuffer)
@@ -397,15 +397,15 @@ function twitterhashtags(ts)
 
     while i <= length(ts.input) && (isalnum(ts[i]) || ts[i] ∈ ('_', '\'', '-'))
 
-        if ts[i] ∉  ['\'', '-']
+        if ts[i] ∉  ('\'', '-')
             last_word_char = i
         end
 
         i += 1
     end
 
-    last_word_char >= ts.idx + 2 && ts[ts.idx + 1] ∉ ['\'', '-'] &&
-            ts[last_word_char] ∉ ['\'', '-'] && return flushaboutindex!(ts, last_word_char)
+    last_word_char >= ts.idx + 2 && ts[ts.idx + 1] ∉ ('\'', '-') &&
+            ts[last_word_char] ∉ ('\'', '-') && return flushaboutindex!(ts, last_word_char)
 
     return false
 end
