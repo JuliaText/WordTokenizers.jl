@@ -5,7 +5,8 @@ files = ["simple",
          "sedbased",
          "sentence_splitting",
          "set_method_api",
-	 "reversible_tok",
+         "tweet_tokenize",
+         "reversible_tok",
          "toktok"
         ]
 
