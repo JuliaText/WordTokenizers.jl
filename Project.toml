@@ -1,0 +1,6 @@
+name = "WordTokenizers"
+uuid = "21824b29-385e-4368-b864-f82723a1f150"
+version = "0.5.0"
+
+[compat]
+julia = "0.7, 1"
