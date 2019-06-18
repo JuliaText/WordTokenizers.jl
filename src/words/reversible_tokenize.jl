@@ -58,7 +58,7 @@ function rev_tokenize(instring::AbstractString)
         end
 
     end
-    return split(string(take!(ans)))
+    return split(String(take!(ans)))
 end
 
 
@@ -85,5 +85,5 @@ function rev_detokenize(instring::Array{String})
             ind = nextind(instring, ind)
         end
     end
-    return string(take!(ans))
+    return String(take!(ans))
 end

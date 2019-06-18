@@ -24,7 +24,7 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
             i += 1
         end
         (i > length(ts.input) || ts[i] != ';') && return false
-        entity = lookupname(HTML_Entities.default, string(ts[ts.idx+1:i-1]))
+        entity = lookupname(HTML_Entities.default, String(ts[ts.idx+1:i-1]))
         isempty(entity) && !remove_illegal && return false
         !isempty(entity) && push!(ts.buffer, entity[1])
         ts.idx = i + 1
@@ -42,7 +42,7 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
                 ts.idx +=3
                 return true
             end
-            (number = parse(Int, string(ts[ts.idx+2:i-1]), base=10))
+            (number = parse(Int, String(ts[ts.idx+2:i-1]), base=10))
         else   # Entity is of the type "&#x394;" => "Δ"
             i += 1
             base16letters = ('a', 'b', 'c', 'd', 'e', 'f')
@@ -56,7 +56,7 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
                 ts.idx += 4
                 return true
             end
-            number = parse(Int, string(ts[ts.idx+3:i-1]), base=16)
+            number = parse(Int, String(ts[ts.idx+3:i-1]), base=16)
         end
 
         windows_1252_chars = ('€', '\u81', '‚', 'ƒ', '„', '…', '†', '‡', 'ˆ', '‰',
@@ -213,7 +213,7 @@ function pre_process(input::AbstractString, strip_handle::Bool, reduce_len::Bool
 end
 
 function flushaboutindex!(ts::TokenBuffer, uptoidx)
-    flush!(ts, string(ts[ts.idx:uptoidx]))
+    flush!(ts, String(ts[ts.idx:uptoidx]))
     ts.idx = uptoidx + 1
     return true
 end
