@@ -7,14 +7,14 @@ tokenized = rev_tokenize(instring)
 de_tokenized = rev_detokenize(token)
 ```
 
-The rev_tokenize tokenizer splits into token based on space, punctuations and special symbols and in 
-addition it leaves some merge-symbols (`'\ue302'`) for the tokens to be re-arranged when needed 
+The rev_tokenize tokenizer splits into token based on space, punctuations and special symbols and in
+addition it leaves some merge-symbols (`'\ue302'`) for the tokens to be re-arranged when needed
 using the rev_detokenize.
 It uses a character based approach for splitting and re-merging.
 
 Parameters:
 
-- instring: Input string to be tokenized 
+- instring: Input string to be tokenized
 - token: Collection to tokens i.e String Array
 
 """
@@ -25,13 +25,13 @@ function is_weird(c::AbstractChar)
 end
 
 function nth_ind(instring, startind, n)
-    
-    if n == 0 
+
+    if n == 0
         return thisind(instring, startind)
-        
+
     elseif n < 0
         return prevind(instring, nth_ind(instring, startind , n+1))
-        
+
     else
         return nextind(instring, nth_ind(instring, startind, n-1))
     end
@@ -44,7 +44,7 @@ function rev_tokenize(instring::AbstractString)
         c   = instring[thisind(instring, ind)]
         c_p = thisind(instring, ind) > 1 ? instring[prevind(instring, ind)] : c
         c_n = thisind(instring, ind) < thisind(instring, lastindex(instring)) ? instring[nextind(instring, ind)] : c
-        
+
         if !is_weird(c)
             write(ans, c)
         else
@@ -56,9 +56,9 @@ function rev_tokenize(instring::AbstractString)
                 write(ans, MERGESYMBOL, " ")
             end
         end
-       
+
     end
-    return split(String(take!(ans)))
+    return split(string(take!(ans)))
 end
 
 
@@ -74,7 +74,7 @@ function rev_detokenize(instring::Array{String})
         c_n  = current_ind < last_index ? instring[nextind(instring, ind)] : c
         c_pp = current_ind > nextind(instring, 1) ? instring[nth_ind(instring, ind, -2)] : c
         c_nn = current_ind < prevind(instring, last_index) ? instring[nth_ind(instring, ind, 2)] : c
-        
+
         if c * c_n == ' ' * MERGESYMBOL && is_weird(c_nn)
             ind = nth_ind(instring, ind, 2)
         elseif is_weird(c) && c_n * c_nn == MERGESYMBOL * ' '
@@ -85,5 +85,5 @@ function rev_detokenize(instring::Array{String})
             ind = nextind(instring, ind)
         end
     end
-    return String(take!(ans))
+    return string(take!(ans))
 end

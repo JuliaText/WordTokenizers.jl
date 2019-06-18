@@ -69,7 +69,7 @@ stream after the current one.
 """
 function flush!(ts::TokenBuffer, s...)
     if !isempty(ts.buffer)
-        push!(ts.tokens, String(ts.buffer))
+        push!(ts.tokens, string(ts.buffer))
         empty!(ts.buffer)
     end
     push!(ts.tokens, s...)
@@ -139,7 +139,7 @@ as a single token, regardless of word boundaries.
 function atoms(ts, as)
     for a in as
         lookahead(ts, a) || continue
-        flush!(ts, String(a))
+        flush!(ts, string(a))
         ts.idx += length(a)
         return true
     end
@@ -159,7 +159,7 @@ function suffixes(ts, ss)
     isempty(ts.buffer) && return false
     for s in ss
         lookahead(ts, s, boundary=true) || continue
-        flush!(ts, String(s))
+        flush!(ts, string(s))
         ts.idx += length(s)
         return true
     end
@@ -225,7 +225,7 @@ function number(ts, sep = (':', ',', '\'', '.'); check_sign = false)
                 (ts[i] in sep && i < length(ts.input) && isdigit(ts[i+1])))
         i += 1
     end
-    flush!(ts, String(ts[ts.idx:i-1]))
+    flush!(ts, string(ts[ts.idx:i-1]))
     ts.idx = i
     return true
 end
