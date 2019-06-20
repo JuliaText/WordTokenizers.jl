@@ -81,7 +81,7 @@ function toktok_tokenize(instring::AbstractString)
     ts = TokenBuffer(instring)
     isempty(ts.input) && return ts.tokens
 
-    effective_end = handle_final_periods(ts)
+    effective_end, flush_later1, flush_later2 = handle_final_periods(ts)
 
     while !isdone(ts) && ts.idx <= effective_end
         if string(ts.input[ts.idx]) == NON_BREAKING[1]
@@ -101,7 +101,14 @@ function toktok_tokenize(instring::AbstractString)
         atoms(ts, rules_atoms) ||
         character(ts)
     end
-    flush!(ts)
+    if flush_later1 == nothing
+        flush!(ts)
+    elseif flush_later2 == nothing
+        flush!(ts, flush_later1)
+    else
+        flush!(ts, flush_later1, flush_later2)
+    end
+
     return ts.tokens
 end
 
@@ -109,43 +116,41 @@ end
     handle_final_periods(::TokenBuffer)
 Handles the following rules from original toktok perl script:
 Don't tokenize period unless it ends the line and that it isn't preceded by another period (FINAL_PERIOD_1)
-Don't tokenize period unless it ends the line(FINAL_PERIOD_2)
+Don't tokenize period unless it ends the line (FINAL_PERIOD_2)
 """
 function handle_final_periods(ts::TokenBuffer)
     effective_end = length(ts.input)
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
     if length(ts.input) >= 2 && ts.input[end] == '.' && ts.input[end-1] != '.'
-        flush!(ts, ".")
         effective_end -= 1
-        return effective_end
+        return effective_end, ".", nothing
     end
 
     # handles FINAL_PERIOD_2 = r"(?<!\.)\.\s*(["'’»›”]) *$"
-    if ts.input[end] in "“”‘’›" || isspace(ts.input[end])
+    if ts.input[end] in ('“', '”', '‘', '’', '›') || isspace(ts.input[end])
         while effective_end >=1 && isspace(ts.input[effective_end] )
             effective_end -= 1
         end
 
-        if ts.input[effective_end] in "“”‘’›"
+        if ts.input[effective_end] in ('“', '”', '‘', '’', '›')
             token_position = effective_end
             effective_end -= 1
 
+            println(ts.input[effective_end])
             while effective_end >=1 && isspace(ts.input[effective_end] )
                 effective_end -= 1
             end
-
             if ts.input[effective_end] == '.'
                 if effective_end >= 2 && ts.input[effective_end - 1] == '.'
-                    return length(ts.input)
+                    return length(ts.input), nothing, nothing
                 else
-                    flush!(ts, ".")
-                    flush!(ts, string(ts.input[token_position]))
                     effective_end -= 1
+                    return effective_end, ".",string(ts.input[token_position])
                 end
             end
         end
     end
-    return effective_end
+    return effective_end, nothing, nothing
 end
 
 # In below functions flush!() is used when some given string needs to be a seperate token
