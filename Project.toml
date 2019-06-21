@@ -1,6 +1,6 @@
 name = "WordTokenizers"
 uuid = "796a5d58-b03d-544a-977e-18100b691f6e"
-version = "0.5.1"
+version = "0.5.2"
 
 [deps]
 HTML_Entities = "7693890a-d069-55fe-a829-b4a6d304f0ee"
