@@ -54,14 +54,14 @@ const CURRENCY_SYM = (
         "\u20b4", "\u20b5", "\u20b6", "\u20b7", "\u20b8", "\u20b9", "\u20ba", "\ua838",
         "\ufdfc", "\ufe69", "\uff04", "\uffe0", "\uffe1", "\uffe5", "\uffe6", "\u09fb")
 
-const rules_atoms = Tuple(Iterators.flatten([
+const rules_atoms = collect.(Tuple(Iterators.flatten([
         CURRENCY_SYM,
         FUNKY_PUNCT_1,
         FUNKY_PUNCT_2,
         EN_EM_DASHES,
         PROB_SINGLE_QUOTES,
         OPEN_PUNCT,
-        CLOSE_PUNCT]))
+        CLOSE_PUNCT])))
 
 const rules_replaces = Tuple(Iterators.flatten([
         [AMPERCENT],
@@ -134,15 +134,15 @@ function handle_final_periods(ts::TokenBuffer)
             effective_end -= 1
         end
 
-        if ts.input[effective_end] in ('\"', '“', '”', '‘', '’', '›')
+        if effective_end > 1 && ts.input[effective_end] in ('\"', '“', '”', '‘', '’', '›')
             token_position = effective_end
             effective_end -= 1
 
-            println(ts.input[effective_end])
             while effective_end >=1 && isspace(ts.input[effective_end] )
                 effective_end -= 1
             end
-            if ts.input[effective_end] == '.'
+
+            if effective_end > 1 && ts.input[effective_end] == '.'
                 if effective_end >= 2 && ts.input[effective_end - 1] == '.'
                     return length(ts.input), nothing, nothing
                 else
