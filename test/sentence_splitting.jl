@@ -6,6 +6,7 @@ using WordTokenizers
         @test 1 == length(rulebased_split_sentences("It is by A. Adamson, the famous author."))
         @test 1 == length(rulebased_split_sentences("It is by Z. Zeckerson, the famous author."))
         @test 1 == length(rulebased_split_sentences("It is by Bill R. Emerson, the famous author."))
+        @test 1 == length(rulebased_split_sentences("It is by A. A. Adamson, the famous author."))
 
         @test_broken 1 == (rulebased_split_sentences("It is by Ian I. Irving, the famous author."))
 
@@ -14,6 +15,10 @@ using WordTokenizers
 
     @testset "period only" begin
         @test length(rulebased_split_sentences("a good day . . Yes"))==2
+    end
+
+    @testset "Acronyms" begin
+        @test length(rulebased_split_sentences("Adamson is not from USA. They are from Europe."))==2
     end
 end
 
