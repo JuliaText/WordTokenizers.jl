@@ -287,3 +287,13 @@ end
     tokenized = ["tokenize", "this"]
     @test tokenized == toktok_tokenize(str)
 end
+
+@testset "atoms" begin
+	str = "=–="
+	tokenized = ["=", "–", "="]
+	@test tokenized == toktok_tokenize(str)
+
+	str = "I have ¥50"
+	tokenized = ["I", "have", "¥", "50"]
+	@test tokenized == toktok_tokenize(str)
+end
