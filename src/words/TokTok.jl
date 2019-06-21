@@ -7,7 +7,7 @@ const FUNKY_PUNCT_1 = string.(Tuple("،;؛¿!])}»›”؟¡%٪°±©®।॥…
 # Pad more funky punctuation.
 const FUNKY_PUNCT_2 = string.(Tuple("[“‘„‚«‹「『"))
 # Pad En dash and em dash
-const EN_EM_DASHES = ("–—")
+const EN_EM_DASHES = ("–", "—")
 
 # Replace problematic character with numeric character reference.
 const AMPERCENT = ("&",) => "&amp;"
