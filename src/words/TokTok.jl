@@ -7,7 +7,7 @@ const FUNKY_PUNCT_1 = string.(Tuple("،;؛¿!])}»›”؟¡%٪°±©®।॥…
 # Pad more funky punctuation.
 const FUNKY_PUNCT_2 = string.(Tuple("[“‘„‚«‹「『"))
 # Pad En dash and em dash
-const EN_EM_DASHES = ("–—")
+const EN_EM_DASHES = ("–", "—")
 
 # Replace problematic character with numeric character reference.
 const AMPERCENT = ("&",) => "&amp;"
@@ -54,14 +54,14 @@ const CURRENCY_SYM = (
         "\u20b4", "\u20b5", "\u20b6", "\u20b7", "\u20b8", "\u20b9", "\u20ba", "\ua838",
         "\ufdfc", "\ufe69", "\uff04", "\uffe0", "\uffe1", "\uffe5", "\uffe6", "\u09fb")
 
-const rules_atoms = Tuple(Iterators.flatten([
+const rules_atoms = collect.(Tuple(Iterators.flatten([
         CURRENCY_SYM,
         FUNKY_PUNCT_1,
         FUNKY_PUNCT_2,
         EN_EM_DASHES,
         PROB_SINGLE_QUOTES,
         OPEN_PUNCT,
-        CLOSE_PUNCT]))
+        CLOSE_PUNCT])))
 
 const rules_replaces = Tuple(Iterators.flatten([
         [AMPERCENT],
@@ -73,6 +73,7 @@ const rules_replaces = Tuple(Iterators.flatten([
 
 """
     totok_tokenize(instring::AstractString)
+
 This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized.
 Tok-tok has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese,
 Tajik, and a few others.
@@ -81,7 +82,7 @@ function toktok_tokenize(instring::AbstractString)
     ts = TokenBuffer(instring)
     isempty(ts.input) && return ts.tokens
 
-    effective_end = handle_final_periods(ts)
+    effective_end, flush_later1, flush_later2 = handle_final_periods(ts)
 
     while !isdone(ts) && ts.idx <= effective_end
         if string(ts.input[ts.idx]) == NON_BREAKING[1]
@@ -101,32 +102,39 @@ function toktok_tokenize(instring::AbstractString)
         atoms(ts, rules_atoms) ||
         character(ts)
     end
-    flush!(ts)
+    if flush_later1 == nothing
+        flush!(ts)
+    elseif flush_later2 == nothing
+        flush!(ts, flush_later1)
+    else
+        flush!(ts, flush_later1, flush_later2)
+    end
+
     return ts.tokens
 end
 
 """
     handle_final_periods(::TokenBuffer)
+
 Handles the following rules from original toktok perl script:
 Don't tokenize period unless it ends the line and that it isn't preceded by another period (FINAL_PERIOD_1)
-Don't tokenize period unless it ends the line(FINAL_PERIOD_2)
+Don't tokenize period unless it ends the line (FINAL_PERIOD_2)
 """
 function handle_final_periods(ts::TokenBuffer)
     effective_end = length(ts.input)
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
     if length(ts.input) >= 2 && ts.input[end] == '.' && ts.input[end-1] != '.'
-        flush!(ts, ".")
         effective_end -= 1
-        return effective_end
+        return effective_end, ".", nothing
     end
 
     # handles FINAL_PERIOD_2 = r"(?<!\.)\.\s*(["'’»›”]) *$"
-    if ts.input[end] in "“”‘’›" || isspace(ts.input[end])
+    if ts.input[end] in ('\"', '“', '”', '‘', '’', '›') || isspace(ts.input[end])
         while effective_end >=1 && isspace(ts.input[effective_end] )
             effective_end -= 1
         end
 
-        if ts.input[effective_end] in "“”‘’›"
+        if effective_end > 1 && ts.input[effective_end] in ('\"', '“', '”', '‘', '’', '›')
             token_position = effective_end
             effective_end -= 1
 
@@ -134,24 +142,24 @@ function handle_final_periods(ts::TokenBuffer)
                 effective_end -= 1
             end
 
-            if ts.input[effective_end] == '.'
+            if effective_end > 1 && ts.input[effective_end] == '.'
                 if effective_end >= 2 && ts.input[effective_end - 1] == '.'
-                    return length(ts.input)
+                    return length(ts.input), nothing, nothing
                 else
-                    flush!(ts, ".")
-                    flush!(ts, string(ts.input[token_position]))
                     effective_end -= 1
+                    return effective_end, ".",string(ts.input[token_position])
                 end
             end
         end
     end
-    return effective_end
+    return effective_end, nothing, nothing
 end
 
 # In below functions flush!() is used when some given string needs to be a seperate token
 # and push!() is used when it needs to appended to some processsing token in buffer i.e not as seperate token
 """
     url_handler1(::TokenBuffer)
+
 Handles this rule from python using TokenBuffer API:
 URL_FOE_1 = re.compile(r':(?!//)'), r' : '
 """
@@ -176,6 +184,7 @@ end
 
 """
     url_handler2(::TokenBuffer)
+
 Handles this rule from python using TokenBuffer API:
 URL_FOE_2 = re.compile(r'\\?(?!\\S)'), r' ? '
 """
@@ -199,6 +208,7 @@ end
 
 """
     url_handler3(::TokenBuffer)
+
 Handles this rule from python using TokenBuffer API:
 URL_FOE_3 = re.compile(r'(://)[\\S+\\.\\S+/\\S+][/]'), ' / '
 """
@@ -218,6 +228,7 @@ end
 
 """
     url_handler4(::TokenBuffer)
+
 Handles this rule from python using TokenBuffer API:
 URL_FOE_4 = re.compile(r' /'), r' / '
 """
@@ -236,6 +247,7 @@ end
 
 """
     repeated_character_seq(::TokenBuffer, char, min_repeats=2)
+
 Matches sequences of characters that are repreated at least `min_repeats` times.
 Treat them as fake characters and ignores them.
 """
