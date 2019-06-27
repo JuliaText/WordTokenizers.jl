@@ -156,7 +156,7 @@ french_tokenized = ["Maître", "Corbeau", ",", "sur", "un", "arbre", "perché", 
     "Monsieur", ",", "Apprenez", "que", "tout", "flatteur", "Vit", "aux", "dépens", "de", "celui", "qui", "l", "’",
     "écoute", ":", "Cette", "leçon", "vaut", "bien", "un", "fromage", ",", "sans", "doute.", "»", "Le", "Corbeau",
     ",", "honteux", "et", "confus", ",", "Jura", ",", "mais", "un", "peu", "tard", ",", "qu", "’", "on", "ne", "l",
-    "’", "y", "prendrait", "plus.", ]
+    "’", "y", "prendrait", "plus", "."]
 
 
 old_english_tokenized = ["An.", "M.LXVI.", "On", "þyssum", "geare", "man", "halgode", "þet", "mynster", "æt",
@@ -170,7 +170,7 @@ old_english_tokenized = ["An.", "M.LXVI.", "On", "þyssum", "geare", "man", "hal
     "gefeaht", "ear", "þan", "þe", "his", "here", "com", "eall", "7", "þær", "he", "feoll", "7", "his", "twægen",
     "gebroðra", "Gyrð", "7", "Leofwine", "and", "Willelm", "þis", "land", "geeode", "7", "com", "to", "Westmynstre",
     "7", "Ealdred", "arceb", "hine", "to", "cynge", "gehalgode", "7", "menn", "guldon", "him", "gyld", "7", "gislas",
-    "sealdon", "7", "syððan", "heora", "land", "bohtan.", ]
+    "sealdon", "7", "syððan", "heora", "land", "bohtan", "."]
 
 
 russian_tokenized = ["Лорем", "ипсум", "долор", "сит", "амет", ",", "яуи", "ин", "реяуе", "пертинациа", ",",
@@ -180,7 +180,7 @@ russian_tokenized = ["Лорем", "ипсум", "долор", "сит", "аме
     "пертинах", "малуиссет", "ин", "усу.", "Еам", "еу", "еиус", "поссе.", "Сеа", "еи", "малорум", "ассентиор.", "Алии",
     "мутат", "персиус", "усу", "но", ",", "цу", "вих", "ирацундиа", "цонсететур", ",", "цоррумпит", "форенсибус", "диссентиунт",
     "но", "иус.", "Ессе", "цибо", "нонумес", "ин", "сеа.", "Доминг", "еурипидис", "модератиус", "сеа", "ут", ",",
-    "алии", "иллуд", "граецис", "ет", "сед.", "Цу", "путент", "десеруиссе", "еам", ".",]
+    "алии", "иллуд", "граецис", "ет", "сед.", "Цу", "путент", "десеруиссе", "еам", "."]
 
 
 spanish_tokenized = ["Mentiría", "si", "dijera", "que", "era", "del", "todo", "nuevo", "el", "sentimiento", "de",
@@ -195,7 +195,7 @@ spanish_tokenized = ["Mentiría", "si", "dijera", "que", "era", "del", "todo", "
     "lo", "irremediable.", "Despertarse", ",", "ventearse", "como", "un", "perro", "la", "vida", ",", "ocuparse",
     "de", "sus", "asuntillos", ",", "sacar", "provecho", "de", "ellos", ",", "comer", ",", "beber", ",", "dormir.",
     "Ahora", ",", "sólo", "ahora", ",", "cuando", "estaba", "de", "verdad", "solo", ",", "sabía", "que", "la", "vida",
-    "se", "escapa", "por", "las", "buenas", ",", "corre", "mucho", ]
+    "se", "escapa", "por", "las", "buenas", ",", "corre", "mucho"]
 
 
 farsi_tokenized = ["مادهٔ", "بیست", "و", "ششم", "1", ")", "هر", "کس", "حق", "دارد", "که",
@@ -215,7 +215,7 @@ farsi_tokenized = ["مادهٔ", "بیست", "و", "ششم", "1", ")", "هر", "
     "دارد", "آزادانه", "در", "زندگی", "فرهنگی", "اجتما", "عی", "شرکت", "کند", "،", "از",
     "فنون", "و", "هنرها", "متمتع", "گردد", "و", "در", "پیشرفت", "علمی", "و", "فوائد", "آن",
     "سهیم", "باشد.", "2", ")", "هر", "کس", "حق", "دارد", "از", "حمایت", "منافع", "معنوی",
-    "و", "مادی", "آثار", "علمی", "،", "فرهنگی", "یا", "هنری", "خود", "برخوردار", "شود", ".", ]
+    "و", "مادی", "آثار", "علمی", "،", "فرهنگی", "یا", "هنری", "خود", "برخوردار", "شود", "."]
 
 
 chez_tokenized = ["Článek", "26", "Každý", "má", "právo", "na", "vzdělání.", "Vzdělání", "nechť", "je", "bezplatné",
@@ -230,7 +230,7 @@ chez_tokenized = ["Článek", "26", "Každý", "má", "právo", "na", "vzdělán
     "má", "právo", "svobodně", "se", "účastnit", "kulturního", "života", "společnosti", ",", "úžívat", "plodů",
     "umění", "a", "podílet", "se", "na", "vědeckém", "pokroku", "a", "jeho", "výtěžcích.", "Každý", "má", "právo",
     "na", "ochranu", "morálních", "a", "materiálních", "zájmů", ",", "které", "vyplývají", "z", "jeho", "vědecké",
-    ",", "literární", "nebo", "umělecké", "tvorby.", ]
+    ",", "literární", "nebo", "umělecké", "tvorby", "."]
 
 
 vietnamese_tokenized = ["Điều", "26", ":", "1", ")", "Mọi", "người", "đều", "có", "quyền", "được", "học", "hành.",
@@ -250,7 +250,7 @@ vietnamese_tokenized = ["Điều", "26", ":", "1", ")", "Mọi", "người", "
     "xẻ", "những", "thành", "tựu", "và", "lợi", "ích", "của", "tiến", "bộ", "khoa", "học.", "2", ")", "Mọi",
     "người", "đều", "có", "quyền", "được", "bảo", "hộ", "đối", "với", "những", "quyền", "lợi", "về", "vật",
     "chất", "và", "tinh", "thần", "xuất", "phát", "từ", "công", "trình", "khoa", "học", ",", "văn", "học",
-    "và", "nhgệ", "thuật", "mà", "người", "đó", "là", "tác", "giả.", ]
+    "và", "nhgệ", "thuật", "mà", "người", "đó", "là", "tác", "giả", "."]
 
 
 
@@ -284,6 +284,16 @@ end
         tokenized = ["1", ")", "example", "sentence.", "2", ")", "example", "sentence", "‘"]
         @test tokenized == toktok_tokenize(str)
     end
+
+	@testset "spaces in final period" begin
+		str = "This is a sentence. "
+		tokenized = [ "This", "is", "a", "sentence", "."]
+		@test tokenized == toktok_tokenize(str)
+
+		str = "They say, \"This is a sentence . \" "
+		tokenized = [ "They", "say", ",", "\"", "This", "is", "a", "sentence", ".", "\""]
+		@test tokenized == toktok_tokenize(str)
+	end
 end
 
 
