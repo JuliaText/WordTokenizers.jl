@@ -42,6 +42,11 @@ end
         str = "https://example.com /example"
         tokenized = ["https://example.com", "/", "example"]
         @test tokenized == toktok_tokenize(str)
+
+		str = "'re too Buff \\/ Fred thinks he 's tough \\/"
+        tokenized = ["'","re", "too", "Buff", "\\", "/", "Fred", "thinks",
+                     "he", "'", "s", "tough", "\\", "/"]
+        @test tokenized == toktok_tokenize(str)
     end
 end
 
