@@ -240,6 +240,7 @@ function url_handler4(ts::TokenBuffer)
     elseif lookahead(ts, "/")
         push!(ts.buffer, '/')
         ts.idx += 1
+        return true
     end
     return false
 end
