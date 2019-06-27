@@ -122,36 +122,38 @@ Don't tokenize period unless it ends the line (FINAL_PERIOD_2)
 """
 function handle_final_periods(ts::TokenBuffer)
     effective_end = length(ts.input)
+
+    # handles spaces
+    while effective_end >=1 && isspace(ts.input[effective_end])
+        effective_end -= 1
+    end
+
     # handles FINAL_PERIOD_1 = r"(?<!\.)\.$"
-    if length(ts.input) >= 2 && ts.input[end] == '.' && ts.input[end-1] != '.'
+    if effective_end > 1 && length(ts.input) >= 2 && ts.input[effective_end] == '.' && ts.input[effective_end-1] != '.'
         effective_end -= 1
         return effective_end, ".", nothing
     end
 
     # handles FINAL_PERIOD_2 = r"(?<!\.)\.\s*(["'’»›”]) *$"
-    if ts.input[end] in ('\"', '“', '”', '‘', '’', '›') || isspace(ts.input[end])
-        while effective_end >=1 && isspace(ts.input[effective_end] )
+    if effective_end > 1 && ts.input[effective_end] in ('\"', '“', '”', '‘', '’', '›')
+        token_position = effective_end
+        effective_end -= 1
+
+        while effective_end >=1 && isspace(ts.input[effective_end])
             effective_end -= 1
         end
 
-        if effective_end > 1 && ts.input[effective_end] in ('\"', '“', '”', '‘', '’', '›')
-            token_position = effective_end
-            effective_end -= 1
-
-            while effective_end >=1 && isspace(ts.input[effective_end] )
+        if effective_end > 1 && ts.input[effective_end] == '.'
+            if effective_end >= 2 && ts.input[effective_end - 1] == '.'
+                return token_position + 1, nothing, nothing # No use iterating over spaces again.
+            else
                 effective_end -= 1
-            end
-
-            if effective_end > 1 && ts.input[effective_end] == '.'
-                if effective_end >= 2 && ts.input[effective_end - 1] == '.'
-                    return length(ts.input), nothing, nothing
-                else
-                    effective_end -= 1
-                    return effective_end, ".",string(ts.input[token_position])
-                end
+                return effective_end, ".", string(ts.input[token_position])
             end
         end
+        return effective_end, string(ts.input[token_position]), nothing
     end
+
     return effective_end, nothing, nothing
 end
 
