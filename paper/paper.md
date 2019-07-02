@@ -11,12 +11,22 @@ authors:
  - name: Ayush Kaushal
    orcid: 0000-0002-6703-0728
    affiliation: 2
+ - name: Mike Innes
+   orcid: 0000-0003-0788-0242
+   affiliation: 3
+ - name: Rohit Kumar
+   orcid: 0000-0002-6758-8350
+   affiliation: 4
 
 affiliations:
  - name: The University of Western Australia
    index: 1
  - name: Indian Institute of Technology, Kharagpur
    index: 2
+ - name: Julia Computing
+   index: 3
+ - name: ABV-Indian Institute of Information Technology and Management Gwalior
+   index: 4
 
 date: 1 July 2019
 bibliography: paper.bib
