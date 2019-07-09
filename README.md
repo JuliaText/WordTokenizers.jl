@@ -288,3 +288,20 @@ julia> tokenize("hi__hello")
  "__"
  "hihello"
 ```
+
+## Contributing
+Contributions, in the form of bug-reports, pull requests, additional documentation are encouraged.
+They can be made to the Github repository.
+
+**All contributions and communications should abide by the [Julia Community Standards](https://julialang.org/community/standards/).**
+
+Software contributions should follow the prevailing style within the code-base.
+If your pull request (or issues) are not getting responses within a few days do not hesitate to "bump" them,
+by posting a comment such as "Any update on the status of this?".
+Sometimes Github notifications get lost.
+
+## Support
+
+Feel free to ask for help on the [Julia Discourse forum](https://discourse.julialang.org/),
+or in the `#natural-language` channel on julia-slack. (Which you can [join here](https://slackinvite.julialang.org/)).
+You can also raise issues in this repository to request improvements to the documentation.
