@@ -74,6 +74,8 @@ WordTokenizers.jl is currently being used by packages like [TextAnalysis.jl](htt
 
 ## Other similar softwares
 
+![Speed comparison of Tokenizers on IMDB Movie Review Dataset](speed_compare.png)
+
 There are various NLP libraries and toolkits written in other programming languages, available to Julia users for tokenization.
 [NLTK](https://github.com/nltk/nltk) and [Spacy](https://github.com/explosion/spaCy) packages provide with a variety of tokenizers, accessed to Julia users via `PyCall`.
 There are many more packages like [Stanford CoreNLP](https://github.com/stanfordnlp/CoreNLP), [AllenNLP](https://github.com/allenai/allennlp/) providing a couple of basic tokenizers.
