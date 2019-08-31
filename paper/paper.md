@@ -49,7 +49,7 @@ Using this API several standard tokenizers and sentence segmenters have been imp
 
 WordTokenizers.jl does not implement significant novel tokenizers or sentence segmenters.
 Rather, it contains ports/implementations the well-established and commonly used algorithms.
-At present, it containes rules-based methods primarily designed for English.
+At present, it contains rules-based methods primarily designed for English.
 Several of the implementations are sourced from the Python NLTK project ([@NLTK1], [@NLTK2]);
 although these were in turn sourced from older pre-existing methods.
 
@@ -74,9 +74,15 @@ WordTokenizers.jl is currently being used by packages like [TextAnalysis.jl](htt
 
 ## Other similar softwares
 
+![Speed comparison of Tokenizers on IMDB Movie Review Dataset](speed_compare.png)
+
 There are various NLP libraries and toolkits written in other programming languages, available to Julia users for tokenization.
 [NLTK](https://github.com/nltk/nltk) and [Spacy](https://github.com/explosion/spaCy) packages provide with a variety of tokenizers, accessed to Julia users via `PyCall`.
+Shown above is a performance benchmark of using some of the WordTokenizers.jl tokenizers vs PyCalling the default tokenizers from NLTK and SpaCy.
+This was evaluated on the ~127,000 sentences of the IMDB Movie Review Dataset.
+It can be seen that the performance of WordTokenizers.jl is very strong.
+
 There are many more packages like [Stanford CoreNLP](https://github.com/stanfordnlp/CoreNLP), [AllenNLP](https://github.com/allenai/allennlp/) providing a couple of basic tokenizers.
-However, WordTokenizers.jl is [faster](https://github.com/Ayushk4/Tweet_tok_analyse/tree/master/speed) and simpler to use, providing with a wide variety of tokenizers and a means to build custom tokenizers.
+However, WordTokenizers.jl is [faster](https://github.com/Ayushk4/Tweet_tok_analyse/tree/master/speed) and simpler to use, providing with a wider variety of tokenizers and a means to build custom tokenizers.
 
 # References
