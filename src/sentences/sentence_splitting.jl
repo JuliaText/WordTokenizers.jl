@@ -1,8 +1,8 @@
 function rulebased_split_sentences(sentences)
     sentences = replace(sentences, r"([?!.])\s" => Base.SubstitutionString("\\1\n"))
-
     sentences = postproc_splits(sentences)
-    split(sentences, "\n")
+    sentences = split(sentences, "\n")
+    filter!(e-> e ≠ "", sentences)
 end
 
 
@@ -37,7 +37,6 @@ medss.pl script.
 function postproc_splits(sentences::AbstractString)
     # Before we do anything remove windows line-ends
     sentences = replace(sentences, "\r" => "")
-
 
     # breaks sometimes missing after "?", "safe" cases
     sentences = replace(sentences, r"\b([a-z]+\?) ([A-Z][a-z]+)\b" => Base.SubstitutionString("\\1\n\\2"))
