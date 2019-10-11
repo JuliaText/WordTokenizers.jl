@@ -1,10 +1,9 @@
 function rulebased_split_sentences(sentences)
     sentences = replace(sentences, r"([?!.])\s" => Base.SubstitutionString("\\1\n"))
-    sentences = postproc_splits(sentences)
-    sentences = split(sentences, "\n")
-    filter!(e-> e ≠ "", sentences)
-end
 
+    sentences = postproc_splits(sentences)
+    split(sentences, "\n"; keepempty=false)
+end
 
 
 function replace_til_no_change(input, pattern, replacement)
