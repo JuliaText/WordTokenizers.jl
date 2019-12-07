@@ -7,11 +7,11 @@ tags:
   - text mining
   - information retrieval
 authors:
- - name: Lyndon White
-   orcid: 0000-0003-1386-1646
-   affiliation: 1
  - name: Ayush Kaushal
    orcid: 0000-0002-6703-0728
+   affiliation: 1
+ - name: Lyndon White
+   orcid: 0000-0003-1386-1646
    affiliation: 2
  - name: Mike Innes
    orcid: 0000-0003-0788-0242
@@ -21,9 +21,9 @@ authors:
    affiliation: 4
 
 affiliations:
- - name: The University of Western Australia
-   index: 1
  - name: Indian Institute of Technology, Kharagpur
+   index: 1
+ - name: The University of Western Australia
    index: 2
  - name: Julia Computing
    index: 3
