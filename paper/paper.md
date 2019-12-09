@@ -36,7 +36,7 @@ bibliography: paper.bib
 
 # Summary
 
-WordTokenizers.jl is a tool to help users of the Julia programming language ([@Julia]), work with natural language.
+WordTokenizers.jl is a tool to help users of the Julia programming language [@Julia], work with natural language.
 In natural language processing (NLP) tokenization refers to breaking a text up into parts -- the tokens.
 Generally, tokenization refers to breaking a sentence up into words and other tokens such as punctuation.
 Such _word tokenization_ also often includes some normalizing, such as correcting unusual spellings or removing all punctuations.
@@ -50,7 +50,7 @@ Using this API several standard tokenizers and sentence segmenters have been imp
 WordTokenizers.jl does not implement significant novel tokenizers or sentence segmenters.
 Rather, it contains ports/implementations the well-established and commonly used algorithms.
 At present, it contains rules-based methods primarily designed for English.
-Several of the implementations are sourced from the Python NLTK project ([@NLTK1], [@NLTK2]);
+Several of the implementations are sourced from the Python NLTK project [@NLTK1], [@NLTK2];
 although these were in turn sourced from older pre-existing methods.
 
 WordTokenizers.jl uses a `TokenBuffer` API and its various lexers for fast word tokenization.
@@ -58,12 +58,12 @@ WordTokenizers.jl uses a `TokenBuffer` API and its various lexers for fast word 
 A desired set of TokenBuffer lexers are used to read characters from the stream and flush out into an array of tokens.
 The package provides the following tokenizers made using this API.
 
-- A Tweet Tokenizer([@tweettok]) for casual text.
-- A general purpose NLTK Tokenizer([@NLTK1, @NLTK2]).
-- An improved version of the multilingual Tok-tok tokenizer([@toktok], [@toktokpub]).
+- A Tweet Tokenizer [@tweettok] for casual text.
+- A general purpose NLTK Tokenizer [@NLTK1], [@NLTK2].
+- An improved version of the multilingual Tok-tok tokenizer [@toktok], [@toktokpub].
 
 With various lexers written for the `TokenBuffer` API, users can also create their high-speed custom tokenizers with ease.
-The package also provides a simple reversible tokenizer ([@reversibletok1], [@reversibletok2]),
+The package also provides a simple reversible tokenizer [@reversibletok1], [@reversibletok2],
 that works by leaving certain merge symbols, as a means to reconstruct tokens into the original string.
 
 WordTokenizers.jl exposes a configurable default interface,
