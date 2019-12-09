@@ -12,7 +12,7 @@ The normal way to used this package is to call
 or `split_sentences(str)` to split up a string into sentences.
 Maybe even `tokenize.(split_sentences(str))` to do both.
 
-`tokenize` and `split_sentences`, are configurable functions
+`tokenize` and `split_sentences` are configurable functions
 that call one of the tokenizers or sentence splitters defined below.
 They have sensible defaults set,
 but you can override the method used by calling
@@ -20,7 +20,7 @@ but you can override the method used by calling
 function `func` from the list below (or from else where)
 Configuring them this way will throw up a method overwritten warning, and trigger recompilation of any methods that use them.
 
-This means if you are using a package that uses WordTokenizers.jl to do tokenization/sentence splitting via the default methods;
+This means if you are using a package that uses WordTokenizers.jl to do tokenization/sentence splitting via the default methods,
 changing the tokenizer/splitter will change the behavior of that package.
 This is a feature of [CorpusLoaders.jl](https://github.com/JuliaText/CorpusLoaders.jl).
 If as a package author you don't want to allow the user to change the tokenizer in this way, you should use the tokenizer you want explicitly, rather than using the  `tokenize` method.
@@ -30,7 +30,7 @@ If as a package author you don't want to allow the user to change the tokenizer 
 
 ### Example Setting Tokenizer  (Revtok.jl)
 You might like to, for example use [Revtok.jl's tokenizer](https://github.com/jekbradbury/Revtok.jl).
-We do not include Revtok in this package, because making use of it with-in WordTokenizers.jl is trival.
+We do not include Revtok in this package, because making use of it within WordTokenizers.jl is trival.
 Just `import Revtok; set_tokenizer(Revtok.tokenize)`.
 
 
@@ -64,14 +64,14 @@ The word tokenizers basically assume sentence splitting has already been done.
  - **Punctuation space tokenize:** (`punctuation_space_tokenize`) Marginally improved version of the poorman's tokenizer, only deletes punctuation occurring outside words.
 
  - **Penn Tokenizer:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokenizer used for the Penn Treebank. Splits contractions.
- - **Improved Penn Tokenizer:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`
+ - **Improved Penn Tokenizer:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`.
  - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
 
-  (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005))
+  (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005).)
 
  - **Reversible Tokenizer:** (`rev_tokenize` and `rev_detokenize`) This tokenizer splits on punctuations, space and special symbols. The generated tokens can be de-tokenized by using the `rev_detokenizer` function into the state before tokenization.
  - **TokTok Tokenizer:** (`toktok_tokenize`) This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized. This is an enhanced version of the [original toktok Tokenizer](https://github.com/jonsafari/tok-tok). It has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese, Tajik, and a few others. **(default tokenizer)**
- - **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
+ - **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from being twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
 
 
 # Sentence Splitters
@@ -107,7 +107,7 @@ julia> tokenize.(split_sentences(text))
 
 ## Experimental API
 I am trying out an experimental API
-where these are added as dispatches to `Base.split`
+where these are added as dispatches to `Base.split`.
 
 So   
 `split(foo, Words)` is the same as `tokenize(foo)`,  
@@ -185,7 +185,7 @@ julia> tokeinze("A url https://github.com/JuliaText/WordTokenizers.jl/ and phone
 1. The order in which the lexers are written needs to be taken care of in some cases-
 
 For example: `987-654-3210` matches as a phone number
-as well as numbers, but number will only match upto `987`
+as well as numbers, but number will only match up to `987`
 and split about it.
 
 ```julia
@@ -291,14 +291,14 @@ julia> tokenize("hi__hello")
 
 ## Contributing
 Contributions, in the form of bug-reports, pull requests, additional documentation are encouraged.
-They can be made to the Github repository.
+They can be made to the GitHub repository.
 
 **All contributions and communications should abide by the [Julia Community Standards](https://julialang.org/community/standards/).**
 
 Software contributions should follow the prevailing style within the code-base.
 If your pull request (or issues) are not getting responses within a few days do not hesitate to "bump" them,
 by posting a comment such as "Any update on the status of this?".
-Sometimes Github notifications get lost.
+Sometimes GitHub notifications get lost.
 
 ## Support
 
