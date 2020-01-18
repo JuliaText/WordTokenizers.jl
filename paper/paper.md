@@ -48,8 +48,8 @@ WordTokenizers.jl provides a flexible API for defining fast tokenizers and sente
 Using this API several standard tokenizers and sentence segmenters have been implemented, allowing researchers and practitioners to focus on the higher details of their NLP tasks.
 
 WordTokenizers.jl does not implement significant novel tokenizers or sentence segmenters.
-Rather, it contains ports/implementations the well-established and commonly used algorithms.
-At present, it contains rules-based methods primarily designed for English.
+Rather, it contains ports/implementations of the well-established and commonly used algorithms.
+At present, it contains rule-based methods primarily designed for English.
 Several of the implementations are sourced from the Python NLTK project [@NLTK1], [@NLTK2];
 although these were in turn sourced from older pre-existing methods.
 
@@ -72,12 +72,12 @@ This allowed for easy benchmarking and comparisons of different methods.
 
 WordTokenizers.jl is currently being used by packages like [TextAnalysis.jl](https://github.com/JuliaText/TextAnalysis.jl), [Transformers.jl](https://github.com/chengchingwen/Transformers.jl) and [CorpusLoaders.jl](https://github.com/JuliaText/CorpusLoaders.jl) for tokenizing text.
 
-## Other similar softwares
+## Other similar software
 
 ![Speed comparison of Tokenizers on IMDB Movie Review Dataset](speed_compare.png)
 
 There are various NLP libraries and toolkits written in other programming languages, available to Julia users for tokenization.
-[NLTK](https://github.com/nltk/nltk) and [Spacy](https://github.com/explosion/spaCy) packages provide with a variety of tokenizers, accessed to Julia users via `PyCall`.
+[NLTK](https://github.com/nltk/nltk) and [SpaCy](https://github.com/explosion/spaCy) packages provide users with a variety of tokenizers, accessed to Julia users via `PyCall`.
 Shown above is a performance benchmark of using some of the WordTokenizers.jl tokenizers vs PyCalling the default tokenizers from NLTK and SpaCy.
 This was evaluated on the ~127,000 sentences of the IMDB Movie Review Dataset.
 It can be seen that the performance of WordTokenizers.jl is very strong.
