@@ -29,7 +29,7 @@ If as a package author you don't want to allow the user to change the tokenizer 
 
 
 ### Example Setting Tokenizer (TinySegmenter.jl)
-You might like to, for example use [TinySegmenter.jl's tokenizer](https://github.com/JuliaStrings/TinySegmenter.jl) for Japanese test.
+You might like to, for example use [TinySegmenter.jl's tokenizer](https://github.com/JuliaStrings/TinySegmenter.jl) for Japanese text.
 We do not include TinySegmenter in this package, because making use of it within WordTokenizers.jl is trival.
 Just `import TinySegmenter; set_tokenizer(TinySegmenter.tokenize)`.
 
