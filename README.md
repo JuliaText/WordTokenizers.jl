@@ -121,7 +121,7 @@ for high-speed tokenization.
 #### Writing your own TokenBuffer tokenizers
 
 `TokenBuffer` turns a string into a readable stream, used for building tokenizers.
-Utility lexers such as `spaces` and `numbers` read characters from the
+Utility lexers such as `spaces` and `<span class="x x-first x-last">number</span>` read characters from the
 stream and into an array of tokens.
 
 Lexers return `true` or `false` to indicate whether they matched
