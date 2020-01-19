@@ -7,8 +7,8 @@
 
 Some basic tokenizers for Natural Language Processing:
 
-The normal way to used this package is to call
-`tokenize(str)` to split up a string into words;
+The normal way to use this package is to call
+`tokenize(str)` to split up a string into words
 or `split_sentences(str)` to split up a string into sentences.
 Maybe even `tokenize.(split_sentences(str))` to do both.
 
@@ -17,7 +17,7 @@ that call one of the tokenizers or sentence splitters defined below.
 They have sensible defaults set,
 but you can override the method used by calling
 `set_tokenizer(func)` or `set_sentence_splitter(func)` passing in your preferred
-function `func` from the list below (or from else where)
+function `func` from the list below (or from elsewhere)
 Configuring them this way will throw up a method overwritten warning, and trigger recompilation of any methods that use them.
 
 This means if you are using a package that uses WordTokenizers.jl to do tokenization/sentence splitting via the default methods,
@@ -30,7 +30,7 @@ If as a package author you don't want to allow the user to change the tokenizer 
 
 ### Example Setting Tokenizer  (Revtok.jl)
 You might like to, for example use [Revtok.jl's tokenizer](https://github.com/jekbradbury/Revtok.jl).
-We do not include Revtok in this package, because making use of it within WordTokenizers.jl is trival.
+We do not include Revtok in this package, because making use of it within WordTokenizers.jl is trivial.
 Just `import Revtok; set_tokenizer(Revtok.tokenize)`.
 
 
@@ -63,20 +63,20 @@ The word tokenizers basically assume sentence splitting has already been done.
  - **Poorman's tokenizer:** (`poormans_tokenize`) Deletes all punctuation, and splits on spaces. (In some ways worse than just using `split`)
  - **Punctuation space tokenize:** (`punctuation_space_tokenize`) Marginally improved version of the poorman's tokenizer, only deletes punctuation occurring outside words.
 
- - **Penn Tokenizer:** (`penn_tokenize`) This is Robert MacIntyre's orginal tokenizer used for the Penn Treebank. Splits contractions.
+ - **Penn Tokenizer:** (`penn_tokenize`) This is Robert MacIntyre's original tokenizer used for the Penn Treebank. Splits contractions.
  - **Improved Penn Tokenizer:** (`improved_penn_tokenize`) NLTK's improved Penn Treebank Tokenizer. Very similar to the original, some improvements on punctuation and contractions. This matches to NLTK's `nltk.tokenize.TreeBankWordTokenizer.tokenize`.
- - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
+ - **NLTK Word tokenizer:** (`nltk_word_tokenize`) NLTK's even more improved version of the Penn Tokenizer. This version has better Unicode handling and some other changes. This matches to the most commonly used `nltk.word_tokenize`, minus the sentence tokenizing step.
 
-  (To me it seems like a weird historical thing that NLTK has 2 successive variation on improving the Penn tokenizer, but for now I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005).)
+  (To me it seems like a weird historical thing that NLTK has 2 successive variations on improving the Penn tokenizer, but for now, I am matching it and having both.  See [[NLTK#2005]](https://github.com/nltk/nltk/issues/2005).)
 
  - **Reversible Tokenizer:** (`rev_tokenize` and `rev_detokenize`) This tokenizer splits on punctuations, space and special symbols. The generated tokens can be de-tokenized by using the `rev_detokenizer` function into the state before tokenization.
  - **TokTok Tokenizer:** (`toktok_tokenize`) This tokenizer is a simple, general tokenizer, where the input has one sentence per line; thus only final period is tokenized. This is an enhanced version of the [original toktok Tokenizer](https://github.com/jonsafari/tok-tok). It has been tested on and gives reasonably good results for English, Persian, Russian, Czech, French, German, Vietnamese, Tajik, and a few others. **(default tokenizer)**
- - **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from being twitter specific, this tokenizer has good handling for emoticons, and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
+ - **Tweet Tokenizer:** (`tweet_tokenizer`) NLTK's casual tokenizer for that is solely designed for tweets. Apart from being twitter specific, this tokenizer has good handling for emoticons and other web aspects like support for HTML Entities. This closely matches NLTK's `nltk.tokenize.TweetTokenizer`
 
 
 # Sentence Splitters
 We currently only have one sentence splitter.
- - **Rule Based Sentence Spitter:** (`rulebased_split_sentences`), uses a rule that periods, question marks, and exclamation marks, followed by white-space end sentences. With a large list of exceptions.
+ - **Rule-Based Sentence Spitter:** (`rulebased_split_sentences`), uses a rule that periods, question marks, and exclamation marks, followed by white-space end sentences. With a large list of exceptions.
 
 `split_sentences` is exported as an alias for the most useful sentence splitter currently implemented.
  (Which ATM is the only sentence splitter: `rulebased_split_sentences`) **(default sentence_splitter)**
@@ -116,16 +116,16 @@ and
 
 ## Using TokenBuffer API for Custom Tokenizers
 We offer a `TokenBuffer` API and supporting utility lexers
-for high speed tokenization.
+for high-speed tokenization.
 
 #### Writing your own TokenBuffer tokenizers
 
 `TokenBuffer` turns a string into a readable stream, used for building tokenizers.
-Utility lexers such as `spaces` and `number` read characters from the
+Utility lexers such as `spaces` and `<span class="x x-first x-last">number</span>` read characters from the
 stream and into an array of tokens.
 
 Lexers return `true` or `false` to indicate whether they matched
-in the input stream. They can therefore be combined easily, e.g.
+in the input stream. They can, therefore, be combined easily, e.g.
 
     spacesornumber(ts) = spaces(ts) || number(ts)
 
@@ -185,8 +185,8 @@ julia> tokeinze("A url https://github.com/JuliaText/WordTokenizers.jl/ and phone
 1. The order in which the lexers are written needs to be taken care of in some cases-
 
 For example: `987-654-3210` matches as a phone number
-as well as numbers, but number will only match up to `987`
-and split about it.
+as well as numbers, but `number` will only match up to `987`
+and split after it.
 
 ```julia
 julia> using WordTokenizers: TokenBuffer, isdone, character, spaces, nltk_phonenumbers, number
@@ -234,7 +234,7 @@ julia> tokenize2("987-654-3210") # nltk_phonenumbers(ts) || number(ts)
 and need to be taken of while writing the TokenBuffer lexers.
 
 3. For some TokenBuffer `ts`, use `flush!(ts)`
-over push!(ts.tokens, input[i:j]), to make sure that characters
+over `push!(ts.tokens, input[i:j])`, to make sure that characters
 in the Buffer (i.e. ts.Buffer) also gets flushed out as separate tokens.
 
 ```julia
