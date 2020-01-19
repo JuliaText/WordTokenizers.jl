@@ -28,31 +28,28 @@ If as a package author you don't want to allow the user to change the tokenizer 
 
 
 
-### Example Setting Tokenizer  (Revtok.jl)
-You might like to, for example use [Revtok.jl's tokenizer](https://github.com/jekbradbury/Revtok.jl).
-We do not include Revtok in this package, because making use of it within WordTokenizers.jl is trivial.
-Just `import Revtok; set_tokenizer(Revtok.tokenize)`.
+### Example Setting Tokenizer (TinySegmenter.jl)
+You might like to, for example use [TinySegmenter.jl's tokenizer](https://github.com/JuliaStrings/TinySegmenter.jl) for Japanese text.
+We do not include TinySegmenter in this package, because making use of it within WordTokenizers.jl is trivial.
+Just `import TinySegmenter; set_tokenizer(TinySegmenter.tokenize)`.
 
 
 Full example:
 
-```
+```julia
 julia> using WordTokenizers
 
-julia> text = "I cannot stand when they say \"Enough is enough.\"";
+julia> text = "私の名前は中野です";
 
 julia> tokenize(text) |> print # Default tokenizer
-SubString{String}["I", "can", "not", "stand", "when", "they", "say", "``", "Enough", "is", "enough", ".", "''"]
+["私の名前は中野です"]
 
-julia> import Revtok
+julia> import TinySegmenter
 
-julia> set_tokenizer(Revtok.tokenize)
-WARNING: Method definition tokenize(AbstractString) in module WordTokenizers overwritten
-tokenize (generic function with 1 method)
+julia> set_tokenizer(TinySegmenter.tokenize)
 
-
-julia> tokenize(text) |> print # Revtok's tokenizer
-String[" I ", " cannot ", " stand ", " when ", " they ", " say ", " \"", " Enough ", " is ", " enough ", ".\" "]
+julia> tokenize(text) |> print # TinySegmenter's tokenizer
+SubString{String}["私", "の", "名前", "は", "中野", "です"]
 ```
 
 
