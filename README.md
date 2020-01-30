@@ -5,7 +5,9 @@
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/JuliaText/WordTokenizers.jl?branch=master&svg=true)](https://ci.appveyor.com/project/oxinabox/wordtokenizers-jl/history)
 [![HitCount](http://hits.dwyl.io/JuliaText/WordTokenizers.svg)](http://hits.dwyl.io/JuliaText/WordTokenizers)
 
-Some basic tokenizers for Natural Language Processing:
+Some basic tokenizers for Natural Language Processing.
+
+**Installation:** `pkg> add WordTokenizers`
 
 The normal way to use this package is to call
 `tokenize(str)` to split up a string into words
