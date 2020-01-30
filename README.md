@@ -7,7 +7,9 @@
 
 Some basic tokenizers for Natural Language Processing.
 
-**Installation:** `pkg> add WordTokenizers`
+**Installation:** 
+As per standard [Julia package installation](https://julialang.github.io/Pkg.jl/dev/managing-packages/#Adding-registered-packages-1)
+`pkg> add WordTokenizers`
 
 The normal way to use this package is to call
 `tokenize(str)` to split up a string into words
