@@ -39,7 +39,7 @@ bibliography: paper.bib
 WordTokenizers.jl is a tool to help users of the Julia programming language [@Julia], work with natural language.
 In natural language processing (NLP) tokenization refers to breaking a text up into parts -- the tokens.
 Generally, tokenization refers to breaking a sentence up into words and other tokens such as punctuation.
-Complementary to word tokenization is _sentence segmentation_ or _sentence splitting_ (occationally also called _sentence tokenization_),
+Complementary to word tokenization is _sentence segmentation_ or _sentence splitting_ (occasionally also called _sentence tokenization_),
 where a document is broken up into sentences, which can then be tokenized into words.
 Tokenization and sentence segmentation are some of the most fundamental operations to be performed before applying most NLP or information retrieval algorithms.
 
