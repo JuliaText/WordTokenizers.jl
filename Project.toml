@@ -8,7 +8,7 @@ StrTables = "9700d1a9-a7c8-5760-9816-a99fda30bb8f"
 Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 
 [compat]
-julia = "0.7, 1"
+julia = "1"
 HTML_Entities= "1"
 StrTables = "1"
 
