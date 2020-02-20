@@ -4,11 +4,12 @@
 [![codecov](https://codecov.io/gh/JuliaText/WordTokenizers.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaText/WordTokenizers.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/JuliaText/WordTokenizers.jl?branch=master&svg=true)](https://ci.appveyor.com/project/oxinabox/wordtokenizers-jl/history)
 [![HitCount](http://hits.dwyl.io/JuliaText/WordTokenizers.svg)](http://hits.dwyl.io/JuliaText/WordTokenizers)
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.01956/status.svg)](https://doi.org/10.21105/joss.01956)
 
 Some basic tokenizers for Natural Language Processing.
 
 ### Installation:
-As per standard [Julia package installation](https://julialang.github.io/Pkg.jl/dev/managing-packages/#Adding-registered-packages-1):   
+As per standard [Julia package installation](https://julialang.github.io/Pkg.jl/dev/managing-packages/#Adding-registered-packages-1):
 ```
 pkg> add WordTokenizers
 ```
@@ -114,9 +115,9 @@ julia> tokenize.(split_sentences(text))
 I am trying out an experimental API
 where these are added as dispatches to `Base.split`.
 
-So   
-`split(foo, Words)` is the same as `tokenize(foo)`,  
-and  
+So
+`split(foo, Words)` is the same as `tokenize(foo)`,
+and
 `split(foo, Sentences)` is the same as `split_sentences(foo)`.
 
 ## Using TokenBuffer API for Custom Tokenizers
@@ -305,8 +306,26 @@ If your pull request (or issues) are not getting responses within a few days do 
 by posting a comment such as "Any update on the status of this?".
 Sometimes GitHub notifications get lost.
 
-## Support
+## Support and citing
 
 Feel free to ask for help on the [Julia Discourse forum](https://discourse.julialang.org/),
 or in the `#natural-language` channel on julia-slack. (Which you can [join here](https://slackinvite.julialang.org/)).
 You can also raise issues in this repository to request improvements to the documentation.
+
+If you use this software as part of your research work, teaching or other activities, we would be grateful if you could cite the following:
+
+```
+@article{Kaushal3030,
+  doi = {10.21105/joss.01956},
+  url = {https://doi.org/10.21105/joss.01956},
+  year = {3030},
+  publisher = {The Open Journal},
+  volume = {1},
+  number = {1},
+  pages = {1956},
+  author = {Ayush Kaushal and Lyndon White and Mike Innes and Rohit Kumar},
+  title = {WordTokenizers.jl: Basic tools for tokenizing natural language in Julia},
+  journal = {Journal of Open Source Software}
+}
+```
+
