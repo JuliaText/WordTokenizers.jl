@@ -13,7 +13,6 @@ end
 function load(ty::Type{T}, name::String) where T<:Pretrained_tokenizer
         filepath = @datadep_str name
         filepath = "$filepath/$name"
-        print(filepath)
         load(filepath)  
 end
     
@@ -41,7 +40,11 @@ end
 
 # to get index of given string
 function getindex(sp::Sentencepiecemodel,text)
-    findall(x->x==text, sp.vocab)[1]
+    id_list = findall(x->x==text, sp.vocab)
+    if length(id_list) == 0
+        return 2
+    end
+    return id_list[1]
 end
 """
 struct Nodes 
@@ -115,7 +118,7 @@ Return all possible ngrams generated from sequence of items, as an Array{String,
 """
 
 
-function Decode_backward1(sp::Sentencepiecemodel, nodes)
+function decode_backward(sp::Sentencepiecemodel, nodes)
     next_nodes = nodes[end]
     best_seq = []
     
@@ -128,19 +131,19 @@ function Decode_backward1(sp::Sentencepiecemodel, nodes)
     return(best_seq)
 end
 """
-    Tokenizer(sp::Sentencepiecemodel,text)
+    Tokenizer(sp::Sentencepiecemodel,text::AbstractString)
 given spm path and text it tokenized you string
 It does all the preprocessing step needed 
 """
 
-function Tokenizer(sp::Sentencepiecemodel, text)
+function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
     tks=[]
     text = replace(text, " " => "_")
     if text[1] != '_'
         text = "_" * text
     end
     output = decode_forward(sp, text)
-    tokens = Decode_backward1(sp, output)
+    tokens = decode_backward(sp, output)
     tokens = reverse(tokens)
     for node in tokens
         push!(tks, node.text)
@@ -154,21 +157,21 @@ end
 given tokens it provide its indices
 """
       
-function ids_from_tokens(tk)
-idlist=[]
-for i in tk
-    idx = getindex(spm, i)
-    push!(idlist, idx)
-end
-return convert.(Int,idlist)
+function ids_from_tokens(spm::Sentencepiecemodel, tk::Array{String,1})
+    idlist=[]
+    for i in tk
+        idx = getindex(spm, i)
+        push!(idlist, idx)
+    end
+    return convert.(Int,idlist)
 end
 
 """
     sentence_from_tokens(tk::Array{String,1})
-given sentence from its tokens
+given tokens it provide its sentences
 """
 
-function sentence_from_tokens(tk)
+function sentence_from_tokens(tk::Array{String,1})
     sen=tk[1]
     for i in 1:(length(tk)-1)
         sen= sen*tk[i+1]

@@ -20,8 +20,8 @@ export poormans_tokenize, punctuation_space_tokenize,
        set_tokenizer, set_sentence_splitter,
        rev_tokenize, rev_detokenize,
        toktok_tokenize
-export Albert_Version1, Albert_Version2, load, Tokenizer, sentence_from_tokens, ids_from_tokens
-export list_vocab
+export Albert_Version1, Albert_Version2, load, tokenizer, sentence_from_tokens, ids_from_tokens
+export pretrained
 include("words/fast.jl")
 
 include("words/simple.jl")
@@ -39,9 +39,9 @@ include("statistical/unigram.jl")
 
 
 
-const list_vocab = Dict{DataType, Vector{String}}()
+const pretrained = Dict{DataType, Vector{String}}()
 function tokenizer_files(::Type{T}) where T<:Pretrained_tokenizer 
-    get!(list_vocab,T) do
+    get!(pretrained,T) do
         String[]
     end
 end
