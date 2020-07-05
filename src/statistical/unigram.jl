@@ -10,6 +10,13 @@ struct Sentencepiecemodel
   vocab::Array{String,1}
   logprob::Array{Float64,1}
 end
+function load(ty::Type{T}, name::String) where T<:Pretrained_tokenizer
+        filepath = @datadep_str name
+        filepath = "$filepath/$name"
+        print(filepath)
+        load(filepath)  
+end
+    
 
 function load(path)
     vocab = readlines(path)
