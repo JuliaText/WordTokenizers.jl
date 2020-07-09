@@ -7,9 +7,9 @@ using Unicode
 using GoogleDrive
 using DataDeps
 
-abstract type Pretrained_tokenizer end
-abstract type Albert_Version1 <: Pretrained_tokenizer end
-abstract type Albert_Version2 <: Pretrained_tokenizer end
+abstract type PretrainedTokenizer end
+abstract type ALBERT_V1 <: PretrainedTokenizer end
+abstract type ALBERT_V2 <: PretrainedTokenizer end
 
 export poormans_tokenize, punctuation_space_tokenize,
        penn_tokenize, improved_penn_tokenize, nltk_word_tokenize,
@@ -20,7 +20,7 @@ export poormans_tokenize, punctuation_space_tokenize,
        set_tokenizer, set_sentence_splitter,
        rev_tokenize, rev_detokenize,
        toktok_tokenize
-export Albert_Version1, Albert_Version2, load, tokenizer, sentence_from_tokens, ids_from_tokens
+export ALBERT_V1, ALBERT_V2, load, tokenizer, sentence_from_tokens, ids_from_tokens
 export pretrained
 include("words/fast.jl")
 
@@ -40,7 +40,7 @@ include("statistical/unigram.jl")
 
 
 const pretrained = Dict{DataType, Vector{String}}()
-function tokenizer_files(::Type{T}) where T<:Pretrained_tokenizer 
+function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer 
     get!(pretrained,T) do
         String[]
     end
@@ -75,10 +75,10 @@ function __init__()
                          $description
                          """,
                          link,
-                         sha,
-                         fetch_method = google_download))
+                         sha
+                         ))
        
-            append!(tokenizer_files(Albert_Version1), ["$depname"])                    
+            append!(tokenizer_files(ALBERT_V1), ["$depname"])                    
     end
     vectors_albertversion2 = [
                ("albert_base_v2_30k-clean.vocab",
@@ -109,10 +109,10 @@ function __init__()
                          $description
                          """,
                          link,
-                         sha,
-                         fetch_method = google_download))
+                         sha
+                         ))
        
-            append!(tokenizer_files(Albert_Version2), ["$depname"])                    
+            append!(tokenizer_files(ALBERT_V2), ["$depname"])                    
     end
 end
 end # module
