@@ -1,13 +1,13 @@
 using WordTokenizers
 using Test
 
-spm = load(Albert_Version1,"albert_base_v1_30k-clean.vocab")
+spm = load(ALBERT_V1,"albert_base_v1_30k-clean.vocab")
 @testset "Pretrained" begin
     @test typeof(spm) == WordTokenizers.Sentencepiecemodel
     @test typeof(spm.vocab) == Array{String,1}
     @test typeof(spm.logprob) == Array{Float64,1}
     @test typeof(pretrained) == Dict{DataType,Array{String,1}}
-    @test length(pretrained[Albert_Version1]) == 4
+    @test length(pretrained[ALBERT_V1]) == 4
 end
 @testset "forward and backword Passes" begin
     node = WordTokenizers.decode_forward(spm, "_I_love_julia_language")
