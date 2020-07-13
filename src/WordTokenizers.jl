@@ -4,7 +4,6 @@ module WordTokenizers
 using HTML_Entities
 using StrTables
 using Unicode
-using GoogleDrive
 using DataDeps
 
 abstract type PretrainedTokenizer end
