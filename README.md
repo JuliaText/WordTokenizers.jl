@@ -320,7 +320,6 @@ julia> pretrained[Albert_Version1]
  "albert_large_v1_30k-clean.vocab"
  "albert_xlarge_v1_30k-clean.vocab"
  "albert_xxlarge_v1_30k-clean.vocab"
-
 ```
 
 `DataDeps` will handle all the downloading part for us.  You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function
@@ -341,6 +340,25 @@ julia> tk = tokenizer(spm, "i love julia language")
  "_un"
  "friendly"
 
+ julia> para = tokenizer(spm, "Julia is a high-level, high-performance dynamic language for technical computing")
+ 17-element Array{String,1}:
+  "_"
+  "J"
+  "ulia"
+  "_is"
+  "_a"
+  "_high"
+  "-"
+  "level"
+  ","
+  "_high"
+  "-"
+  "performance"
+  "_dynamic"
+  "_language"
+  "_for"
+  "_technical"
+  "_computing"
 ```
 
 Indices can be used for other than deep learning models.
@@ -366,6 +384,9 @@ julia> sentence_from_tokens(tk)
 
 julia> sentence_from_token(subword)
 "unfriendly"
+
+julia> sentence_from_tokens(para)
+"Julia is a high-level, high-performance dynamic language for technical computing"
 ```
 
 ## Contributing
