@@ -58,7 +58,6 @@ Utility structure, To hold the results of the forward pass (the forward Viterbi 
 hold the token token string, score, vocabulary index, start and end character position
     
 """
-
 struct Nodes 
     text::String
     score::Float32
