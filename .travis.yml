@@ -3,6 +3,8 @@ language: julia
 os:
   - linux
   - osx
+env:
+  - DATADEPS_ALWAYS_ACCEPT=true
 julia:
   - 1.0
   - 1.3
