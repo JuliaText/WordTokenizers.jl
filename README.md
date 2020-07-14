@@ -323,7 +323,7 @@ julia> pretrained[Albert_Version1]
 
 ```
 
-`DataDeps` will handle all the downloading part for us.  you can also create an issue or PR for other pretrained models or directly load by providing path in `load` function
+`DataDeps` will handle all the downloading part for us.  You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function
 
 ```julia
 julia> spm = load(Albert_Version1, "albert_base_v1_30k-clean.vocab") #loading vocab in Sentencepiece  
@@ -335,9 +335,23 @@ julia> tk = tokenizer(spm, "i love julia language")
  "_love"
  "_julia"
  "_language"
+
+ julia> subword = tokenizer(spm, "unfriendly")
+ 2-element Array{String,1}:
+ "_un"
+ "friendly"
+
 ```
 
-you can also get ids used by deeplearning based language model
+Indices can be used for other than deep learning models.
+Token Index of special tokens in ALBERT are:
+
+1 => <pad> 
+2 => <unk> 
+3 => [CLS] 
+4 => [SEP] 
+5 => [MASK]  
+
 
 ```julia
 julia> ids_from_tokens(spm , tk)
@@ -349,6 +363,9 @@ julia> ids_from_tokens(spm , tk)
 #we can also get sentences back from tokens
 julia> sentence_from_tokens(tk)
 "i love julia language"
+
+julia> sentence_from_token(subword)
+"unfriendly"
 ```
 
 ## Contributing
