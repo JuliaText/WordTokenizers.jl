@@ -46,6 +46,7 @@ function getindex(sp::Sentencepiecemodel,text)
     end
     return id_list[1]
 end
+
 """
 struct Nodes 
     text::String
