@@ -43,8 +43,6 @@ function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer
     end
 end
 function __init__()
-
     include(joinpath(@__DIR__, "statistical/Vocab_DataDeps.jl"))
-
 end
 end # module

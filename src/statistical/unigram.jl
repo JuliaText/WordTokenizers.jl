@@ -18,31 +18,29 @@ end
     
 function load(path)
     vocab = readlines(path)
-    vocabnew = split.(vocab , "\t")
+    vocabnew = split.(vocab, "\t")
     vo = []
     for i in 1:length(vocab)
         vocab1 = vocabnew[i][1]
-        vocab1 = replace(vocab1,"▁"=>"_")
-        push!(vo,vocab1)
+        vocab1 = replace(vocab1, "▁"=>"_")
+        push!(vo, vocab1)
     end
     vocab1 = convert(Array{String,1},vo)
     logprob = []
     for i in 1:length(vocab)
         logp = vocabnew[i][2]
-        push!(logprob,logp)    
+        push!(logprob, logp)    
     end
-    logp = convert(Array{String,1},logprob)
-    logp =parse.(Float64,logprob)
-    spm = Sentencepiecemodel(vocab1,logp)
+    logp = convert(Array{String,1}, logprob)
+    logp =  parse.(Float64, logprob)
+    spm = Sentencepiecemodel(vocab1, logp)
     return spm
 end
 
 # to get index of given string
-function getindex(sp::Sentencepiecemodel,text)
+function getindex(sp::Sentencepiecemodel, text)
     id_list = findall(x->x==text, sp.vocab)
-    if length(id_list) == 0
-        return 2
-    end
+    length(id_list) == 0 && return 2 #unk token index 
     return id_list[1]
 end
 
@@ -121,9 +119,9 @@ function decode_backward(sp::Sentencepiecemodel, nodes)
     while next_nodes.start > 1
         node_value = next_nodes
         next_nodes = nodes[(node_value.start)-1]
-        push!(best_seq,node_value)
+        push!(best_seq, node_value)
     end
-    push!(best_seq,next_nodes)
+    push!(best_seq, next_nodes)
     return(best_seq)
 end
 
@@ -133,7 +131,7 @@ given spm path and text it tokenized you string
 It does all the preprocessing step needed 
 """
 function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
-    tks=[]
+    tks = []
     text = replace(text, " " => "_")
     if text[1] != '_'
         text = "_" * text
@@ -154,12 +152,12 @@ end
 given tokens it provide its indices
 """     
 function ids_from_tokens(spm::Sentencepiecemodel, tk::Array{String,1})
-    idlist=[]
+    idlist = []
     for i in tk
         idx = getindex(spm, i)
         push!(idlist, idx)
     end
-    return convert.(Int,idlist)
+    return convert.(Int, idlist)
 end
 
 """
@@ -167,11 +165,11 @@ end
 given tokens it provide its sentences
 """
 function sentence_from_tokens(tk::Array{String,1})
-    sen=tk[1]
+    sen = tk[1]
     for i in 1:(length(tk)-1)
-        sen= sen*tk[i+1]
+        sen = sen*tk[i+1]
     end
-    sen = replace(sen,"_" => " ")
+    sen = replace(sen, "_" => " ")
     if sen[1] == ' '
         sen = sen[2:end]
     end
