@@ -36,8 +36,6 @@ include("split_api.jl")
 
 include("statistical/unigram.jl")
 
-
-
 const pretrained = Dict{DataType, Vector{String}}()
 function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer 
     get!(pretrained,T) do

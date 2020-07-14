@@ -3,20 +3,19 @@ struct Sentencepiecemodel
   vocab::Array{String,1}
   logprob::Array{Float64,1}
 end
-structure, To hold vocabulary,log probability and index
-    
+structure, To hold vocabulary,log probability and index  
 """
 struct Sentencepiecemodel
   vocab::Array{String,1}
   logprob::Array{Float64,1}
 end
+
 function load(ty::Type{T}, name::String) where T<:PretrainedTokenizer
     filepath = @datadep_str name
     filepath = "$filepath/$name"
     load(filepath)  
 end
     
-
 function load(path)
     vocab = readlines(path)
     vocabnew = split.(vocab , "\t")
@@ -56,8 +55,7 @@ struct Nodes
     en::Int
 end
 Utility structure, To hold the results of the forward pass (the forward Viterbi lattice)
-hold the token token string, score, vocabulary index, start and end character position
-    
+hold the token token string, score, vocabulary index, start and end character position   
 """
 struct Nodes 
     text::String
@@ -84,8 +82,7 @@ julia> a = everygram(seq,min_len=1, max_len=-1)
   "be or not"   
   "To be or"    
   "To be or not"
-```
-   
+``` 
 """
 function decode_forward(sp::Sentencepiecemodel, text::String)
     results = Array{Nodes, 1}(undef, length(text))
@@ -112,12 +109,11 @@ function decode_forward(sp::Sentencepiecemodel, text::String)
     end
     return(results)
 end
+
 """
     decode_forward(sp::Sentencepiecemodel,text::String)
 Return all possible ngrams generated from sequence of items, as an Array{String,1}
 """
-
-
 function decode_backward(sp::Sentencepiecemodel, nodes)
     next_nodes = nodes[end]
     best_seq = []
@@ -130,12 +126,12 @@ function decode_backward(sp::Sentencepiecemodel, nodes)
     push!(best_seq,next_nodes)
     return(best_seq)
 end
+
 """
     Tokenizer(sp::Sentencepiecemodel,text::AbstractString)
 given spm path and text it tokenized you string
 It does all the preprocessing step needed 
 """
-
 function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
     tks=[]
     text = replace(text, " " => "_")
@@ -152,11 +148,11 @@ function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
     return(tks)
     
 end
+
 """
     ids_from_tokens(tk::Array{String,1})
 given tokens it provide its indices
-"""
-      
+"""     
 function ids_from_tokens(spm::Sentencepiecemodel, tk::Array{String,1})
     idlist=[]
     for i in tk
@@ -170,7 +166,6 @@ end
     sentence_from_tokens(tk::Array{String,1})
 given tokens it provide its sentences
 """
-
 function sentence_from_tokens(tk::Array{String,1})
     sen=tk[1]
     for i in 1:(length(tk)-1)
