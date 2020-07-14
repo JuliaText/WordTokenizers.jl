@@ -11,9 +11,9 @@ struct Sentencepiecemodel
   logprob::Array{Float64,1}
 end
 function load(ty::Type{T}, name::String) where T<:PretrainedTokenizer
-        filepath = @datadep_str name
-        filepath = "$filepath/$name"
-        load(filepath)  
+    filepath = @datadep_str name
+    filepath = "$filepath/$name"
+    load(filepath)  
 end
     
 
@@ -21,21 +21,21 @@ function load(path)
     vocab = readlines(path)
     vocabnew = split.(vocab , "\t")
     vo = []
-    for i in 1:30000
+    for i in 1:length(vocab)
         vocab1 = vocabnew[i][1]
         vocab1 = replace(vocab1,"▁"=>"_")
         push!(vo,vocab1)
     end
     vocab1 = convert(Array{String,1},vo)
     logprob = []
-    for i in 1:30000
+    for i in 1:length(vocab)
         logp = vocabnew[i][2]
         push!(logprob,logp)    
     end
     logp = convert(Array{String,1},logprob)
     logp =parse.(Float64,logprob)
     spm = Sentencepiecemodel(vocab1,logp)
-return spm
+    return spm
 end
 
 # to get index of given string
