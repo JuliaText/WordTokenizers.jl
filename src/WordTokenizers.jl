@@ -7,8 +7,6 @@ using Unicode
 using DataDeps
 
 abstract type PretrainedTokenizer end
-abstract type ALBERT_V1 <: PretrainedTokenizer end
-abstract type ALBERT_V2 <: PretrainedTokenizer end
 
 export poormans_tokenize, punctuation_space_tokenize,
        penn_tokenize, improved_penn_tokenize, nltk_word_tokenize,
@@ -20,7 +18,7 @@ export poormans_tokenize, punctuation_space_tokenize,
        rev_tokenize, rev_detokenize,
        toktok_tokenize
 export ALBERT_V1, ALBERT_V2, load, tokenizer, sentence_from_tokens, ids_from_tokens
-export pretrained
+export PretrainedTokenizer, tokenizer_files
 include("words/fast.jl")
 
 include("words/simple.jl")
@@ -42,6 +40,7 @@ function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer
         String[]
     end
 end
+
 function __init__()
     include(joinpath(@__DIR__, "statistical/Vocab_DataDeps.jl"))
 end

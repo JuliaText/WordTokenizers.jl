@@ -1,12 +1,12 @@
 """
-struct Sentencepiecemodel
+struct SentencePieceModel
   vocab::Array{String,1}
   logprob::Array{Float64,1}
 end
 
 structure, To hold vocabulary,log probability and index  
 """
-struct Sentencepiecemodel
+struct SentencePieceModel
     vocab::Array{String,1}
     logprob::Array{Float64,1}
     unk_id::Int
@@ -20,41 +20,38 @@ use to initialize the Sentencepiecemodel by loading `DataDeps`
 julia> spm = load(ALBERT_V1,"albert_xxlarge_v1_30k-clean.vocab", unk_token="<unk>")
 ```
 """
-function load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
-    filepath = @datadep_str name
+function load(ty::Type{T}, filenum::Int=1 ; unk_token="<unk>") where T<:PretrainedTokenizer
+    filepath = @datadep_str tokenizer_files(ty)[filenum]
+    name = tokenizer_files(ty)[filenum]
     filepath = "$filepath/$name"
     load(filepath, unk_token=unk_token)  
 end
 
 """
     load(path; unk_token="<unk>") 
-use to initialize the Sentencepiecemodel by providing `vocab filepath`
+use to initialize the SentencePieceModel by providing `vocab filepath`
 """    
 function load(path; unk_token="<unk>")
     vocab = readlines(path)
     vocabnew = split.(vocab, "\t")
-    vo = []
+    voc = String[]
+    logprob = Float64[]
     for i in 1:length(vocab)
         vocab1 = vocabnew[i][1]
         vocab1 = replace(vocab1, "▁"=>"_")
-        push!(vo, vocab1)
-    end
-    vocab1 = convert(Array{String,1},vo)
-    logprob = []
-    for i in 1:length(vocab)
+        push!(voc, vocab1)
         logp = vocabnew[i][2]
+        logp =  parse(Float64, logp)
         push!(logprob, logp)    
     end
-    logp = convert(Array{String,1}, logprob)
-    logp =  parse.(Float64, logprob)
-    unk_id = findall(x->x==unk_token, vocab1)
+    unk_id = findall(x->x==unk_token, voc)
     length(unk_id) == 0 && throw(UndefVarError(:unk_token)) 
-    spm = Sentencepiecemodel(vocab1, logp, unk_id[1])
+    spm = SentencePieceModel(voc, logprob, unk_id[1])
     return spm
 end
 
 # to get index of given string
-function getindex(sp::Sentencepiecemodel, text)
+function getindex(sp::SentencePieceModel, text)
     id_list = findall(x->x==text, sp.vocab)
     length(id_list) == 0 && return sp.unk_id #unk token index 
     return id_list[1]
@@ -80,7 +77,7 @@ struct Nodes
 end
 
 """
-    decode_forward(sp::Sentencepiecemodel,text::String)
+    decode_forward(sp::SentencePieceModel,text::String)
 Perform `forward pass` (the forward Viterbi lattice) operation detail can be found [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece).
 Return all output, as an Array{String,1}
 # Example
@@ -111,7 +108,7 @@ julia> node = WordTokenizers.decode_forward(spm, "I love julia language")
  WordTokenizers.Nodes("language", -11.1965f0, 7021, 14, 21)
 ``` 
 """
-function decode_forward(sp::Sentencepiecemodel, text::String)
+function decode_forward(sp::SentencePieceModel, text::String)
     results = Array{Nodes, 1}(undef, length(text))
     scores = fill(-Inf, length(text))
     scores[1] =0
@@ -138,7 +135,7 @@ function decode_forward(sp::Sentencepiecemodel, text::String)
 end
 
 """
-    decode_backward(sp::Sentencepiecemodel,text::String)
+    decode_backward(sp::SentencePieceModel,text::String)
 inputs nodes (i.e. output of `decode_forward`) and
 Return output of backword pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{String,1}
 # Example
@@ -155,7 +152,7 @@ julia> WordTokenizers.decode_backward(spm ,node)
  WordTokenizers.Nodes("I", -Inf32, 1, 1, 1)
 '''
 """
-function decode_backward(sp::Sentencepiecemodel, nodes)
+function decode_backward(sp::SentencePieceModel, nodes)
     next_nodes = nodes[end]
     best_seq = []
     
@@ -169,11 +166,11 @@ function decode_backward(sp::Sentencepiecemodel, nodes)
 end
 
 """
-    tokenizer(sp::Sentencepiecemodel,text::AbstractString)
+    tokenizer(sp::SentencePieceModel,text::AbstractString)
 It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`
 ouput tokenize tokens as Array{String,1}
 """
-function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
+function tokenizer(sp::SentencePieceModel, text::AbstractString)
     tks = []
     text = replace(text, " " => "_")
     if text[1] != '_'
@@ -191,25 +188,21 @@ function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
 end
 
 """
-    (sp::Sentencepiecemodel)(text::AbstractString)
+    (sp::SentencePieceModel)(text::AbstractString)
 It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`.
 """
-function (sp::Sentencepiecemodel)(text::AbstractString)
+function (sp::SentencePieceModel)(text::AbstractString)
     tokenizer(sp, text)
 end
 
 """
-    ids_from_tokens(tk::Array{String,1})
+    ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
 given tokens it provide its indices
 """     
-function ids_from_tokens(spm::Sentencepiecemodel, tk::Array{String,1})
-    idlist = []
-    for i in tk
-        idx = getindex(spm, i)
-        push!(idlist, idx)
+ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1}) = 
+    map(tk) do x
+        getindex(spm, x)
     end
-    return convert.(Int, idlist)
-end
 
 """
     sentence_from_tokens(tk::Array{String,1})

@@ -309,26 +309,26 @@ For more detail about implementation refer the blog post [here](https://tejasvai
 Wordtokenizer provides pretrained vocab file of Albert (both version-1 and version-2) 
 
 ```julia
-julia> pretrained
-Dict{DataType,Array{String,1}} with 2 entries:
-  Albert_Version1 => ["albert_base_v1_30k-clean.vocab", "albert_large_v1_30k-clean.vocab", "albert_xlarge_v1_30k-clea…
-  Albert_Version2 => ["albert_base_v2_30k-clean.vocab", "albert_large_v2_30k-clean.vocab", "albert_xlarge_v2_30k-clea…
+julia> subtypes(PretrainedTokenizer)
+2-element Array{Any,1}:
+ ALBERT_V1
+ ALBERT_V2
 
-julia> pretrained[Albert_Version1]
+julia> tokenizerfiles(ALBERT_V1)
 4-element Array{String,1}:
- "albert_base_v1_30k-clean.vocab"
- "albert_large_v1_30k-clean.vocab"
- "albert_xlarge_v1_30k-clean.vocab"
+ "albert_base_v1_30k-clean.vocab"   
+ "albert_large_v1_30k-clean.vocab"  
+ "albert_xlarge_v1_30k-clean.vocab" 
  "albert_xxlarge_v1_30k-clean.vocab"
 ```
 
 `DataDeps` will handle all the downloading part for us.  You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function
 
 ```julia
-julia> spm = load(Albert_Version1, "albert_base_v1_30k-clean.vocab") #loading vocab in Sentencepiece  
+julia> spm = load(Albert_Version1) #loading Default Albert-base vocab in Sentencepiece
 WordTokenizers.Sentencepiecemodel(["<pad>", "<unk>", "[CLS]", "[SEP]", "[MASK]", "(", ")", "\"", "-", "."  …  "_archivist", "_obverse", "error", "_tyrion", "_addictive", "_veneto", "_colloquial", "agog", "_deficiencies", "_eloquent"], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  -13.5298, -13.5298, -13.5298, -13.5299, -13.5299, -13.53, -13.5313, -13.5318, -13.5323, -13.5323])
 
-julia> tk = tokenizer(spm, "i love julia language") 
+julia> tk = tokenizer(spm, "i love julia language") #or tk = spm("i love julia language")
 4-element Array{String,1}:
  "_i"
  "_love"

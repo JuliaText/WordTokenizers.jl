@@ -1,3 +1,6 @@
+abstract type ALBERT_V1 <: PretrainedTokenizer end
+abstract type ALBERT_V2 <: PretrainedTokenizer end
+
 vectors_albertversion1 = [
     ("albert_base_v1_30k-clean.vocab",
     "albert base version1 of size ~800kb download.",
