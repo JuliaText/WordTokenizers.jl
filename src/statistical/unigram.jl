@@ -3,6 +3,7 @@ struct Sentencepiecemodel
   vocab::Array{String,1}
   logprob::Array{Float64,1}
 end
+
 structure, To hold vocabulary,log probability and index  
 """
 struct Sentencepiecemodel
@@ -13,7 +14,11 @@ end
 
 """
     load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
-use to initialize the Sentencepiecemodel by loading DataDeps
+use to initialize the Sentencepiecemodel by loading `DataDeps`
+# Example
+```julia-repl
+julia> spm = load(ALBERT_V1,"albert_xxlarge_v1_30k-clean.vocab", unk_token="<unk>")
+```
 """
 function load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
     filepath = @datadep_str name
@@ -23,8 +28,7 @@ end
 
 """
     load(path; unk_token="<unk>") 
-use to initialize the Sentencepiecemodel by providing vocab filepath
-
+use to initialize the Sentencepiecemodel by providing `vocab filepath`
 """    
 function load(path; unk_token="<unk>")
     vocab = readlines(path)
@@ -64,7 +68,7 @@ struct Nodes
     start::Int
     en::Int
 end
-Utility structure, To hold the results of the forward pass (the forward Viterbi lattice)
+Utility structure, To hold the results of the `forward pass` (the forward Viterbi lattice)
 hold the token token string, score, vocabulary index, start and end character position   
 """
 struct Nodes 
@@ -77,7 +81,7 @@ end
 
 """
     decode_forward(sp::Sentencepiecemodel,text::String)
-Perform forward pass operation detail can be found [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece)
+Perform `forward pass` (the forward Viterbi lattice) operation detail can be found [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece).
 Return all output, as an Array{String,1}
 # Example
 ```julia-repl
@@ -135,8 +139,8 @@ end
 
 """
     decode_backward(sp::Sentencepiecemodel,text::String)
-inputs nodes(i.e. output of decode_forward) and
-Return output of decode pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{String,1}
+inputs nodes (i.e. output of `decode_forward`) and
+Return output of backword pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{String,1}
 # Example
 '''julia-repl
 julia> WordTokenizers.decode_backward(spm ,node)
@@ -166,7 +170,7 @@ end
 
 """
     Tokenizer(sp::Sentencepiecemodel,text::AbstractString)
-It does all the preprocessing step needed and perform decode_forward and decode_backward
+It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`
 ouput tokenize tokens as Array{String,1}
 """
 function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
@@ -188,8 +192,7 @@ end
 
 """
     (sp::Sentencepiecemodel)(text::AbstractString)
-It does all the preprocessing step needed and perform decode_forward and decode_backward
-ouput tokenize tokens as Array{String,1}
+It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`.
 """
 function (sp::Sentencepiecemodel)(text::AbstractString)
     tokenizer(sp, text)
