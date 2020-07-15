@@ -11,12 +11,21 @@ struct Sentencepiecemodel
     unk_id::Int
 end
 
+"""
+    load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
+use to initialize the Sentencepiecemodel by loading DataDeps
+"""
 function load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
     filepath = @datadep_str name
     filepath = "$filepath/$name"
     load(filepath, unk_token=unk_token)  
 end
-    
+
+"""
+    load(path; unk_token="<unk>") 
+use to initialize the Sentencepiecemodel by providing vocab filepath
+
+"""    
 function load(path; unk_token="<unk>")
     vocab = readlines(path)
     vocabnew = split.(vocab, "\t")
@@ -68,7 +77,8 @@ end
 
 """
     decode_forward(sp::Sentencepiecemodel,text::String)
-Return all output of forward pass, as an Array{String,1}
+Perform forward pass operation detail can be found [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece)
+Return all output, as an Array{String,1}
 # Example
 ```julia-repl
 julia> seq = ["To","be","or","not"]
@@ -156,8 +166,8 @@ end
 
 """
     Tokenizer(sp::Sentencepiecemodel,text::AbstractString)
-given spm path and text it tokenized you string
-It does all the preprocessing step needed 
+It does all the preprocessing step needed and perform decode_forward and decode_backward
+ouput tokenize tokens as Array{String,1}
 """
 function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
     tks = []
@@ -174,6 +184,15 @@ function tokenizer(sp::Sentencepiecemodel, text::AbstractString)
     tks = string.(tks)
     return(tks)
     
+end
+
+"""
+    (sp::Sentencepiecemodel)(text::AbstractString)
+It does all the preprocessing step needed and perform decode_forward and decode_backward
+ouput tokenize tokens as Array{String,1}
+"""
+function (sp::Sentencepiecemodel)(text::AbstractString)
+    tokenizer(sp, text)
 end
 
 """
