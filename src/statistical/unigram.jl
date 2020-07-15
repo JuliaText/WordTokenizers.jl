@@ -11,13 +11,13 @@ struct Sentencepiecemodel
     unk_id::Int
 end
 
-function load(ty::Type{T}, name::String) where T<:PretrainedTokenizer
+function load(ty::Type{T}, name::String; unk_token="<unk>") where T<:PretrainedTokenizer
     filepath = @datadep_str name
     filepath = "$filepath/$name"
-    load(filepath)  
+    load(filepath, unk_token=unk_token)  
 end
     
-function load(path)
+function load(path; unk_token="<unk>")
     vocab = readlines(path)
     vocabnew = split.(vocab, "\t")
     vo = []
@@ -34,7 +34,8 @@ function load(path)
     end
     logp = convert(Array{String,1}, logprob)
     logp =  parse.(Float64, logprob)
-    unk_id = findall(x->x=="<unk>", vocab1)
+    unk_id = findall(x->x==unk_token, vocab1)
+    length(unk_id) == 0 && throw(UndefVarError(:unk_token)) 
     spm = Sentencepiecemodel(vocab1, logp, unk_id[1])
     return spm
 end
