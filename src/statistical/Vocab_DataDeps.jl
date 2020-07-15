@@ -32,6 +32,7 @@ for (depname, description, sha, link) in vectors_albertversion1
        
      append!(tokenizer_files(ALBERT_V1), ["$depname"])                    
 end
+
 vectors_albertversion2 = [
     ("albert_base_v2_30k-clean.vocab",
     "albert base version2 of size ~800kb download.",

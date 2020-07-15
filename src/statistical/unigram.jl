@@ -6,8 +6,9 @@ end
 structure, To hold vocabulary,log probability and index  
 """
 struct Sentencepiecemodel
-  vocab::Array{String,1}
-  logprob::Array{Float64,1}
+    vocab::Array{String,1}
+    logprob::Array{Float64,1}
+    unk_id::Int
 end
 
 function load(ty::Type{T}, name::String) where T<:PretrainedTokenizer
@@ -33,14 +34,15 @@ function load(path)
     end
     logp = convert(Array{String,1}, logprob)
     logp =  parse.(Float64, logprob)
-    spm = Sentencepiecemodel(vocab1, logp)
+    unk_id = findall(x->x=="<unk>", vocab1)
+    spm = Sentencepiecemodel(vocab1, logp, unk_id[1])
     return spm
 end
 
 # to get index of given string
 function getindex(sp::Sentencepiecemodel, text)
     id_list = findall(x->x==text, sp.vocab)
-    length(id_list) == 0 && return 2 #unk token index 
+    length(id_list) == 0 && return sp.unk_id #unk token index 
     return id_list[1]
 end
 
@@ -65,21 +67,33 @@ end
 
 """
     decode_forward(sp::Sentencepiecemodel,text::String)
-Return all possible ngrams generated from sequence of items, as an Array{String,1}
+Return all output of forward pass, as an Array{String,1}
 # Example
 ```julia-repl
 julia> seq = ["To","be","or","not"]
-julia> a = everygram(seq,min_len=1, max_len=-1)
- 10-element Array{Any,1}:
-  "or"          
-  "not"         
-  "To"          
-  "be"                  
-  "or not" 
-  "be or"       
-  "be or not"   
-  "To be or"    
-  "To be or not"
+julia> node = WordTokenizers.decode_forward(spm, "I love julia language")
+21-element Array{WordTokenizers.Nodes,1}:
+ WordTokenizers.Nodes("I", -Inf32, 1, 1, 1)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 2, 2)
+ WordTokenizers.Nodes("l", -Inf32, 1, 3, 3)
+ WordTokenizers.Nodes("lo", -9.56041f0, 1416, 3, 4)
+ WordTokenizers.Nodes("lov", -11.0086f0, 5943, 3, 5)
+ WordTokenizers.Nodes("love", -10.7128f0, 4584, 3, 6)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 7, 7)
+ WordTokenizers.Nodes("j", -Inf32, 1, 8, 8)
+ WordTokenizers.Nodes("ju", -9.96107f0, 2143, 8, 9)
+ WordTokenizers.Nodes("ul", -19.4301f0, 1288, 9, 10)
+ WordTokenizers.Nodes("uli", -21.02407f0, 6244, 9, 11)
+ WordTokenizers.Nodes("ulia", -22.49547f0, 19590, 9, 12)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 13, 13)
+ WordTokenizers.Nodes("l", -Inf32, 1, 14, 14)
+ WordTokenizers.Nodes("la", -8.6488f0, 532, 14, 15)
+ WordTokenizers.Nodes("lan", -9.78918f0, 1805, 14, 16)
+ WordTokenizers.Nodes("lang", -11.6118f0, 9950, 14, 17)
+ WordTokenizers.Nodes("gu", -21.9203f0, 3074, 17, 18)
+ WordTokenizers.Nodes("gua", -23.776f0, 15259, 17, 19)
+ WordTokenizers.Nodes("ag", -34.1531f0, 3303, 19, 20)
+ WordTokenizers.Nodes("language", -11.1965f0, 7021, 14, 21)
 ``` 
 """
 function decode_forward(sp::Sentencepiecemodel, text::String)
@@ -109,8 +123,22 @@ function decode_forward(sp::Sentencepiecemodel, text::String)
 end
 
 """
-    decode_forward(sp::Sentencepiecemodel,text::String)
-Return all possible ngrams generated from sequence of items, as an Array{String,1}
+    decode_backward(sp::Sentencepiecemodel,text::String)
+inputs nodes(i.e. output of decode_forward) and
+Return output of decode pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{String,1}
+# Example
+'''julia-repl
+julia> WordTokenizers.decode_backward(spm ,node)
+8-element Array{Any,1}:
+ WordTokenizers.Nodes("language", -11.1965f0, 7021, 14, 21)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 13, 13)
+ WordTokenizers.Nodes("ulia", -22.49547f0, 19590, 9, 12)
+ WordTokenizers.Nodes("j", -Inf32, 1, 8, 8)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 7, 7)
+ WordTokenizers.Nodes("love", -10.7128f0, 4584, 3, 6)
+ WordTokenizers.Nodes(" ", -Inf32, 1, 2, 2)
+ WordTokenizers.Nodes("I", -Inf32, 1, 1, 1)
+'''
 """
 function decode_backward(sp::Sentencepiecemodel, nodes)
     next_nodes = nodes[end]
