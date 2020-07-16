@@ -208,6 +208,7 @@ given tokens it provide its sentences
 """
 function sentence_from_tokens(tk::Array{String,1})
     sen = join(tk)
+    sen = replace(sen, "_" => " ")
     sen = strip(sen)
     return sen     
 end
