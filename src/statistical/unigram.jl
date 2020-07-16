@@ -113,7 +113,8 @@ function decode_forward(sp::SentencePieceModel, text::String)
     scores = fill(-Inf, length(text))
     scores[1] = 0
     for char_end in eachindex(text)
-        for char_start in 1:char_end
+        for char_start in eachindex(text)
+            char_start > char_end && break
             if text[char_start:char_end] in sp.vocab
                 subtokenid = getindex(sp, text[char_start:char_end])[1]
                 local_score = scores[char_start] + sp.logprob[subtokenid]
