@@ -51,8 +51,8 @@ function load(path; unk_token="<unk>")
 end
 
 # to get index of given string
-function getindex(sp::SentencePieceModel, text)
-    id_list = findall(x->x==text, sp.vocab)
+function Base.getindex(sp::SentencePieceModel, text)
+    id_list = findall(x->x==text, collect(sp.vocab))
     length(id_list) == 0 && return sp.unk_id #unk token index 
     return id_list[1]
 end
@@ -115,24 +115,25 @@ function decode_forward(sp::SentencePieceModel, text::String)
     for char_end in eachindex(text)
         for char_start in eachindex(text)
             char_start > char_end && break
-            if text[char_start:char_end] in sp.vocab
-                subtokenid = getindex(sp, text[char_start:char_end])[1]
+            subtoken = SubString(text, char_start:char_end)
+            if subtoken in sp.vocab
+                subtokenid = sp[subtoken][1]
                 local_score = scores[char_start] + sp.logprob[subtokenid]
                 if local_score > scores[char_end]   
-                    results[char_end] = Nodes(text[char_start:char_end], local_score, subtokenid, char_start, char_end)
+                    results[char_end] = Nodes(SubString(text, char_start:char_end), local_score, subtokenid, char_start, char_end)
                     scores[char_end] = local_score
                 end
             end
         end
         if scores[char_end] == -Inf
-            results[char_end] = Nodes(text[char_end-1:char_end], -Inf, 1, char_end-1, char_end)
+            results[char_end] = Nodes(SubString(text, char_end-1:char_end), -Inf, 1, char_end-1, char_end)
             scores[char_end] = 0
         end
         if scores[char_end] == 0
-            results[char_end] = Nodes(text[char_end:char_end], -Inf, 1, char_end, char_end)
+            results[char_end] = Nodes(SubString(text, char_end:char_end), -Inf, 1, char_end, char_end)
         end
     end
-    return(results)
+    return results
 end
 
 """
@@ -155,7 +156,7 @@ julia> WordTokenizers.decode_backward(spm ,node)
 """
 function decode_backward(sp::SentencePieceModel, nodes)
     next_nodes = nodes[end]
-    best_seq = []
+    best_seq = Nodes[]
     
     while next_nodes.start > 1
         node_value = next_nodes
@@ -163,7 +164,7 @@ function decode_backward(sp::SentencePieceModel, nodes)
         push!(best_seq, node_value)
     end
     push!(best_seq, next_nodes)
-    return(best_seq)
+    return best_seq
 end
 
 """
@@ -172,7 +173,6 @@ It does all the preprocessing step needed and perform `decode_forward` and `deco
 ouput tokenize tokens as Array{String,1}
 """
 function tokenizer(sp::SentencePieceModel, text::AbstractString)
-    tks = []
     text = replace(text, " " => "_")
     if text[1] != '_'
         text = "_" * text
@@ -180,11 +180,8 @@ function tokenizer(sp::SentencePieceModel, text::AbstractString)
     output = decode_forward(sp, text)
     tokens = decode_backward(sp, output)
     tokens = reverse(tokens)
-    for node in tokens
-        push!(tks, node.text)
-    end
-    tks = string.(tks)
-    return(tks)
+    tks = [node.text for node in tokens]
+    return tks
     
 end
 
@@ -200,23 +197,17 @@ end
     ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
 given tokens it provide its indices
 """     
-ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1}) = 
+function ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})  
     map(tk) do x
-        getindex(spm, x)
+        spm[x]
     end
-
+end
 """
     sentence_from_tokens(tk::Array{String,1})
 given tokens it provide its sentences
 """
 function sentence_from_tokens(tk::Array{String,1})
-    sen = tk[1]
-    for i in 1:(length(tk)-1)
-        sen = sen*tk[i+1]
-    end
-    sen = replace(sen, "_" => " ")
-    if sen[1] == ' '
-        sen = sen[2:end]
-    end
-    return(sen)    
+    sen = join(tk)
+    sen = strip(sen)
+    return sen     
 end
