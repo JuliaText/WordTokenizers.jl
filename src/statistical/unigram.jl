@@ -111,7 +111,7 @@ julia> node = WordTokenizers.decode_forward(spm, "I love julia language")
 function decode_forward(sp::SentencePieceModel, text::String)
     results = Array{Nodes, 1}(undef, length(text))
     scores = fill(-Inf, length(text))
-    scores[1] =0
+    scores[1] = 0
     for char_end in 1:length(text)
         for char_start in 1:char_end
             if text[char_start:char_end] in sp.vocab
