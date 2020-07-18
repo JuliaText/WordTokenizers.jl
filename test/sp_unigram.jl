@@ -4,23 +4,23 @@ using Test
 spm = load(ALBERT_V1)
 @testset "Pretrained" begin
     @test typeof(spm) == WordTokenizers.SentencePieceModel
-    @test typeof(spm.vocab) == Array{String,1}
-    @test typeof(spm.logprob) == Array{Float64,1}
+    @test typeof(spm.vocab_map) == Dict{String, Tuple{Float64, Int}}
+    @test typeof(spm.unk_id) == Int
     @test typeof(WordTokenizers.pretrained) == Dict{DataType,Array{String,1}}
     @test length(WordTokenizers.pretrained[ALBERT_V1]) == 4
 end
 @testset "forward and backword Passes" begin
-    node = WordTokenizers.decode_forward(spm, "_I_love_julia_language")
-    @test length(node) == 22
-    @test length(WordTokenizers.decode_backward(spm, node)) == 5
+    node = WordTokenizers.decode_forward(spm, "I love julia language")
+    @test length(node) == 21
+    @test length(WordTokenizers.decode_backward(spm, node, "i love julia language")) == 8
 end
 @testset "tokinser and helper function" begin
-    @test WordTokenizers.getindex(spm,"now") == 1388
-    @test tokenizer(spm, "I love julia language") == ["_",        
+    @test spm.vocab_map["now"][2] == 1388
+    @test tokenizer(spm, "I love julia language") == ["▁",        
                                                       "I",        
-                                                      "_love",    
-                                                      "_julia",   
-                                                      "_language"]
+                                                      "▁love",    
+                                                      "▁julia",   
+                                                      "▁language"]
     tks = tokenizer(spm, "i love julia language")
     @test ids_from_tokens(spm, tks) == [32, 340, 5424, 817]
     @test sentence_from_tokens(tks) == "i love julia language"

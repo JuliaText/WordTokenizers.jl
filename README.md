@@ -301,7 +301,7 @@ For more detail about implementation refer the blog post [here](https://tejasvai
 
 **Note** :
 
-- unlike SentencePiece escapes the whitespace with a meta symbol "▁" (U+2581) , we uses  "_"  because of slicing nature of unicode character in julia.
+- SentencePiece escapes the whitespace with a meta symbol "▁" (U+2581).
 
 
 ### Pretrained 
@@ -326,43 +326,43 @@ julia> tokenizerfiles(ALBERT_V1)
 
 ```julia
 julia> spm = load(Albert_Version1) #loading Default Albert-base vocab in Sentencepiece
-WordTokenizers.Sentencepiecemodel(["<pad>", "<unk>", "[CLS]", "[SEP]", "[MASK]", "(", ")", "\"", "-", "."  …  "_archivist", "_obverse", "error", "_tyrion", "_addictive", "_veneto", "_colloquial", "agog", "_deficiencies", "_eloquent"], [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0  …  -13.5298, -13.5298, -13.5298, -13.5299, -13.5299, -13.53, -13.5313, -13.5318, -13.5323, -13.5323])
+WordTokenizers.SentencePieceModel(Dict("▁shots"=>(-11.2373, 7281),"▁ordered"=>(-9.84973, 1906),"dev"=>(-12.0915, 14439),"▁silv"=>(-12.6564, 21065),"▁doubtful"=>(-12.7799, 22569),"▁without"=>(-8.34227, 367),"▁pol"=>(-10.7694, 4828),"chem"=>(-12.3713, 17661),"▁1947,"=>(-11.7544, 11199),"▁disrespect"=>(-13.13, 26682)…), 2)
 
 julia> tk = tokenizer(spm, "i love julia language") #or tk = spm("i love julia language")
 4-element Array{String,1}:
- "_i"
- "_love"
- "_julia"
- "_language"
+ "▁i"       
+ "▁love"    
+ "▁julia"   
+ "▁language"
 
  julia> subword = tokenizer(spm, "unfriendly")
  2-element Array{String,1}:
- "_un"
+ "▁un"
  "friendly"
 
- julia> para = tokenizer(spm, "Julia is a high-level, high-performance dynamic language for technical computing")
- 17-element Array{String,1}:
-  "_"
-  "J"
-  "ulia"
-  "_is"
-  "_a"
-  "_high"
-  "-"
-  "level"
-  ","
-  "_high"
-  "-"
-  "performance"
-  "_dynamic"
-  "_language"
-  "_for"
-  "_technical"
-  "_computing"
+ julia> para = spm("Julia is a high-level, high-performance dynamic language for technical computing")
+17-element Array{String,1}:
+ "▁"          
+ "J"          
+ "ulia"       
+ "▁is"        
+ "▁a"         
+ "▁high"      
+ "-"          
+ "level"      
+ ","          
+ "▁high"      
+ "-"          
+ "performance"
+ "▁dynamic"   
+ "▁language"  
+ "▁for"       
+ "▁technical" 
+ "▁computing" 
 ```
 
-Indices can be used for other than deep learning models.
-Token Index of special tokens in ALBERT are:
+Indices is usually used for deep learning models.
+Index of special tokens in ALBERT are given below:
 
 1 => <pad> 
 2 => <unk> 
