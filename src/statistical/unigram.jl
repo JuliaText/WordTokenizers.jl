@@ -127,13 +127,9 @@ function decode_forward(sp::SentencePieceModel, text::String)
 end
 
 """
-<<<<<<< HEAD
     decode_backward(sp::SentencePieceModel, nodes::Array{Nodes, 1}, text::AbstractString)
-=======
-    decode_backward(sp::SentencePieceModel,node::Nodes)
->>>>>>> 5887c88be184e8f7a1768a15b13227a6e9053c55
 inputs nodes (i.e. output of `decode_forward`) and
-Return output of backword pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{String,1}
+Return output of backword pass as mentioned [here](https://tejasvaidhyadev.github.io/blog/Sentencepiece), as an Array{Nodes,1}
 # Example
 '''julia-repl
 julia> WordTokenizers.decode_backward(spm, node, text)
