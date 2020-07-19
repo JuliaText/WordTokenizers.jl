@@ -12,7 +12,7 @@ end
 
 """
     load(ty::Type{T}, filenum::Int=1; unk_token="<unk>") where T<:PretrainedTokenizer
-use to initialize the Sentencepiecemodel by loading `DataDeps`
+use to initialize the `SentencePieceModel` by loading the file from `DataDeps`
 # Example
 ```julia-repl
 julia> spm = load(ALBERT_V1)
@@ -32,17 +32,11 @@ use to initialize the SentencePieceModel by providing `vocab filepath`
 function load(path; unk_token="<unk>")
     vocab_path = readlines(path)
     vocabnlogp = split.(vocab_path, "\t")
-    vocab_map = Dict{String, Tuple{Float64, Int}}()
-    for i in 1:length(vocabnlogp)
-        vocab = vocabnlogp[i][1]
-        logp = vocabnlogp[i][2]
-        logp =  parse(Float64, logp)
-        push!(vocab_map, vocab => (logp, i))    
-    end
+    vocab_map = Dict(tok=>(parse(Float64, logp), index) for (index, (tok, logp)) in enumerate(vocabnlogp))
     if haskey(vocab_map, unk_token)
         unk_id = vocab_map[unk_token][2]
     else
-        throw(UndefVarError(:unk_token))  
+        throw(DomainError(unk_token, "Unknown token is not in the vocabulary"))
     end 
     spm = SentencePieceModel(vocab_map, unk_id)
     return spm
@@ -189,11 +183,7 @@ given tokens it provide its indices
 """     
 function ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})  
     map(tk) do x
-        if haskey(spm.vocab_map, x)
-            spm.vocab_map[x][2]
-        else
-            spm.unk_id
-        end
+        last(get(spm.vocab_map, x, spm.unk_id))
     end
 end
 """

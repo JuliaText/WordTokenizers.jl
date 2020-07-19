@@ -328,10 +328,11 @@ julia> tokenizerfiles(ALBERT_V1)
 julia> spm = load(Albert_Version1) #loading Default Albert-base vocab in Sentencepiece
 WordTokenizers.SentencePieceModel(Dict("▁shots"=>(-11.2373, 7281),"▁ordered"=>(-9.84973, 1906),"dev"=>(-12.0915, 14439),"▁silv"=>(-12.6564, 21065),"▁doubtful"=>(-12.7799, 22569),"▁without"=>(-8.34227, 367),"▁pol"=>(-10.7694, 4828),"chem"=>(-12.3713, 17661),"▁1947,"=>(-11.7544, 11199),"▁disrespect"=>(-13.13, 26682)…), 2)
 
-julia> tk = tokenizer(spm, "i love julia language") #or tk = spm("i love julia language")
+julia> tk = tokenizer(spm, "i love the julia language") #or tk = spm("i love the julia language")
 4-element Array{String,1}:
  "▁i"       
- "▁love"    
+ "▁love"
+ "▁the"    
  "▁julia"   
  "▁language"
 
@@ -376,11 +377,12 @@ julia> ids_from_tokens(spm , tk)
 4-element Array{Int64,1}:
    32
   340
+   15
  5424
   817
 #we can also get sentences back from tokens
 julia> sentence_from_tokens(tk)
-"i love julia language"
+"i love the julia language"
 
 julia> sentence_from_token(subword)
 "unfriendly"
