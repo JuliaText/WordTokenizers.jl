@@ -186,6 +186,7 @@ function ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
         last(get(spm.vocab_map, x, spm.unk_id))
     end
 end
+
 """
     sentence_from_tokens(tk::Array{String,1})
 given tokens it provide its sentences

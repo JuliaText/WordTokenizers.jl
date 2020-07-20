@@ -9,12 +9,12 @@ spm = load(ALBERT_V1)
     @test typeof(WordTokenizers.pretrained) == Dict{DataType,Array{String,1}}
     @test length(WordTokenizers.pretrained[ALBERT_V1]) == 4
 end
-@testset "forward and backword Passes" begin
+@testset "Forward and Backward passes" begin
     node = WordTokenizers.decode_forward(spm, "I love julia language")
     @test length(node) == 21
     @test length(WordTokenizers.decode_backward(spm, node, "i love julia language")) == 8
 end
-@testset "tokinser and helper function" begin
+@testset "Tokenizers and helper function" begin
     @test spm.vocab_map["now"][2] == 1388
     @test tokenizer(spm, "I love julia language") == ["▁",        
                                                       "I",        

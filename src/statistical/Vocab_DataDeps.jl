@@ -33,7 +33,7 @@ for (depname, description, sha, link) in vectors_albertversion1
         sha
             ))
        
-     append!(tokenizer_files(ALBERT_V1), ["$depname"])                    
+    append!(tokenizer_files(ALBERT_V1), ["$depname"])                    
 end
 
 vectors_albertversion2 = [
@@ -68,5 +68,5 @@ for (depname, description, sha, link) in vectors_albertversion2
         sha
              ))
        
-        append!(tokenizer_files(ALBERT_V2), ["$depname"])                    
+    append!(tokenizer_files(ALBERT_V2), ["$depname"])                    
 end
