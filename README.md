@@ -1,4 +1,5 @@
 # WordTokenizers
+[![ColPrac: Contributor's Guide on Collaborative Practices for Community Packages](https://img.shields.io/badge/ColPrac-Contributor's%20Guide-blueviolet)](https://github.com/SciML/ColPrac)
 [![GitHub release](https://img.shields.io/github/release/JuliaText/WordTokenizers.jl.svg)](https://github.com/JuliaText/WordTokenizers.jl/releases/)
 [![Build Status](https://travis-ci.org/JuliaText/WordTokenizers.jl.svg?branch=master)](https://travis-ci.org/JuliaText/WordTokenizers.jl)
 [![codecov](https://codecov.io/gh/JuliaText/WordTokenizers.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/JuliaText/WordTokenizers.jl)
