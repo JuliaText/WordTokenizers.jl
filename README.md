@@ -393,8 +393,11 @@ julia> sentence_from_tokens(para)
 ```
 
 ## Contributing
-Contributions, in the form of bug-reports, pull requests, additional documentation are encouraged.
+Contributions, in the form of bug-reports, pull-requests, additional documentation are encouraged.
 They can be made to the GitHub repository.
+
+We follow the [ColPrac guide for collaborative practices](https://github.com/SciML/ColPrac).
+New contributor should make sure to read that guide.
 
 **All contributions and communications should abide by the [Julia Community Standards](https://julialang.org/community/standards/).**
 
