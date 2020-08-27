@@ -35,13 +35,16 @@ include("split_api.jl")
 include("statistical/unigram.jl")
 
 const pretrained = Dict{DataType, Vector{String}}()
-function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer 
+function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer
     get!(pretrained,T) do
         String[]
     end
 end
 
+include("statistical/Vocab_DataDeps.jl")
+
 function __init__()
-    include(joinpath(@__DIR__, "statistical/Vocab_DataDeps.jl"))
+    init_vocab_datadeps()
 end
+
 end # module
