@@ -337,12 +337,12 @@ julia> tk = tokenizer(spm, "i love the julia language") #or tk = spm("i love the
  "▁julia"   
  "▁language"
 
- julia> subword = tokenizer(spm, "unfriendly")
- 2-element Array{String,1}:
+julia> subword = tokenizer(spm, "unfriendly")
+2-element Array{String,1}:
  "▁un"
  "friendly"
 
- julia> para = spm("Julia is a high-level, high-performance dynamic language for technical computing")
+julia> para = spm("Julia is a high-level, high-performance dynamic language for technical computing")
 17-element Array{String,1}:
  "▁"          
  "J"          
@@ -366,15 +366,15 @@ julia> tk = tokenizer(spm, "i love the julia language") #or tk = spm("i love the
 Indices is usually used for deep learning models.
 Index of special tokens in ALBERT are given below:
 
-1 => <pad> 
-2 => <unk> 
-3 => [CLS] 
-4 => [SEP] 
-5 => [MASK]  
+1 &#8658; [PAD]  
+2 &#8658; [UNK]  
+3 &#8658; [CLS]  
+4 &#8658; [SEP]  
+5 &#8658; [MASK]  
 
 
 ```julia
-julia> ids_from_tokens(spm , tk)
+julia> ids_from_tokens(spm, tk)
 4-element Array{Int64,1}:
    32
   340
@@ -383,13 +383,13 @@ julia> ids_from_tokens(spm , tk)
   817
 #we can also get sentences back from tokens
 julia> sentence_from_tokens(tk)
-"i love the julia language"
+ "i love the julia language"
 
 julia> sentence_from_token(subword)
-"unfriendly"
+ "unfriendly"
 
 julia> sentence_from_tokens(para)
-"Julia is a high-level, high-performance dynamic language for technical computing"
+ "Julia is a high-level, high-performance dynamic language for technical computing"
 ```
 
 ## Contributing
