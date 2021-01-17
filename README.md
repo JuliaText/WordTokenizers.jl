@@ -366,11 +366,11 @@ julia> para = spm("Julia is a high-level, high-performance dynamic language for 
 Indices is usually used for deep learning models.
 Index of special tokens in ALBERT are given below:
 
-1 &#8658; [PAD]  
-2 &#8658; [UNK]  
-3 &#8658; [CLS]  
-4 &#8658; [SEP]  
-5 &#8658; [MASK]  
+1 ⇒ [PAD]  
+2 ⇒ [UNK]  
+3 ⇒ [CLS]  
+4 ⇒ [SEP]  
+5 ⇒ [MASK]  
 
 
 ```julia
