@@ -44,7 +44,7 @@ Initializes the GPT2Tokenizer and loads the vocab and merges files from `DataDep
 #Example
 ```julia-repl
 julia> tokenizer = load(GPT2)
-GPT2Tokenizer(Dict{String,Any}("ilet" => 41550,"ĠVer" => 4643,"599" => 43452,"ĠRubin" => 34599,"Ġwrestler" => 34845,"Ġsharp" => 7786,"ĠObst" => 46378,"Ġlover" => 18854,"Core" => 14055,"Ġro" => 686…), Dict(("Ġne" => "ver") => 984,("ĠP" => "helps") => 40332,("Ġrapid" => "ly") => 8647,("s" => "af") => 49330,("Ġsn" => "ack") => 26651,("ra" => "ft") => 1362,("ĠCloud" => "s") => 46043,("Ġbrill" => "iant") => 10202,("Ġconsequ" => "ence") => 12666,("Ġplug" => "in") => 13622…), Dict{String,Tuple}(), r"'s|'t|'re|'ve|'m|'ll|'d| ?\p{L}+| ?\p{N}+| ?[^\s\p{L}\p{N}]+|\s+(?!\S)|\s+")
+
 ```
 """
 function load(ty::Type{T}) where T<:PretrainedTokenizer
@@ -208,4 +208,11 @@ function ids_from_tokens(tokens::Vector{String}, tokenizer::GPT2Tokenizer)
     map(tokens) do x
         last(get(tokenizer.vocab, x, 0))
     end
+end
+
+function sentence_from_tokens_gpt2(tk::Array{String,1})
+    sen = join(tk)
+    sen = replace(sen, "Ġ" => " ")
+    sen = strip(sen)
+    return sen
 end

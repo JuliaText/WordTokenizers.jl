@@ -8,6 +8,7 @@ files = ["simple",
          "tweet_tokenize",
          "reversible_tok",
          "toktok",
+         "gpt2_tokenizer",
          "sp_unigram"
         ]
 
