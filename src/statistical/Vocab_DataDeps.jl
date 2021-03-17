@@ -1,5 +1,6 @@
 abstract type ALBERT_V1 <: PretrainedTokenizer end
 abstract type ALBERT_V2 <: PretrainedTokenizer end
+abstract type GPT2 <: PretrainedTokenizer end
 
 const vectors_albertversion1 = [
     ("albert_base_v1_30k-clean.vocab",
@@ -40,6 +41,8 @@ const vectors_albertversion2 = [
     "https://raw.githubusercontent.com/tejasvaidhyadev/ALBERT.jl/master/src/Vocabs/albert_xxlarge_v2_30k-clean.vocab")
 ]
 
+const vectors_gpt2 = ["encoder.json", "vocab.bpe"]
+
 function init_vocab_datadeps()
     for (depname, description, sha, link) in vectors_albertversion1
         register(DataDep(depname,
@@ -70,5 +73,17 @@ function init_vocab_datadeps()
                  ))
         append!(tokenizer_files(ALBERT_V2), ["$depname"])
     end
-end
 
+    register(DataDep("GPT2",
+    """
+    Pretrained gpt2 vocabulary and merges file by Open AI.
+    Website: https://openai.com/blog/better-language-models/
+    Author: Radford et al
+    Licence: MIT
+    All GPT2 Models are trained on same size vocabulary.
+    """,
+    ["https://openaipublic.blob.core.windows.net/gpt-2/models/117M/$(file)" for file in vectors_gpt2],
+    "05805f21f823300551adf0646abe905eb036fb272f97c279f0d9c656c845ca46"))
+
+    append!(tokenizer_files(GPT2), ["GPT2/$(file)" for file in vectors_gpt2])
+end
