@@ -39,7 +39,7 @@ struct GPT2Tokenizer
 end
 
 """
-load(ty::Type{T}) where T<:PretrainedTokenizer
+load_gpt2(ty::Type{T}) where T<:PretrainedTokenizer
 Initializes the GPT2Tokenizer and loads the vocab and merges files from `DataDeps`
 #Example
 ```julia-repl
@@ -47,7 +47,7 @@ julia> tokenizer = load(GPT2)
 
 ```
 """
-function load(ty::Type{T}) where T<:PretrainedTokenizer
+function load_gpt2(::Type{T}) where T<:PretrainedTokenizer
     GPT2Tokenizer(T)
 end
 

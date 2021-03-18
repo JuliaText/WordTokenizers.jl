@@ -48,4 +48,11 @@ function __init__()
     init_vocab_datadeps()
 end
 
+load(::Val{:ALBERT_V1}) = load_sp(ALBERT_V1)
+load(::Val{:ALBERT_V2}) = load_sp(ALBERT_V2)
+load(::Val{:GPT2}) = load_gpt2(GPT2)
+
+load(::Type{T}) where T<:PretrainedTokenizer = load(Val(Symbol(T)))
+
+
 end # module
