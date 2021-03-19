@@ -120,7 +120,8 @@ function postproc_splits(sentences::AbstractString)
     sentences = replace(sentences, r"(\bMs\.)\n" => s"\1 ")
     sentences = replace(sentences, r"(\bMrs\.)\n" => s"\1 ")
 
-
+    # no sentence break in between two words with no punctuation
+    sentences=replace(sentences,r"([a-zA-Z0-9])\n([a-zA-Z0-9])"=>s"\1 \2")
 
 
     # possible TODO: filter excessively long / short sentences
