@@ -22,4 +22,21 @@ end
     tokens = tokenize("I love julia language", gpt2_tokenizer)
     @test ids_from_tokens(tokens, gpt2_tokenizer) == [40, 1842, 474, 43640, 3303]
     @test sentence_from_tokens_gpt2(tokens) == "I love julia language"
+
+    tokens= tokenize("A census taker once tried to test me. I ate his liver with some fava beans and a nice Chianti.", gpt2_tokenizer)
+    @test tokens  == ["A", "Ġcensus", "Ġt", "aker", "Ġonce",
+                     "Ġtried", "Ġto", "Ġtest", "Ġme", ".",
+                     "ĠI", "Ġate", "Ġhis", "Ġliver", "Ġwith",
+                     "Ġsome", "Ġfav", "a","Ġbeans", "Ġand",
+                     "Ġa", "Ġnice", "ĠCh", "iant", "i", "."]
+    @test ids_from_tokens(tokens, gpt2_tokenizer) == [32, 21649, 256, 3110, 1752, 3088, 284, 1332, 502, 13, 314, 15063,
+                                      465, 14383, 351, 617, 2090, 64, 16567, 290, 257, 3621, 609, 3014,
+                                      72, 13]
+
+   text = "Badges? We ain't got no badges:) We don't need no badges:p I don't have to show you any stinking badges!"
+   tokens = tokenize(text, gpt2_tokenizer)
+   @test tokens == ["Bad", "ges", "?", "ĠWe", "Ġain", "'t", "Ġgot", "Ġno", "Ġbadges", ":", ")", "ĠWe",
+                    "Ġdon", "'t", "Ġneed", "Ġno", "Ġbadges", ":", "p", "ĠI", "Ġdon", "'t", "Ġhave",
+                    "Ġto", "Ġshow", "Ġyou", "Ġany", "Ġst", "inking", "Ġbadges", "!"]
+   @test sentence_from_tokens_gpt2(tokens) == text
 end
