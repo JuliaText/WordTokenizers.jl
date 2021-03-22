@@ -16,12 +16,12 @@ end
 end
 @testset "Tokenizers and helper function" begin
     @test spm.vocab_map["now"][2] == 1388
-    @test tokenizer(spm, "I love julia language") == ["▁",        
-                                                      "I",        
-                                                      "▁love",    
-                                                      "▁julia",   
+    @test tokenize(spm, "I love julia language") == ["▁",
+                                                      "I",
+                                                      "▁love",
+                                                      "▁julia",
                                                       "▁language"]
-    tks = tokenizer(spm, "i love julia language")
+    tks = tokenize(spm, "i love julia language")
     @test ids_from_tokens(spm, tks) == [32, 340, 5424, 817]
-    @test sentence_from_tokens(tks) == "i love julia language"
+    @test sentence_from_tokens(spm, tks) == "i love julia language"
 end

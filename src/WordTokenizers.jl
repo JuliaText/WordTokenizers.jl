@@ -4,7 +4,7 @@ module WordTokenizers
 using HTML_Entities
 using StrTables
 using Unicode
-using DataDeps
+using DataDeps, JSON, InternedStrings
 
 abstract type PretrainedTokenizer end
 
@@ -17,7 +17,9 @@ export poormans_tokenize, punctuation_space_tokenize,
        set_tokenizer, set_sentence_splitter,
        rev_tokenize, rev_detokenize,
        toktok_tokenize
-export ALBERT_V1, ALBERT_V2, load, tokenizer, sentence_from_tokens, ids_from_tokens
+
+export ALBERT_V1, ALBERT_V2, GPT2
+export load, tokenize, sentence_from_tokens, ids_from_tokens
 export PretrainedTokenizer, tokenizer_files
 include("words/fast.jl")
 
@@ -33,6 +35,7 @@ include("set_method_api.jl")
 include("split_api.jl")
 
 include("statistical/unigram.jl")
+include("statistical/gpt2tokenizer.jl")
 
 const pretrained = Dict{DataType, Vector{String}}()
 function tokenizer_files(::Type{T}) where T<:PretrainedTokenizer
@@ -46,5 +49,12 @@ include("statistical/Vocab_DataDeps.jl")
 function __init__()
     init_vocab_datadeps()
 end
+
+load(::Val{:ALBERT_V1}) = load_sp(ALBERT_V1)
+load(::Val{:ALBERT_V2}) = load_sp(ALBERT_V2)
+load(::Val{:GPT2}) = load_gpt2(GPT2)
+
+load(::Type{T}) where T<:PretrainedTokenizer = load(Val(Symbol(T)))
+
 
 end # module
