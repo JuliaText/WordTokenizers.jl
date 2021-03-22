@@ -19,7 +19,7 @@ export poormans_tokenize, punctuation_space_tokenize,
        toktok_tokenize
 
 export ALBERT_V1, ALBERT_V2, GPT2
-export load, tokenizer, sentence_from_tokens, ids_from_tokens, tokenize, sentence_from_tokens_gpt2
+export load, tokenize, sentence_from_tokens, ids_from_tokens
 export PretrainedTokenizer, tokenizer_files
 include("words/fast.jl")
 

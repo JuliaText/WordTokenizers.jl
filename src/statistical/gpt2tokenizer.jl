@@ -148,7 +148,7 @@ function bpe(token::String, tokenizer::GPT2Tokenizer)
 end
 
 """
-tokenize(text::String, tokenizer::GPT2Tokenizer)
+tokenize(tokenizer::GPT2Tokenizer, text::String)
 Implements tokenization of input text. This tokenizer doesn't include unknown and special tokens because
 of its byte-level BPE tokenization. GPT2 model is only trained on end token `<|endoftext|>`. Has to be
 manually added after the tokenization.
@@ -156,7 +156,7 @@ GPT2 Tokenizer treats whitespace as unicode character `\u0120 (Ġ)` before a wor
 
 # Example
 ```julia-repl
-julia> tokens = tokenize("Hi! How you doin", tokenizer)
+julia> tokens = tokenize(tokenizer, "Hi! How you doin")
 6-element Array{String,1}:
  "Hi"
  "!"
@@ -166,7 +166,7 @@ julia> tokens = tokenize("Hi! How you doin", tokenizer)
  "in"
 ```
 """
-function tokenize(text::String, tokenizer::GPT2Tokenizer)
+function tokenize(tokenizer::GPT2Tokenizer, text::String)
     mapping = bytes_to_unicode()
     tokens=Vector{String}()
     matches = map(eachmatch(tokenizer.pat, text)) do m
@@ -180,7 +180,7 @@ function tokenize(text::String, tokenizer::GPT2Tokenizer)
 end
 
 """
-ids_from_tokens(tokens::Vector{String}, tokenizer::GPT2Tokenizer)
+ids_from_tokens(tokenizer::GPT2Tokenizer, tokens::Vector{String})
 Returns respective ids of tokens from pretrained vocabulary map
 
 # Example
@@ -194,7 +194,7 @@ julia> tokens = tokenize("Hi! How you doin", tokenizer)
  "Ġdo"
  "in"
 
-julia> ids_from_tokens(tokens, tokenizer)
+julia> ids_from_tokens(tokenizer, tokens)
 6-element Array{Int64,1}:
  17250
      0
@@ -204,14 +204,14 @@ julia> ids_from_tokens(tokens, tokenizer)
    259
 ```
 """
-function ids_from_tokens(tokens::Vector{String}, tokenizer::GPT2Tokenizer)
+function ids_from_tokens(tokenizer::GPT2Tokenizer, tokens::Vector{String})
     map(tokens) do x
         last(get(tokenizer.vocab, x, 0))
     end
 end
 
-function sentence_from_tokens_gpt2(tk::Array{String,1})
-    sen = join(tk)
+function sentence_from_tokens(tokenizer::GPT2Tokenizer, tokens::Array{String,1})
+    sen = join(tokens)
     sen = replace(sen, "Ġ" => " ")
     sen = strip(sen)
     return sen

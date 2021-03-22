@@ -152,11 +152,11 @@ function decode_backward(sp::SentencePieceModel, nodes::Array{Nodes,1}, text::Ab
 end
 
 """
-    tokenizer(sp::SentencePieceModel,text::AbstractString)
+    tokenize(sp::SentencePieceModel,text::AbstractString)
 It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`
 ouput tokenize tokens as Array{String,1}
 """
-function tokenizer(sp::SentencePieceModel, text::AbstractString)
+function tokenize(sp::SentencePieceModel, text::AbstractString)
     text = replace(text, " " => "▁")
     if text[1] != '▁'
         text = "▁" * text
@@ -174,7 +174,7 @@ end
 It does all the preprocessing step needed and perform `decode_forward` and `decode_backward`.
 """
 function (sp::SentencePieceModel)(text::AbstractString)
-    tokenizer(sp, text)
+    tokenize(sp, text)
 end
 
 """
@@ -188,10 +188,10 @@ function ids_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
 end
 
 """
-    sentence_from_tokens(tk::Array{String,1})
+    sentence_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
 given tokens it provide its sentences
 """
-function sentence_from_tokens(tk::Array{String,1})
+function sentence_from_tokens(spm::SentencePieceModel, tk::Array{String,1})
     sen = join(tk)
     sen = replace(sen, "▁" => " ")
     sen = strip(sen)

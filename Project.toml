@@ -14,7 +14,7 @@ Unicode = "4ec0a83e-493e-50e2-b9ac-8f72acf5a8f5"
 DataDeps = "0.6.5, 0.7"
 HTML_Entities = "1"
 StrTables = "1"
-julia = "1"
+julia = "1, 1.1"
 JSON = "0.21.1"
 InternedStrings = "0.7.0"
 
