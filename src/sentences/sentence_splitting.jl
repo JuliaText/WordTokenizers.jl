@@ -1,7 +1,7 @@
-function rulebased_split_sentences(sentences)
+function rulebased_split_sentences(sentences;collapse_newlines::Bool=false)
     sentences = replace(sentences, r"([?!.])\s" => Base.SubstitutionString("\\1\n"))
 
-    sentences = postproc_splits(sentences)
+    sentences = postproc_splits(sentences,collapse_newlines)
     split(sentences, "\n")
 end
 
@@ -34,7 +34,7 @@ Which draws in part on heuristics included in Yoshimasa Tsuruoka's
 medss.pl script.
 
 """
-function postproc_splits(sentences::AbstractString)
+function postproc_splits(sentences::AbstractString,collapse_newlines)
     # Before we do anything remove windows line-ends
     sentences = replace(sentences, "\r" => "")
 
@@ -120,7 +120,10 @@ function postproc_splits(sentences::AbstractString)
     sentences = replace(sentences, r"(\bMs\.)\n" => s"\1 ")
     sentences = replace(sentences, r"(\bMrs\.)\n" => s"\1 ")
 
-
+    # no sentence break in between two words with no punctuation
+    if collapse_newlines==true
+        sentences=replace(sentences,r"([a-zA-Z0-9])\n([a-zA-Z0-9])"=>s"\1 \2")
+    end
 
 
     # possible TODO: filter excessively long / short sentences
