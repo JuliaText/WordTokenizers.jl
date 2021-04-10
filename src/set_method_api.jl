@@ -22,7 +22,7 @@ Calling this will trigger recompilation of any functions that use `split_sentenc
 Calling `set_sentence_splitter`  will give method overwritten warnings. They are expected, be worried if they do not occur
 """
 function set_sentence_splitter(fun)
-    @eval split_sentences(str::AbstractString) = $(fun)(str)
+    @eval split_sentences(str::AbstractString;collapse_newlines::Bool=false) = $(fun)(str;collapse_newlines)
 end
 
 

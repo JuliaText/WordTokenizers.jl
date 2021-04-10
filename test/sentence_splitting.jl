@@ -87,3 +87,16 @@ end
         And sometimes sentences can start with non-capitalized words.
         i is a good variable name.""")
 end
+
+@testset "collapse_newlines" begin
+    @test length(rulebased_split_sentences("""
+        In this article, we present a language-independent, unsupervised approach to sentence boundary
+        detection. It is based on the assumption that a large number of ambiguities in the determination
+        of sentence boundaries can be eliminated once abbreviations have been identified. Instead of
+        relying on orthographic clues, the proposed system is able to detect abbreviations with high
+        accuracy using three criteria that only require information about the candidate type itself and
+        are independent of context: Abbreviations can be defined as a very tight collocation consisting
+        of a truncated word and a final period, abbreviations are usually short, and abbreviations
+        sometimes contain internal periods.""",collapse_newlines=true))==3
+end
+
