@@ -1,6 +1,15 @@
 using WordTokenizers
 using Test
 
+@testset "Pretrained without DataDeps" begin
+    @test isnothing(Base.get_extension(WordTokenizers, :WordTokenizersDataDepsExt))
+    @test_throws ErrorException load(ALBERT_V1)
+    @test length(tokenizer_files(ALBERT_V1)) == 4
+    @test length(tokenizer_files(ALBERT_V2)) == 4
+end
+
+using DataDeps
+
 spm = load(ALBERT_V1)
 @testset "Pretrained" begin
     @test typeof(spm) == WordTokenizers.SentencePieceModel
