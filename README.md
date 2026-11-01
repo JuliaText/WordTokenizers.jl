@@ -315,7 +315,7 @@ julia> subtypes(PretrainedTokenizer)
  ALBERT_V1
  ALBERT_V2
 
-julia> tokenizerfiles(ALBERT_V1)
+julia> tokenizer_files(ALBERT_V1)
 4-element Array{String,1}:
  "albert_base_v1_30k-clean.vocab"   
  "albert_large_v1_30k-clean.vocab"  
@@ -323,10 +323,15 @@ julia> tokenizerfiles(ALBERT_V1)
  "albert_xxlarge_v1_30k-clean.vocab"
 ```
 
-`DataDeps` will handle all the downloading part for us.  You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function
+`DataDeps` will handle all the downloading part for us. Since version 0.6 `DataDeps` is an optional dependency:
+run `using DataDeps` (install it with `] add DataDeps` if needed) before loading a pretrained vocabulary.
+You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function,
+which does not require `DataDeps`.
 
 ```julia
-julia> spm = load(Albert_Version1) #loading Default Albert-base vocab in Sentencepiece
+julia> using WordTokenizers, DataDeps
+
+julia> spm = load(ALBERT_V1) #loading Default Albert-base vocab in Sentencepiece
 WordTokenizers.SentencePieceModel(Dict("▁shots"=>(-11.2373, 7281),"▁ordered"=>(-9.84973, 1906),"dev"=>(-12.0915, 14439),"▁silv"=>(-12.6564, 21065),"▁doubtful"=>(-12.7799, 22569),"▁without"=>(-8.34227, 367),"▁pol"=>(-10.7694, 4828),"chem"=>(-12.3713, 17661),"▁1947,"=>(-11.7544, 11199),"▁disrespect"=>(-13.13, 26682)…), 2)
 
 julia> tk = tokenizer(spm, "i love the julia language") #or tk = spm("i love the julia language")
@@ -391,6 +396,17 @@ julia> sentence_from_token(subword)
 julia> sentence_from_tokens(para)
  "Julia is a high-level, high-performance dynamic language for technical computing"
 ```
+
+## Static compilation (JuliaC `--trim`)
+
+The rule-based tokenizers, sentence splitters, `rev_tokenize`/`rev_detokenize`,
+the default `tokenize`/`split_sentences`, and `load(path)` + `tokenizer` for SentencePiece models
+can be compiled into small standalone executables with [JuliaC](https://github.com/JuliaLang/JuliaC.jl)
+using `--trim=safe` (Julia 1.12 and newer). Not supported in trimmed binaries:
+
+- `load(ALBERT_V1)` and other pretrained downloads (they need `DataDeps`, which is not trimmable);
+  ship the vocabulary file with the application and use `load(path)` instead.
+- `set_tokenizer` / `set_sentence_splitter` at run time (they use `eval`).
 
 ## Contributing
 Contributions, in the form of bug-reports, pull-requests, additional documentation are encouraged.

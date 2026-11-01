@@ -1,10 +1,7 @@
 
 module WordTokenizers
 
-using HTML_Entities
-using StrTables
 using Unicode
-using DataDeps
 
 abstract type PretrainedTokenizer end
 
@@ -20,6 +17,7 @@ export poormans_tokenize, punctuation_space_tokenize,
 export ALBERT_V1, ALBERT_V2, load, tokenizer, sentence_from_tokens, ids_from_tokens
 export PretrainedTokenizer, tokenizer_files
 include("words/fast.jl")
+include("words/html_entities.jl")
 
 include("words/simple.jl")
 include("words/nltk_word.jl")
@@ -44,7 +42,7 @@ end
 include("statistical/Vocab_DataDeps.jl")
 
 function __init__()
-    init_vocab_datadeps()
+    init_vocab_files()
 end
 
 end # module

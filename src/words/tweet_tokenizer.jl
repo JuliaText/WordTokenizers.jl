@@ -24,9 +24,9 @@ function html_entity(ts::TokenBuffer, remove_illegal=true)
             i += 1
         end
         (i > length(ts.input) || ts[i] != ';') && return false
-        entity = lookupname(HTML_Entities.default, String(ts[ts.idx+1:i-1]))
+        entity = get(HTML_ENTITIES, String(ts[ts.idx+1:i-1]), "")
         isempty(entity) && !remove_illegal && return false
-        !isempty(entity) && push!(ts.buffer, entity[1])
+        append!(ts.buffer, entity)
         ts.idx = i + 1
         return true
     else
@@ -185,7 +185,7 @@ function replace_html_entities(input::AbstractString; remove_illegal=true)
     while !isdone(ts)
         html_entity(ts, remove_illegal) || character(ts)
     end
-    return ts.tokens[1]
+    return isempty(ts.tokens) ? "" : ts.tokens[1]
 end
 
 
@@ -209,7 +209,7 @@ function pre_process(input::AbstractString, strip_handle::Bool, reduce_len::Bool
         character(ts)
     end
 
-    return ts.tokens[1]
+    return isempty(ts.tokens) ? "" : ts.tokens[1]
 end
 
 function flushaboutindex!(ts::TokenBuffer, uptoidx)
@@ -486,6 +486,40 @@ end
 const allowed_chars_phone_numbers = (' ', '*', '-', '.', ')')
 
 """
+    phonenumber_end_index(ts::TokenBuffer, i::Int)
+
+Matches the `ddd[sep]*ddd([sep]*dddd)?` part of a phone number (`d` is a digit) starting at
+index `i`. Returns the index of its last character, or `-1` if there is no match.
+"""
+function phonenumber_end_index(ts::TokenBuffer, i::Int)
+    i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                    isdigit(ts[i + 2]) || return -1
+
+    i += 3
+
+    while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
+        i += 1
+    end
+
+    i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                                    isdigit(ts[i + 2]) || return -1
+
+    i += 3
+    j = i
+
+    while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
+        i += 1
+    end
+
+    i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
+                    isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return i + 3
+
+    isdigit(ts[j]) && return j
+
+    return -1
+end
+
+"""
     nltk_casual_phonenumbers(ts)
 
 The TokenBuffer function for nltk's tweet tokenizer regex for phonenumbers.
@@ -577,69 +611,8 @@ function nltk_phonenumbers(ts)
             return false
         end
     else
-        function index_including_part_1(ts, i)
-            index_including_1 = 0
-            j = i
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]) || return -1
-
-            i += 3
-
-            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
-                i += 1
-            end
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                                            isdigit(ts[i + 2]) || return -1
-
-            i += 3
-            j = i
-
-            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
-                i += 1
-            end
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                            isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return i + 3
-
-            isdigit(ts[j]) && return j
-
-            return -1
-        end
-
-        function index_excluding_part_1(ts)
-            i = ts.idx
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                isdigit(ts[i + 2]) || return -1
-
-            i += 3
-
-            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
-                i += 1
-            end
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                isdigit(ts[i + 2]) || return -1
-
-            i += 3
-            j = i
-
-            while i <= length(ts.input) && ts[i] ∈ allowed_chars_phone_numbers
-                i += 1
-            end
-
-            i + 3 <= length(ts.input) && isdigit(ts[i]) && isdigit(ts[i + 1]) &&
-                        isdigit(ts[i + 2]) && isdigit(ts[i + 3]) && return i + 3
-
-            isdigit(ts[j]) && return j
-
-            return -1
-        end
-
-        index_including_1 = index_including_part_1(ts, i)
-        index_excluding_1 = index_excluding_part_1(ts)
+        index_including_1 = phonenumber_end_index(ts, i)
+        index_excluding_1 = phonenumber_end_index(ts, ts.idx)
         # Flushing out the bigger of the two.
         index_including_1 <= 0 && index_excluding_1 <= 0 && return false
         index_excluding_1 > index_including_1 && return flushaboutindex!(ts, index_excluding_1)
@@ -903,10 +876,10 @@ function tweet_tokenize(source::AbstractString; strip_handle=false,
     urls(ts) = nltk_url1(ts) || nltk_url2(ts)
 
     # Fix HTML Character entities
-    length(source) == 0 && return []
+    length(source) == 0 && return String[]
     source = replace_html_entities(source)
 
-    length(source) == 0 && return []
+    length(source) == 0 && return String[]
     safe_text = pre_process(source, strip_handle, reduce_len)
 
     # The key tokenizing function begins
@@ -926,7 +899,7 @@ function tweet_tokenize(source::AbstractString; strip_handle=false,
         twitterusername(ts) ||
         emailaddresses(ts) || # emailaddresses must be called before words
         phonenumbers(ts) || # Phone numbers must be called before numbers.
-        atoms(ts, []) ||
+        atoms(ts, ()) ||
         words_including_apostrophe_dashes(ts) ||
         number(ts, check_sign = true) ||
         character(ts)
