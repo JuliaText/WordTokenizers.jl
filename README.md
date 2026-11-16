@@ -323,7 +323,7 @@ julia> tokenizer_files(ALBERT_V1)
  "albert_xxlarge_v1_30k-clean.vocab"
 ```
 
-`DataDeps` will handle all the downloading part for us. Since version 0.6 `DataDeps` is an optional dependency:
+`DataDeps` will handle all the downloading part for us. Since version 1.0 `DataDeps` is an optional dependency:
 run `using DataDeps` (install it with `] add DataDeps` if needed) before loading a pretrained vocabulary.
 You can also create an issue or PR for other pretrained models or directly load by providing path in `load` function,
 which does not require `DataDeps`.
