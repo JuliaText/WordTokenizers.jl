@@ -47,7 +47,7 @@ mutable struct TokenBuffer
     idx::Int
 end
 
-TokenBuffer(input) = TokenBuffer(input, [], [], 1)
+TokenBuffer(input) = TokenBuffer(input, Char[], String[], 1)
 
 TokenBuffer(input::AbstractString) = TokenBuffer(collect(input))
 
@@ -72,7 +72,9 @@ function flush!(ts::TokenBuffer, s...)
         push!(ts.tokens, String(ts.buffer))
         empty!(ts.buffer)
     end
-    push!(ts.tokens, s...)
+    for t in s
+        push!(ts.tokens, t)
+    end
     return
 end
 

@@ -11,16 +11,31 @@ struct SentencePieceModel
 end
 
 """
+    datadep_path(name::String)
+
+Returns the local directory of the pretrained vocabulary `name`, downloading it
+if necessary. Methods are provided by the DataDeps extension (`using DataDeps`).
+"""
+function datadep_path end
+
+"""
     load(ty::Type{T}, filenum::Int=1; unk_token="<unk>") where T<:PretrainedTokenizer
-use to initialize the `SentencePieceModel` by loading the file from `DataDeps`
+use to initialize the `SentencePieceModel` by loading the file from `DataDeps`.
+Requires `using DataDeps` to be loaded, which enables the download of pretrained files.
 # Example
 ```julia-repl
+julia> using WordTokenizers, DataDeps
+
 julia> spm = load(ALBERT_V1)
 ```
 """
 function load(ty::Type{T}, filenum::Int=1; unk_token="<unk>") where T<:PretrainedTokenizer
-    filepath = @datadep_str tokenizer_files(ty)[filenum]
+    if isnothing(Base.get_extension(@__MODULE__, :WordTokenizersDataDepsExt))
+        error("Loading pretrained tokenizers requires DataDeps.jl: run `using DataDeps` first, " *
+              "or call `load(path)` with a local vocabulary file.")
+    end
     name = tokenizer_files(ty)[filenum]
+    filepath = datadep_path(name)
     filepath = "$filepath/$name"
     load(filepath, unk_token=unk_token)  
 end
@@ -30,7 +45,8 @@ end
 use to initialize the SentencePieceModel by providing `vocab filepath`
 """    
 function load(path; unk_token="<unk>")
-    vocab_path = readlines(path)
+    # `readlines` is avoided as its line iterator is not supported by `juliac --trim`
+    vocab_path = filter!(!isempty, chopsuffix.(split(read(path, String), '\n'), "\r"))
     vocabnlogp = split.(vocab_path, "\t")
     vocab_map = Dict(tok=>(parse(Float64, logp), index) for (index, (tok, logp)) in enumerate(vocabnlogp))
     if haskey(vocab_map, unk_token)

@@ -73,6 +73,20 @@ using WordTokenizers
 
         @test tweet_tokenize("Check out this symbol in Windows-1252 encoding &#x80;") ==
         [ "Check", "out", "this", "symbol", "in", "Windows", "-", "1252", "encoding", "€"]
+
+        @test WordTokenizers.replace_html_entities("x &NotEqualTilde; y") == "x ≂̸ y"
+        @test WordTokenizers.replace_html_entities("&unknownentity;") == ""
+        @test WordTokenizers.replace_html_entities("&unknownentity;", remove_illegal=false) ==
+            "&unknownentity;"
+    end
+
+    @testset "Return types" begin
+        @test tweet_tokenize("") isa Vector{String}
+        @test tweet_tokenize("&bogus;") == String[]
+        @test tweet_tokenize("@someone", strip_handle=true) == String[]
+        @test tweet_tokenize("hello world") isa Vector{String}
+        @test tweet_tokenize("call +1 (555) 123-4567 now") ==
+            ["call", "+1 (555) 123-4567", "now"]
     end
 
     @testset "Token Buffer functions" begin

@@ -40,35 +40,18 @@ const vectors_albertversion2 = [
     "https://raw.githubusercontent.com/tejasvaidhyadev/ALBERT.jl/master/src/Vocabs/albert_xxlarge_v2_30k-clean.vocab")
 ]
 
-function init_vocab_datadeps()
-    for (depname, description, sha, link) in vectors_albertversion1
-        register(DataDep(depname,
-            """
-            sentencepiece albert vocabulary file by google research .
-            Website: https://github.com/google-research/albert
-            Author: Google Research
-            Licence: Apache License 2.0
-            $description
-            """,
-            link,
-            sha
-                ))
-        append!(tokenizer_files(ALBERT_V1), ["$depname"])
-    end
+"""
+    init_vocab_files()
 
-    for (depname, description, sha, link) in vectors_albertversion2
-        register(DataDep(depname,
-            """
-            sentencepiece albert vocabulary file by google research .
-            Website: https://github.com/google-research/albert
-            Author: Google Research
-            Licence: Apache License 2.0
-            $description
-            """,
-            link,
-            sha
-                 ))
-        append!(tokenizer_files(ALBERT_V2), ["$depname"])
+Records the names of the pretrained vocabulary files in [`tokenizer_files`](@ref).
+The files themselves are registered and downloaded by the DataDeps extension,
+which is loaded with `using DataDeps`.
+"""
+function init_vocab_files()
+    for (depname, _, _, _) in vectors_albertversion1
+        push!(tokenizer_files(ALBERT_V1), depname)
+    end
+    for (depname, _, _, _) in vectors_albertversion2
+        push!(tokenizer_files(ALBERT_V2), depname)
     end
 end
-
