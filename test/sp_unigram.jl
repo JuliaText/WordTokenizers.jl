@@ -2,10 +2,15 @@ using WordTokenizers
 using Test
 
 @testset "Pretrained without DataDeps" begin
-    @test isnothing(Base.get_extension(WordTokenizers, :WordTokenizersDataDepsExt))
-    @test_throws ErrorException load(ALBERT_V1)
-    @test length(tokenizer_files(ALBERT_V1)) == 4
-    @test length(tokenizer_files(ALBERT_V2)) == 4
+    script = """
+        using WordTokenizers
+        using Test
+        @test isnothing(Base.get_extension(WordTokenizers, :WordTokenizersDataDepsExt))
+        @test_throws ErrorException load(ALBERT_V1)
+        @test length(tokenizer_files(ALBERT_V1)) == 4
+        @test length(tokenizer_files(ALBERT_V2)) == 4
+        """
+    @test success(pipeline(`$(Base.julia_cmd()) --startup-file=no --project=$(Base.active_project()) -e $script`; stderr=stderr))
 end
 
 using DataDeps
